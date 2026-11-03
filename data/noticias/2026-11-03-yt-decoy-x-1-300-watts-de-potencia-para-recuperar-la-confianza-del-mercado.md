@@ -2,7 +2,7 @@
 title: "YT Decoy X: 1.300 watts de potencia para recuperar la confianza del mercado"
 date: 2026-11-03T18:41:00.000-03:00
 category: Enduro
-image: https://ep1.pinkbike.org/p2pb30435456/p2pb30435456.jpg
+image: https://ep1.pinkbike.org/p5pb30435456/p5pb30435456.jpg
 ---
 **La marca alemana vuelve a apostar fuerte por las bicicletas eléctricas con una nueva Decoy de aluminio, motor Avinox M2S y un precio de entrada que busca sacudir el segmento e-MTB.**
 
