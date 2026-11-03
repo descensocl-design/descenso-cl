@@ -2,6 +2,7 @@
 import json
 import re
 import html
+import math
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -16,53 +17,70 @@ FUENTES = {
     "Vital MTB": "https://feeds.vitalmtb.com/VitalMtbSpotlights"
 }
 
-MAX_NOTICIAS_POR_FUENTE = 50
-ANTIGUEDAD_MAXIMA_HORAS = 72
+MAX_POR_FUENTE = 50
+MAX_HORAS = 72
+MAX_CANDIDATAS = 5
+HISTORIAL = Path("data/noticias_procesadas.json")
 
-ARCHIVO_HISTORIAL = Path(
-    "data/noticias_procesadas.json"
-)
+DISCIPLINAS = {
+    "Downhill": [
+        "downhill", "dh", "world cup", "gravity",
+        "urban downhill", "descenso"
+    ],
+    "Enduro": [
+        "enduro", "ews", "edr", "trail"
+    ],
+    "XC": [
+        "cross country", "cross-country", "xco",
+        "xc", "xc marathon"
+    ],
+    "Freeride": [
+        "freeride", "red bull rampage", "slopestyle",
+        "dirt jump", "big mountain"
+    ]
+}
+
+LATAM = [
+    "chile", "chilean", "colombia", "colombian",
+    "argentina", "argentinian", "brazil",
+    "brazilian", "brasil", "peru", "peruvian",
+    "mexico", "mexican", "ecuador", "ecuadorian",
+    "bolivia", "uruguay", "paraguay",
+    "latin america", "latinoamerica",
+    "valparaiso", "villarrica", "temuco",
+    "martin vidaurre", "felipe agurto",
+    "valentina roa", "sebastian holguin",
+    "juan fernando velez", "roger vieira",
+    "hans pulgar"
+]
 
 
-def limpiar_texto(texto):
+def limpiar(texto):
     texto = re.sub(r"<[^>]+>", " ", texto)
-    texto = html.unescape(texto)
-    return " ".join(texto.split())
+    return " ".join(html.unescape(texto).split())
 
 
-def extraer_comentarios(descripcion):
-    coincidencia = re.search(
+def comentarios_de(texto):
+    match = re.search(
         r"Comments:\s*([\d,]+)",
-        descripcion,
+        texto,
         re.IGNORECASE
     )
-
-    if coincidencia:
-        return int(
-            coincidencia.group(1).replace(",", "")
-        )
-
-    return None
+    return int(match.group(1).replace(",", "")) if match else None
 
 
-def convertir_fecha(fecha):
+def fecha_de(texto):
     try:
-        resultado = parsedate_to_datetime(fecha)
-
-        if resultado.tzinfo is None:
-            resultado = resultado.replace(
-                tzinfo=timezone.utc
-            )
-
-        return resultado.astimezone(timezone.utc)
-
+        fecha = parsedate_to_datetime(texto)
+        if fecha.tzinfo is None:
+            fecha = fecha.replace(tzinfo=timezone.utc)
+        return fecha.astimezone(timezone.utc)
     except (TypeError, ValueError, IndexError):
         return None
 
 
-def normalizar_url(url):
+def url_limpia(url):
     partes = urlsplit(url)
-
     return urlunsplit((
         partes.scheme.lower(),
         partes.netloc.lower(),
@@ -73,163 +91,215 @@ def normalizar_url(url):
 
 
 def cargar_historial():
-    if not ARCHIVO_HISTORIAL.exists():
+    if not HISTORIAL.exists():
         return set()
 
     try:
-        with ARCHIVO_HISTORIAL.open(
-            "r", encoding="utf-8"
-        ) as archivo:
-            datos = json.load(archivo)
-
+        datos = json.loads(
+            HISTORIAL.read_text(encoding="utf-8")
+        )
         return {
-            normalizar_url(url)
+            url_limpia(url)
             for url in datos.get("procesadas", [])
             if isinstance(url, str)
         }
-
     except (OSError, ValueError, TypeError):
-        print("Aviso: no se pudo leer el historial.")
+        print("Aviso: historial no disponible.")
         return set()
+
+
+def clasificar(texto):
+    texto = texto.lower()
+    resultados = {}
+
+    for disciplina, palabras in DISCIPLINAS.items():
+        resultados[disciplina] = sum(
+            1 for palabra in palabras
+            if re.search(
+                r"(?<!\w)" + re.escape(palabra) + r"(?!\w)",
+                texto
+            )
+        )
+
+    mejor = max(resultados, key=resultados.get)
+
+    return mejor if resultados[mejor] > 0 else "General"
+
+
+def relevancia_latam(texto):
+    texto = texto.lower()
+
+    coincidencias = sum(
+        1 for palabra in LATAM
+        if re.search(
+            r"(?<!\w)" + re.escape(palabra) + r"(?!\w)",
+            texto
+        )
+    )
+
+    return min(100, coincidencias * 50)
 
 
 def buscar_noticias():
     noticias = []
-    enlaces_vistos = set()
-    historial = cargar_historial()
+    vistas = set()
+    procesadas = cargar_historial()
 
     ahora = datetime.now(timezone.utc)
-    fecha_limite = ahora - timedelta(
-        hours=ANTIGUEDAD_MAXIMA_HORAS
-    )
+    limite = ahora - timedelta(hours=MAX_HORAS)
 
-    print(
-        f"Noticias ya procesadas: {len(historial)}",
-        flush=True
-    )
+    print(f"Noticias ya procesadas: {len(procesadas)}")
 
-    for nombre, url in FUENTES.items():
-        print(f"Revisando {nombre}...", flush=True)
+    for fuente, feed in FUENTES.items():
+        print(f"Revisando {fuente}...", flush=True)
 
         try:
             solicitud = urllib.request.Request(
-                url,
+                feed,
                 headers={
                     "User-Agent": "Descenso.cl News Reader/1.0"
                 }
             )
 
             with urllib.request.urlopen(
-                solicitud,
-                timeout=20
+                solicitud, timeout=20
             ) as respuesta:
                 contenido = respuesta.read()
 
             raiz = ET.fromstring(contenido)
 
-            for item in raiz.findall(
-                ".//item"
-            )[:MAX_NOTICIAS_POR_FUENTE]:
-
-                titulo = item.findtext(
-                    "title", ""
-                ).strip()
-
-                enlace = item.findtext(
-                    "link", ""
-                ).strip()
-
-                fecha_original = item.findtext(
-                    "pubDate", ""
-                ).strip()
-
-                descripcion = item.findtext(
+            for item in raiz.findall(".//item")[:MAX_POR_FUENTE]:
+                titulo = limpiar(item.findtext("title", ""))
+                enlace = item.findtext("link", "").strip()
+                fecha = fecha_de(item.findtext("pubDate", ""))
+                descripcion_original = item.findtext(
                     "description", ""
-                ).strip()
-
-                fecha = convertir_fecha(fecha_original)
-
-                if fecha is None:
-                    continue
-
-                if fecha < fecha_limite or fecha > ahora:
-                    continue
-
-                if not titulo or not enlace:
-                    continue
-
-                enlace_normalizado = normalizar_url(
-                    enlace
                 )
 
-                if enlace_normalizado in enlaces_vistos:
+                if not titulo or not enlace or fecha is None:
                     continue
 
-                enlaces_vistos.add(enlace_normalizado)
-
-                if enlace_normalizado in historial:
+                if not limite <= fecha <= ahora:
                     continue
+
+                enlace = url_limpia(enlace)
+
+                if enlace in vistas or enlace in procesadas:
+                    continue
+
+                vistas.add(enlace)
+
+                descripcion = limpiar(descripcion_original)
+                texto = f"{titulo} {descripcion}"
 
                 noticias.append({
-                    "fuente": nombre,
-                    "titulo": limpiar_texto(titulo),
-                    "url": enlace_normalizado,
+                    "fuente": fuente,
+                    "titulo": titulo,
+                    "url": enlace,
                     "fecha": fecha.isoformat(),
-                    "descripcion": limpiar_texto(
-                        descripcion
-                    )[:500],
-                    "comentarios": extraer_comentarios(
-                        descripcion
+                    "descripcion": descripcion[:500],
+                    "comentarios": comentarios_de(
+                        descripcion_original
                     ),
-                    "antiguedad_horas": round(
-                        (ahora - fecha).total_seconds()
-                        / 3600,
+                    "horas": round(
+                        (ahora - fecha).total_seconds() / 3600,
                         1
-                    )
+                    ),
+                    "disciplina": clasificar(texto),
+                    "latam": relevancia_latam(texto)
                 })
 
         except Exception as error:
-            print(
-                f"No se pudo leer {nombre}: {error}",
-                flush=True
-            )
+            print(f"No se pudo leer {fuente}: {error}")
 
     return noticias
 
 
-def ordenar_noticias(noticias):
+def puntuar(noticias):
+    max_comentarios = max(
+        (n["comentarios"] or 0 for n in noticias),
+        default=0
+    )
+
+    for noticia in noticias:
+        comentarios = noticia["comentarios"]
+
+        # Popularidad: 40 puntos
+        if comentarios is None or max_comentarios == 0:
+            popularidad = 0
+        else:
+            popularidad = (
+                math.log1p(comentarios) /
+                math.log1p(max_comentarios)
+            ) * 40
+
+        # Latinoamerica: 30 puntos
+        latam = noticia["latam"] * 0.30
+
+        # Actualidad: 20 puntos
+        actualidad = max(
+            0, (1 - noticia["horas"] / MAX_HORAS) * 20
+        )
+
+        # Disciplina: hasta 10 puntos
+        # Es una aproximacion provisional.
+        disciplina = (
+            10 if noticia["disciplina"] != "General" else 0
+        )
+
+        noticia["puntos"] = round(
+            popularidad + latam + actualidad + disciplina,
+            1
+        )
+
     return sorted(
         noticias,
-        key=lambda noticia: (
-            noticia["comentarios"] is not None,
-            noticia["comentarios"] or 0
-        ),
+        key=lambda n: n["puntos"],
         reverse=True
     )
 
 
+def seleccionar_candidatas(ranking):
+    seleccionadas = []
+    usadas = set()
+
+    # Primera pasada: favorecer disciplinas distintas
+    for noticia in ranking:
+        if len(seleccionadas) >= MAX_CANDIDATAS:
+            break
+
+        disciplina = noticia["disciplina"]
+
+        if disciplina != "General" and disciplina not in usadas:
+            seleccionadas.append(noticia)
+            usadas.add(disciplina)
+
+    # Segunda pasada: completar por puntuacion
+    for noticia in ranking:
+        if len(seleccionadas) >= MAX_CANDIDATAS:
+            break
+
+        if noticia not in seleccionadas:
+            seleccionadas.append(noticia)
+
+    return seleccionadas
+
+
 if __name__ == "__main__":
     noticias = buscar_noticias()
-    ranking = ordenar_noticias(noticias)
+    ranking = puntuar(noticias)
+    candidatas = seleccionar_candidatas(ranking)
 
-    print(
-        "\nRANKING DESCENSO.CL — "
-        "NOTICIAS NUEVAS DE LAS ÚLTIMAS 72 HORAS\n"
-    )
+    print("\nDESCENSO.CL — TOP 5 CANDIDATAS\n")
 
-    for posicion, noticia in enumerate(
-        ranking, start=1
-    ):
-        print(f"{posicion}. {noticia['titulo']}")
+    for i, noticia in enumerate(candidatas, 1):
+        print(f"{i}. {noticia['titulo']}")
+        print(f"   Puntuacion: {noticia['puntos']}/100")
         print(f"   Fuente: {noticia['fuente']}")
+        print(f"   Disciplina: {noticia['disciplina']}")
         print(f"   Comentarios: {noticia['comentarios']}")
-        print(
-            f"   Antigüedad: "
-            f"{noticia['antiguedad_horas']} horas"
-        )
+        print(f"   Antiguedad: {noticia['horas']} horas")
         print(f"   URL: {noticia['url']}\n")
 
-    print(
-        f"Total de noticias candidatas: "
-        f"{len(ranking)}"
-    )
+    print(f"Noticias analizadas: {len(noticias)}")
+    print(f"Candidatas seleccionadas: {len(candidatas)}")
