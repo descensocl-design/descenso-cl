@@ -1,5 +1,4 @@
 
-import json
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -38,13 +37,15 @@ def buscar_noticias():
             )
 
             with urllib.request.urlopen(
-                solicitud, timeout=20
+                solicitud,
+                timeout=20
             ) as respuesta:
                 contenido = respuesta.read()
 
             raiz = ET.fromstring(contenido)
 
-            for item in raiz.findall(".//item")[:10]:
+            # Revisar hasta 50 noticias por fuente
+            for item in raiz.findall(".//item")[:50]:
                 titulo = item.findtext("title", "").strip()
                 enlace = item.findtext("link", "").strip()
                 fecha = item.findtext("pubDate", "").strip()
@@ -78,6 +79,7 @@ def buscar_noticias():
 if __name__ == "__main__":
     noticias = buscar_noticias()
 
+    # Ordenar de mayor a menor cantidad de comentarios
     noticias.sort(
         key=lambda noticia: (
             noticia["comentarios"] is not None,
