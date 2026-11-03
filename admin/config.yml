@@ -1,0 +1,28 @@
+
+backend:
+  name: github
+  repo: descensocl-design/descenso-cl
+  branch: main
+  base_url: https://descenso-admin-auth.descenso-cl.workers.dev
+  auth_endpoint: auth
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+locale: "es"
+
+collections:
+  - name: "noticias"
+    label: "Noticias"
+    folder: "data/noticias"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Título", name: "title", widget: "string" }
+      - { label: "Fecha", name: "date", widget: "datetime" }
+      - { label: "Categoría", name: "category", widget: "select", options: ["Downhill", "Enduro", "XC", "Freeride", "Videos"] }
+      - { label: "Imagen", name: "image", widget: "image", required: false }
+      - { label: "Video YouTube", name: "video", widget: "string", required: false }
+      - { label: "Texto", name: "body", widget: "markdown" }
