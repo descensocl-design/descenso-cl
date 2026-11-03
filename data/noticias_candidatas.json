@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-03T22:19:14.851288+00:00",
+  "actualizado": "2026-11-03T22:23:29.997880+00:00",
   "cantidad": 5,
   "noticias": [
     {
@@ -10,14 +10,14 @@
       "descripcion": "A look at the latest gear to cross our desks. ( Photos: 16, Comments: 29 )",
       "comentarios": 29,
       "votos": null,
-      "horas": 14.3,
+      "horas": 14.4,
       "puntos": 97.0,
-      "imagen": "https://ep1.pinkbike.org/p2pb30468091/p2pb30468091.jpg",
+      "imagen": "https://ep1.pinkbike.org/p5pb30468091/p5pb30468091.jpg",
       "fotografo": null,
       "credito": "Fotografía obtenida del sitio oficial de Pinkbike (www.pinkbike.com)",
       "fuente_imagen": "https://www.pinkbike.com/news/check-out-kids-bikes-convertible-helmets-and-anneke-beertens-brand-new-apparel-lineup.html",
       "imagen_pendiente_revision": true,
-      "imagen_alta_resolucion": false
+      "imagen_alta_resolucion": true
     },
     {
       "fuente": "Pinkbike",
@@ -27,14 +27,31 @@
       "descripcion": "Since 2021, Sault Ste. Marie has invested $4 million in cycling infrastructure, growing its network to 65 kilometres and connecting the city more directly to the trails. ( Photos: 5, Comments: 27 )",
       "comentarios": 27,
       "votos": null,
-      "horas": 62.3,
+      "horas": 62.4,
       "puntos": 85.3,
-      "imagen": "https://ep1.pinkbike.org/p2pb30339289/p2pb30339289.jpg",
+      "imagen": "https://ep1.pinkbike.org/p5pb30339289/p5pb30339289.jpg",
       "fotografo": null,
       "credito": "Fotografía obtenida del sitio oficial de Pinkbike (www.pinkbike.com)",
       "fuente_imagen": "https://www.pinkbike.com/news/video-jason-lucas-rides-sault-ste-marie-in-ontario-canada.html",
       "imagen_pendiente_revision": true,
-      "imagen_alta_resolucion": false
+      "imagen_alta_resolucion": true
+    },
+    {
+      "fuente": "Pinkbike",
+      "titulo": "Magura's New Gustav Ultra Brake Levers Offer Three Adjustment Points",
+      "url": "https://www.pinkbike.com/news/maguras-new-gustav-ultra-levers-offer-three-adjustment-points.html",
+      "fecha": "2026-11-03T08:00:00+00:00",
+      "descripcion": "Reach, bike, and power can now be fine tuned, as long as you have a 3mm allen key, ( Photos: 9, Comments: 14 )",
+      "comentarios": 14,
+      "votos": null,
+      "horas": 14.4,
+      "puntos": 79.7,
+      "imagen": "https://ep1.pinkbike.org/p5pb30483325/p5pb30483325.jpg",
+      "fotografo": null,
+      "credito": "Fotografía obtenida del sitio oficial de Pinkbike (www.pinkbike.com)",
+      "fuente_imagen": "https://www.pinkbike.com/news/maguras-new-gustav-ultra-levers-offer-three-adjustment-points.html",
+      "imagen_pendiente_revision": true,
+      "imagen_alta_resolucion": true
     },
     {
       "fuente": "Pinkbike",
@@ -44,14 +61,14 @@
       "descripcion": "Enduro made me a princess, bikepacking made me a pragmatist ( Photos: 13, Comments: 14 )",
       "comentarios": 14,
       "votos": null,
-      "horas": 14.3,
+      "horas": 14.4,
       "puntos": 79.7,
-      "imagen": "https://ep1.pinkbike.org/p2pb30483073/p2pb30483073.jpg",
+      "imagen": "https://ep1.pinkbike.org/p5pb30483073/p5pb30483073.jpg",
       "fotografo": null,
       "credito": "Fotografía obtenida del sitio oficial de Pinkbike (www.pinkbike.com)",
       "fuente_imagen": "https://www.pinkbike.com/news/five-things-I-learned-about-bikepacking.html",
       "imagen_pendiente_revision": true,
-      "imagen_alta_resolucion": false
+      "imagen_alta_resolucion": true
     },
     {
       "fuente": "Pinkbike",
@@ -61,31 +78,14 @@
       "descripcion": "Trans Madeira returns in 2027 with two six-day events. ( Photos: 17, Comments: 17 )",
       "comentarios": 17,
       "votos": null,
-      "horas": 38.3,
-      "puntos": 79.3,
-      "imagen": "https://ep1.pinkbike.org/p2pb30478479/p2pb30478479.jpg",
+      "horas": 38.4,
+      "puntos": 79.2,
+      "imagen": "https://ep1.pinkbike.org/p5pb30478479/p5pb30478479.jpg",
       "fotografo": null,
       "credito": "Fotografía obtenida del sitio oficial de Pinkbike (www.pinkbike.com)",
       "fuente_imagen": "https://www.pinkbike.com/news/registration-now-open-for-trans-madeira-2027.html",
       "imagen_pendiente_revision": true,
-      "imagen_alta_resolucion": false
-    },
-    {
-      "fuente": "Pinkbike",
-      "titulo": "Magura's New Gustav Ultra Brake Levers Offer Three Adjustment Points",
-      "url": "https://www.pinkbike.com/news/maguras-new-gustav-ultra-levers-offer-three-adjustment-points.html",
-      "fecha": "2026-11-03T08:00:00+00:00",
-      "descripcion": "Reach, bike, and power can now be fine tuned, as long as you have a 3mm allen key, ( Photos: 9, Comments: 13 )",
-      "comentarios": 13,
-      "votos": null,
-      "horas": 14.3,
-      "puntos": 78.0,
-      "imagen": "https://ep1.pinkbike.org/p2pb30483325/p2pb30483325.jpg",
-      "fotografo": null,
-      "credito": "Fotografía obtenida del sitio oficial de Pinkbike (www.pinkbike.com)",
-      "fuente_imagen": "https://www.pinkbike.com/news/maguras-new-gustav-ultra-levers-offer-three-adjustment-points.html",
-      "imagen_pendiente_revision": true,
-      "imagen_alta_resolucion": false
+      "imagen_alta_resolucion": true
     }
   ]
 }
