@@ -20,12 +20,37 @@ collections:
     extension: "md"
     format: "frontmatter"
     fields:
-      - { label: "Título", name: "title", widget: "string" }
-      - { label: "Fecha", name: "date", widget: "datetime" }
-      - { label: "Categoría", name: "category", widget: "select", options: ["Downhill", "Enduro", "XC", "Freeride", "Videos"] }
-      - { label: "Imagen", name: "image", widget: "image", required: false }
-      - { label: "Video YouTube", name: "video", widget: "string", required: false }
-      - { label: "Texto", name: "body", widget: "markdown" }
+      - label: "Título"
+        name: "title"
+        widget: "string"
+
+      - label: "Fecha"
+        name: "date"
+        widget: "datetime"
+
+      - label: "Categoría"
+        name: "category"
+        widget: "select"
+        options:
+          - "Downhill"
+          - "Enduro"
+          - "XC"
+          - "Freeride"
+          - "Videos"
+
+      - label: "Imagen"
+        name: "image"
+        widget: "image"
+        required: false
+
+      - label: "Video YouTube"
+        name: "video"
+        widget: "string"
+        required: false
+
+      - label: "Texto"
+        name: "body"
+        widget: "markdown"
 
   - name: "borradores_ia"
     label: "Borradores IA"
@@ -35,10 +60,57 @@ collections:
     extension: "md"
     format: "frontmatter"
     fields:
-      - { label: "Título", name: "title", widget: "string" }
-      - { label: "Fecha", name: "date", widget: "datetime" }
-      - { label: "Categoría", name: "category", widget: "select", options: ["Downhill", "Enduro", "XC", "Freeride", "Videos"] }
-      - { label: "Fuente original", name: "source_url", widget: "string", required: false }
-      - { label: "Imagen", name: "image", widget: "image", required: false }
-      - { label: "Video YouTube", name: "video", widget: "string", required: false }
-      - { label: "Texto", name: "body", widget: "markdown" }
+      - label: "Título"
+        name: "title"
+        widget: "string"
+
+      - label: "Fecha"
+        name: "date"
+        widget: "datetime"
+
+      - label: "Categoría"
+        name: "category"
+        widget: "select"
+        options:
+          - "Downhill"
+          - "Enduro"
+          - "XC"
+          - "Freeride"
+          - "Videos"
+
+      - label: "Fuente original"
+        name: "source_url"
+        widget: "string"
+        required: false
+
+      - label: "Imagen (URL de Pinkbike)"
+        name: "image"
+        widget: "string"
+        required: false
+        hint: "Pega la URL de la fotografía detectada automáticamente."
+
+      - label: "Crédito fotográfico"
+        name: "image_credit"
+        widget: "string"
+        required: false
+        hint: "Nombre del fotógrafo o procedencia de Pinkbike."
+
+      - label: "Fotógrafo identificado"
+        name: "photographer"
+        widget: "string"
+        required: false
+
+      - label: "Imagen pendiente de revisión"
+        name: "image_pending_review"
+        widget: "boolean"
+        default: false
+        required: false
+
+      - label: "Video YouTube"
+        name: "video"
+        widget: "string"
+        required: false
+
+      - label: "Texto"
+        name: "body"
+        widget: "markdown"
