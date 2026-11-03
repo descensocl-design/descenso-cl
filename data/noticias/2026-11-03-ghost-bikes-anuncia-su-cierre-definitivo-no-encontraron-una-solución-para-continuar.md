@@ -3,7 +3,7 @@ title: "Ghost Bikes anuncia su cierre definitivo: no encontraron una solución
   para continuar"
 date: 2026-11-03T19:02:00.000-03:00
 category: Downhill
-image: https://ep1.pinkbike.org/p2pb28117509/p2pb28117509.jpg
+image: https://ep1.pinkbike.org/p5pb28117509/p5pb28117509.jpg?utm_source=chatgpt.com
 ---
 **La histórica marca alemana de bicicletas iniciará su proceso de cierre tras fracasar los intentos por encontrar un comprador o una alternativa que permitiera mantener sus operaciones.**
 
