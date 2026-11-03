@@ -6,10 +6,11 @@ import math
 import urllib.request
 import xml.etree.ElementTree as ET
 
+from html.parser import HTMLParser
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit, urljoin
 
 
 FUENTES = {
@@ -24,58 +25,45 @@ MAX_CANDIDATAS = 5
 HISTORIAL = Path("data/noticias_procesadas.json")
 CANDIDATAS = Path("data/noticias_candidatas.json")
 
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; DescensoNewsBot/1.0)"
+}
+
 
 def limpiar_texto(texto):
-    texto = re.sub(r"<[^>]+>", " ", texto)
-    texto = html.unescape(texto)
-    return " ".join(texto.split())
+    texto = re.sub(r"<[^>]+>", " ", texto or "")
+    return " ".join(html.unescape(texto).split())
 
 
 def extraer_numero(texto, patron):
-    coincidencia = re.search(
-        patron, texto, re.IGNORECASE
-    )
-
+    coincidencia = re.search(patron, texto or "", re.IGNORECASE)
     if not coincidencia:
         return None
-
-    return int(
-        coincidencia.group(1).replace(",", "")
-    )
+    return int(coincidencia.group(1).replace(",", ""))
 
 
 def extraer_interacciones(descripcion):
     comentarios = extraer_numero(
-        descripcion,
-        r"Comments:\s*([\d,]+)"
+        descripcion, r"Comments:\s*([\d,]+)"
     )
-
     votos = extraer_numero(
-        descripcion,
-        r"(?:Likes|Votes):\s*([\d,]+)"
+        descripcion, r"(?:Likes|Votes):\s*([\d,]+)"
     )
-
     return comentarios, votos
 
 
 def convertir_fecha(texto):
     try:
         fecha = parsedate_to_datetime(texto)
-
         if fecha.tzinfo is None:
-            fecha = fecha.replace(
-                tzinfo=timezone.utc
-            )
-
+            fecha = fecha.replace(tzinfo=timezone.utc)
         return fecha.astimezone(timezone.utc)
-
     except (TypeError, ValueError, IndexError):
         return None
 
 
 def normalizar_url(url):
     partes = urlsplit(url)
-
     return urlunsplit((
         partes.scheme.lower(),
         partes.netloc.lower(),
@@ -93,16 +81,219 @@ def cargar_historial():
         datos = json.loads(
             HISTORIAL.read_text(encoding="utf-8")
         )
-
         return {
             normalizar_url(url)
             for url in datos.get("procesadas", [])
             if isinstance(url, str)
         }
-
     except (OSError, ValueError, TypeError):
         print("Aviso: no se pudo leer el historial.")
         return set()
+
+
+class LectorMetadatos(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.metadatos = {}
+        self.jsonld = []
+        self.leyendo_jsonld = False
+        self.buffer = []
+
+    def handle_starttag(self, etiqueta, atributos):
+        datos = dict(atributos)
+
+        if etiqueta == "meta":
+            clave = (
+                datos.get("property")
+                or datos.get("name")
+                or ""
+            ).lower()
+            valor = datos.get("content", "").strip()
+
+            if clave and valor:
+                self.metadatos.setdefault(clave, valor)
+
+        if etiqueta == "script":
+            if datos.get("type", "").lower() == "application/ld+json":
+                self.leyendo_jsonld = True
+                self.buffer = []
+
+    def handle_data(self, contenido):
+        if self.leyendo_jsonld:
+            self.buffer.append(contenido)
+
+    def handle_endtag(self, etiqueta):
+        if etiqueta == "script" and self.leyendo_jsonld:
+            self.jsonld.append("".join(self.buffer))
+            self.leyendo_jsonld = False
+            self.buffer = []
+
+
+def recorrer_json(objeto):
+    if isinstance(objeto, list):
+        for elemento in objeto:
+            yield from recorrer_json(elemento)
+
+    elif isinstance(objeto, dict):
+        yield objeto
+        for clave in ("@graph", "mainEntity"):
+            if clave in objeto:
+                yield from recorrer_json(objeto[clave])
+
+
+def obtener_nombre(valor):
+    if isinstance(valor, str):
+        return valor.strip() or None
+
+    if isinstance(valor, dict):
+        return obtener_nombre(valor.get("name"))
+
+    if isinstance(valor, list):
+        nombres = [obtener_nombre(v) for v in valor]
+        return ", ".join(n for n in nombres if n) or None
+
+    return None
+
+
+def obtener_url_imagen(valor):
+    if isinstance(valor, str):
+        return valor
+
+    if isinstance(valor, dict):
+        return (
+            valor.get("url")
+            or valor.get("contentUrl")
+        )
+
+    if isinstance(valor, list):
+        for elemento in valor:
+            resultado = obtener_url_imagen(elemento)
+            if resultado:
+                return resultado
+
+    return None
+
+
+def extraer_imagen_rss(item):
+    for elemento in item.iter():
+        etiqueta = elemento.tag.split("}")[-1].lower()
+
+        if etiqueta in ("thumbnail", "content", "enclosure"):
+            url = elemento.attrib.get("url")
+            tipo = elemento.attrib.get("type", "")
+
+            if url and (
+                etiqueta != "enclosure"
+                or tipo.startswith("image/")
+            ):
+                return url
+
+    descripcion = html.unescape(
+        item.findtext("description", "")
+    )
+
+    coincidencia = re.search(
+        r'<img[^>]+src=["\']([^"\']+)',
+        descripcion,
+        re.IGNORECASE
+    )
+
+    return coincidencia.group(1) if coincidencia else None
+
+
+def obtener_datos_imagen(noticia):
+    imagen = noticia.pop("imagen_rss", None)
+    fotografo = None
+
+    noticia["imagen"] = None
+    noticia["fotografo"] = None
+    noticia["credito"] = None
+    noticia["fuente_imagen"] = noticia["url"]
+
+    try:
+        solicitud = urllib.request.Request(
+            noticia["url"],
+            headers=HEADERS
+        )
+
+        with urllib.request.urlopen(
+            solicitud, timeout=15
+        ) as respuesta:
+            contenido = respuesta.read(1500000).decode(
+                "utf-8", errors="replace"
+            )
+
+        lector = LectorMetadatos()
+        lector.feed(contenido)
+
+        meta = lector.metadatos
+
+        imagen = (
+            meta.get("og:image")
+            or meta.get("twitter:image")
+            or imagen
+        )
+
+        fotografo = obtener_nombre(
+            meta.get("photographer")
+            or meta.get("photo:creator")
+        )
+
+        for bloque in lector.jsonld:
+            try:
+                datos = json.loads(bloque)
+            except (ValueError, TypeError):
+                continue
+
+            for entidad in recorrer_json(datos):
+                tipos = entidad.get("@type", [])
+                if isinstance(tipos, str):
+                    tipos = [tipos]
+
+                if "ImageObject" in tipos:
+                    fotografo = fotografo or obtener_nombre(
+                        entidad.get("creator")
+                        or entidad.get("creditText")
+                    )
+                    imagen = imagen or obtener_url_imagen(
+                        entidad
+                    )
+
+                if any(
+                    tipo in tipos
+                    for tipo in (
+                        "NewsArticle",
+                        "Article",
+                        "BlogPosting"
+                    )
+                ):
+                    imagen = imagen or obtener_url_imagen(
+                        entidad.get("image")
+                    )
+
+    except Exception as error:
+        print(
+            f"No se pudieron leer metadatos de "
+            f"{noticia['url']}: {error}",
+            flush=True
+        )
+
+    if imagen:
+        noticia["imagen"] = urljoin(
+            noticia["url"], imagen
+        )
+
+    if fotografo:
+        noticia["fotografo"] = fotografo
+        noticia["credito"] = (
+            f"Fotografía: {fotografo} / {noticia['fuente']}"
+        )
+
+    noticia["imagen_pendiente_revision"] = not bool(
+        noticia["imagen"] and noticia["fotografo"]
+    )
+
+    return noticia
 
 
 def buscar_noticias():
@@ -123,10 +314,7 @@ def buscar_noticias():
 
         try:
             solicitud = urllib.request.Request(
-                feed,
-                headers={
-                    "User-Agent": "Descenso.cl News Reader/1.0"
-                }
+                feed, headers=HEADERS
             )
 
             with urllib.request.urlopen(
@@ -184,7 +372,8 @@ def buscar_noticias():
                         (ahora - fecha).total_seconds()
                         / 3600,
                         1
-                    )
+                    ),
+                    "imagen_rss": extraer_imagen_rss(item)
                 })
 
         except Exception as error:
@@ -221,15 +410,15 @@ def calcular_ranking(noticias):
         votos = noticia["votos"] or 0
 
         popularidad = (
-            math.log1p(comentarios) /
-            math.log1p(max_comentarios)
+            math.log1p(comentarios)
+            / math.log1p(max_comentarios)
             * peso_comentarios
             if max_comentarios > 0 else 0
         )
 
         puntuacion_votos = (
-            math.log1p(votos) /
-            math.log1p(max_votos)
+            math.log1p(votos)
+            / math.log1p(max_votos)
             * peso_votos
             if max_votos > 0 else 0
         )
@@ -287,7 +476,10 @@ if __name__ == "__main__":
     noticias = buscar_noticias()
     ranking = calcular_ranking(noticias)
 
-    candidatas = ranking[:MAX_CANDIDATAS]
+    candidatas = [
+        obtener_datos_imagen(noticia)
+        for noticia in ranking[:MAX_CANDIDATAS]
+    ]
 
     print("\nDESCENSO.CL — TOP 5 POR POPULARIDAD\n")
 
@@ -300,6 +492,11 @@ if __name__ == "__main__":
         print(f"   Comentarios: {noticia['comentarios']}")
         print(f"   Likes/votos: {noticia['votos']}")
         print(f"   Antiguedad: {noticia['horas']} horas")
+        print(f"   Imagen: {noticia['imagen']}")
+        print(
+            f"   Fotografo: "
+            f"{noticia['fotografo'] or 'Pendiente'}"
+        )
         print(f"   URL: {noticia['url']}\n")
 
     guardar_candidatas(candidatas)
