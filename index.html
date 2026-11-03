@@ -1,1 +1,89 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0b0d"><meta name="description" content="Descenso.cl: historias, noticias y videos de downhill, enduro, freeride y mountain bike latinoamericano."><title>DESCENSO.CL — Mountain Bike</title><link rel="stylesheet" href="styles.css"></head><body><header class="header"><div class="topline"><span>INDEPENDIENTE · DESDE CHILE PARA EL MUNDO</span><a href="https://contacto.descenso.cl/">CONTACTO ↗</a></div><div class="brandrow"><a href="/" class="brand" aria-label="Descenso.cl inicio">DESCENSO<span>.</span>CL</a><div class="tagline">MOUNTAIN BIKE<br>WITHOUT LIMITS</div></div><nav class="nav" aria-label="Categorías"><button class="navitem active" data-filter="Todos">PORTADA</button><button class="navitem" data-filter="Downhill">DOWNHILL</button><button class="navitem" data-filter="Enduro">ENDURO</button><button class="navitem" data-filter="XC">XC</button><button class="navitem" data-filter="Freeride">FREERIDE</button><button class="navitem" data-filter="Videos">VIDEOS</button></nav></header><main class="container"><section class="intro"><div><div class="eyebrow"><span class="dot"></span> LA ESCENA MTB EN MOVIMIENTO</div><h1>HISTORIAS QUE<br><em>BAJAN FUERTE.</em></h1></div><p>Noticias, videos y protagonistas del downhill, enduro, cross-country y freeride. Desde Latinoamérica para el mundo.</p></section><section class="content"><div class="sectionbar"><h2 id="section-title">ÚLTIMAS PUBLICACIONES</h2><span id="count"></span></div><div class="searchbar"><label for="search">BUSCAR HISTORIAS</label><input id="search" type="search" placeholder="Buscar noticias, riders, carreras..."></div><div id="posts" class="posts" aria-live="polite"></div><div id="empty" class="empty" hidden>No encontramos publicaciones con ese filtro.</div></section><footer><strong>DESCENSO<span>.</span>CL</strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><div><a href="https://www.instagram.com/descenso.cl/" target="_blank" rel="noopener noreferrer">INSTAGRAM ↗</a><a href="https://www.youtube.com/@descensocl" target="_blank" rel="noopener noreferrer">YOUTUBE ↗</a><a href="https://www.tiktok.com/@descensocl" target="_blank" rel="noopener noreferrer">TIKTOK ↗</a><a href="https://contacto.descenso.cl/">CONTACTO ↗</a></div></footer></main><dialog id="article"><button id="close" class="close" aria-label="Cerrar artículo">✕ CERRAR</button><div id="article-body"></div></dialog><script src="script.js" defer></script></body></html>
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Noticias, historias y videos del mountain bike latinoamericano.">
+  <title>DESCENSO.CL — Mountain Bike</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="topline">
+      <span>INDEPENDIENTE · DESDE CHILE PARA EL MUNDO</span>
+      <a href="https://contacto.descenso.cl/">CONTACTO ↗</a>
+    </div>
+    <div class="brandrow">
+      <a class="brand" href="/">DESCENSO<span>.CL</span></a>
+      <span class="tagline">DOWNHILL / ENDURO / XC / FREERIDE</span>
+    </div>
+    <nav class="nav" aria-label="Categorías">
+      <button class="navitem active" data-filter="Todos">INICIO</button>
+      <button class="navitem" data-filter="Downhill">DOWNHILL</button>
+      <button class="navitem" data-filter="Enduro">ENDURO</button>
+      <button class="navitem" data-filter="XC">XC</button>
+      <button class="navitem" data-filter="Freeride">FREERIDE</button>
+      <button class="navitem" data-filter="Videos">VIDEOS</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="layout">
+      <div class="maincol">
+        <section id="featured" class="featured" aria-label="Noticia destacada"></section>
+        <section class="content">
+          <div class="sectionbar">
+            <h2 id="section-title">ÚLTIMAS NOTICIAS</h2>
+            <span id="count"></span>
+          </div>
+          <div class="searchbar">
+            <label for="search">BUSCAR HISTORIAS</label>
+            <input id="search" type="search" placeholder="Buscar noticias, riders, carreras...">
+          </div>
+          <div id="posts" class="posts" aria-live="polite"></div>
+          <div id="empty" class="empty" hidden>No encontramos publicaciones con ese filtro.</div>
+        </section>
+      </div>
+
+      <aside class="sidebar">
+        <section class="sidepanel">
+          <h2>▶ ÚLTIMO VIDEO</h2>
+          <div id="latest-video"></div>
+        </section>
+        <section class="sidepanel">
+          <h2>DESCENSO.CL</h2>
+          <p>Historias, competencias y protagonistas del mountain bike. Desde Latinoamérica para el mundo.</p>
+          <a href="https://www.youtube.com/@descensocl">YOUTUBE ↗</a>
+          <a href="https://www.instagram.com/descenso.cl/">INSTAGRAM ↗</a>
+          <a href="https://www.tiktok.com/@descensocl">TIKTOK ↗</a>
+        </section>
+        <section class="sidepanel">
+          <h2>CONTACTO</h2>
+          <p>Producciones, coberturas y colaboraciones.</p>
+          <a href="https://contacto.descenso.cl/">TARJETA DIGITAL ↗</a>
+        </section>
+      </aside>
+    </div>
+
+    <footer>
+      <strong>DESCENSO<span>.CL</span></strong>
+      <p>DOWNHILL · ENDURO · XC · FREERIDE</p>
+      <div>
+        <a href="https://www.instagram.com/descenso.cl/">INSTAGRAM ↗</a>
+        <a href="https://www.youtube.com/@descensocl">YOUTUBE ↗</a>
+        <a href="https://www.tiktok.com/@descensocl">TIKTOK ↗</a>
+        <a href="https://contacto.descenso.cl/">CONTACTO ↗</a>
+      </div>
+    </footer>
+  </main>
+
+  <dialog id="article">
+    <button id="close" class="close">✕ CERRAR</button>
+    <div id="article-body"></div>
+  </dialog>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
