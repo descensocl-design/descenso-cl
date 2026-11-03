@@ -12,6 +12,8 @@ from email.utils import parsedate_to_datetime
 from urllib.parse import urlsplit, urlunsplit
 
 
+# CONFIGURACION DESCENSO.CL
+
 FUENTES = {
     "Pinkbike": "https://www.pinkbike.com/pinkbike_xml_feed.php",
     "Vital MTB": "https://feeds.vitalmtb.com/VitalMtbSpotlights"
@@ -20,67 +22,65 @@ FUENTES = {
 MAX_POR_FUENTE = 50
 MAX_HORAS = 72
 MAX_CANDIDATAS = 5
+
 HISTORIAL = Path("data/noticias_procesadas.json")
 
-DISCIPLINAS = {
-    "Downhill": [
-        "downhill", "dh", "world cup", "gravity",
-        "urban downhill", "descenso"
-    ],
-    "Enduro": [
-        "enduro", "ews", "edr", "trail"
-    ],
-    "XC": [
-        "cross country", "cross-country", "xco",
-        "xc", "xc marathon"
-    ],
-    "Freeride": [
-        "freeride", "red bull rampage", "slopestyle",
-        "dirt jump", "big mountain"
-    ]
-}
 
-LATAM = [
-    "chile", "chilean", "colombia", "colombian",
-    "argentina", "argentinian", "brazil",
-    "brazilian", "brasil", "peru", "peruvian",
-    "mexico", "mexican", "ecuador", "ecuadorian",
-    "bolivia", "uruguay", "paraguay",
-    "latin america", "latinoamerica",
-    "valparaiso", "villarrica", "temuco",
-    "martin vidaurre", "felipe agurto",
-    "valentina roa", "sebastian holguin",
-    "juan fernando velez", "roger vieira",
-    "hans pulgar"
-]
-
-
-def limpiar(texto):
+def limpiar_texto(texto):
     texto = re.sub(r"<[^>]+>", " ", texto)
-    return " ".join(html.unescape(texto).split())
+    texto = html.unescape(texto)
+    return " ".join(texto.split())
 
 
-def comentarios_de(texto):
-    match = re.search(
-        r"Comments:\s*([\d,]+)",
+def extraer_numero(texto, patron):
+    coincidencia = re.search(
+        patron,
         texto,
         re.IGNORECASE
     )
-    return int(match.group(1).replace(",", "")) if match else None
+
+    if not coincidencia:
+        return None
+
+    return int(
+        coincidencia.group(1).replace(",", "")
+    )
 
 
-def fecha_de(texto):
+def extraer_interacciones(descripcion):
+    comentarios = extraer_numero(
+        descripcion,
+        r"Comments:\s*([\d,]+)"
+    )
+
+    # Solo registrar votos si aparecen
+    # explicitamente en los datos RSS.
+    votos = extraer_numero(
+        descripcion,
+        r"(?:Likes|Votes):\s*([\d,]+)"
+    )
+
+    return comentarios, votos
+
+
+def convertir_fecha(texto):
     try:
         fecha = parsedate_to_datetime(texto)
+
         if fecha.tzinfo is None:
-            fecha = fecha.replace(tzinfo=timezone.utc)
+            fecha = fecha.replace(
+                tzinfo=timezone.utc
+            )
+
         return fecha.astimezone(timezone.utc)
+
     except (TypeError, ValueError, IndexError):
         return None
 
 
-def url_limpia(url):
+def normalizar_url(url):
     partes = urlsplit(url)
+
     return urlunsplit((
         partes.scheme.lower(),
         partes.netloc.lower(),
@@ -98,46 +98,16 @@ def cargar_historial():
         datos = json.loads(
             HISTORIAL.read_text(encoding="utf-8")
         )
+
         return {
-            url_limpia(url)
+            normalizar_url(url)
             for url in datos.get("procesadas", [])
             if isinstance(url, str)
         }
+
     except (OSError, ValueError, TypeError):
-        print("Aviso: historial no disponible.")
+        print("Aviso: no se pudo leer el historial.")
         return set()
-
-
-def clasificar(texto):
-    texto = texto.lower()
-    resultados = {}
-
-    for disciplina, palabras in DISCIPLINAS.items():
-        resultados[disciplina] = sum(
-            1 for palabra in palabras
-            if re.search(
-                r"(?<!\w)" + re.escape(palabra) + r"(?!\w)",
-                texto
-            )
-        )
-
-    mejor = max(resultados, key=resultados.get)
-
-    return mejor if resultados[mejor] > 0 else "General"
-
-
-def relevancia_latam(texto):
-    texto = texto.lower()
-
-    coincidencias = sum(
-        1 for palabra in LATAM
-        if re.search(
-            r"(?<!\w)" + re.escape(palabra) + r"(?!\w)",
-            texto
-        )
-    )
-
-    return min(100, coincidencias * 50)
 
 
 def buscar_noticias():
@@ -148,7 +118,10 @@ def buscar_noticias():
     ahora = datetime.now(timezone.utc)
     limite = ahora - timedelta(hours=MAX_HORAS)
 
-    print(f"Noticias ya procesadas: {len(procesadas)}")
+    print(
+        f"Noticias ya procesadas: {len(procesadas)}",
+        flush=True
+    )
 
     for fuente, feed in FUENTES.items():
         print(f"Revisando {fuente}...", flush=True)
@@ -162,16 +135,26 @@ def buscar_noticias():
             )
 
             with urllib.request.urlopen(
-                solicitud, timeout=20
+                solicitud,
+                timeout=20
             ) as respuesta:
                 contenido = respuesta.read()
 
             raiz = ET.fromstring(contenido)
 
             for item in raiz.findall(".//item")[:MAX_POR_FUENTE]:
-                titulo = limpiar(item.findtext("title", ""))
-                enlace = item.findtext("link", "").strip()
-                fecha = fecha_de(item.findtext("pubDate", ""))
+                titulo = limpiar_texto(
+                    item.findtext("title", "")
+                )
+
+                enlace = item.findtext(
+                    "link", ""
+                ).strip()
+
+                fecha = convertir_fecha(
+                    item.findtext("pubDate", "")
+                )
+
                 descripcion_original = item.findtext(
                     "description", ""
                 )
@@ -182,122 +165,120 @@ def buscar_noticias():
                 if not limite <= fecha <= ahora:
                     continue
 
-                enlace = url_limpia(enlace)
+                enlace = normalizar_url(enlace)
 
                 if enlace in vistas or enlace in procesadas:
                     continue
 
                 vistas.add(enlace)
 
-                descripcion = limpiar(descripcion_original)
-                texto = f"{titulo} {descripcion}"
+                comentarios, votos = extraer_interacciones(
+                    descripcion_original
+                )
 
                 noticias.append({
                     "fuente": fuente,
                     "titulo": titulo,
                     "url": enlace,
                     "fecha": fecha.isoformat(),
-                    "descripcion": descripcion[:500],
-                    "comentarios": comentarios_de(
+                    "descripcion": limpiar_texto(
                         descripcion_original
-                    ),
+                    )[:500],
+                    "comentarios": comentarios,
+                    "votos": votos,
                     "horas": round(
-                        (ahora - fecha).total_seconds() / 3600,
+                        (ahora - fecha).total_seconds()
+                        / 3600,
                         1
-                    ),
-                    "disciplina": clasificar(texto),
-                    "latam": relevancia_latam(texto)
+                    )
                 })
 
         except Exception as error:
-            print(f"No se pudo leer {fuente}: {error}")
+            print(
+                f"No se pudo leer {fuente}: {error}",
+                flush=True
+            )
 
     return noticias
 
 
-def puntuar(noticias):
+def calcular_ranking(noticias):
+    if not noticias:
+        return []
+
     max_comentarios = max(
         (n["comentarios"] or 0 for n in noticias),
         default=0
     )
 
+    max_votos = max(
+        (n["votos"] or 0 for n in noticias),
+        default=0
+    )
+
+    hay_votos = max_votos > 0
+
+    # Sin datos de votos, redistribuir su peso
+    # entre comentarios y actualidad.
+    peso_comentarios = 60 if hay_votos else 85
+    peso_votos = 25 if hay_votos else 0
+    peso_actualidad = 15
+
     for noticia in noticias:
-        comentarios = noticia["comentarios"]
+        comentarios = noticia["comentarios"] or 0
+        votos = noticia["votos"] or 0
 
-        # Popularidad: 40 puntos
-        if comentarios is None or max_comentarios == 0:
-            popularidad = 0
-        else:
-            popularidad = (
-                math.log1p(comentarios) /
-                math.log1p(max_comentarios)
-            ) * 40
-
-        # Latinoamerica: 30 puntos
-        latam = noticia["latam"] * 0.30
-
-        # Actualidad: 20 puntos
-        actualidad = max(
-            0, (1 - noticia["horas"] / MAX_HORAS) * 20
+        popularidad = (
+            math.log1p(comentarios) /
+            math.log1p(max_comentarios)
+            * peso_comentarios
+            if max_comentarios > 0 else 0
         )
 
-        # Disciplina: hasta 10 puntos
-        # Es una aproximacion provisional.
-        disciplina = (
-            10 if noticia["disciplina"] != "General" else 0
+        puntuacion_votos = (
+            math.log1p(votos) /
+            math.log1p(max_votos)
+            * peso_votos
+            if max_votos > 0 else 0
+        )
+
+        actualidad = max(
+            0,
+            (1 - noticia["horas"] / MAX_HORAS)
+            * peso_actualidad
         )
 
         noticia["puntos"] = round(
-            popularidad + latam + actualidad + disciplina,
+            popularidad + puntuacion_votos + actualidad,
             1
         )
 
     return sorted(
         noticias,
-        key=lambda n: n["puntos"],
+        key=lambda n: (
+            n["puntos"],
+            n["comentarios"] or 0
+        ),
         reverse=True
     )
 
 
-def seleccionar_candidatas(ranking):
-    seleccionadas = []
-    usadas = set()
-
-    # Primera pasada: favorecer disciplinas distintas
-    for noticia in ranking:
-        if len(seleccionadas) >= MAX_CANDIDATAS:
-            break
-
-        disciplina = noticia["disciplina"]
-
-        if disciplina != "General" and disciplina not in usadas:
-            seleccionadas.append(noticia)
-            usadas.add(disciplina)
-
-    # Segunda pasada: completar por puntuacion
-    for noticia in ranking:
-        if len(seleccionadas) >= MAX_CANDIDATAS:
-            break
-
-        if noticia not in seleccionadas:
-            seleccionadas.append(noticia)
-
-    return seleccionadas
-
-
 if __name__ == "__main__":
     noticias = buscar_noticias()
-    ranking = puntuar(noticias)
-    candidatas = seleccionar_candidatas(ranking)
+    ranking = calcular_ranking(noticias)
 
-    print("\nDESCENSO.CL — TOP 5 CANDIDATAS\n")
+    candidatas = ranking[:MAX_CANDIDATAS]
 
-    for i, noticia in enumerate(candidatas, 1):
-        print(f"{i}. {noticia['titulo']}")
+    print("\nDESCENSO.CL — TOP 5 POR POPULARIDAD\n")
+
+    for posicion, noticia in enumerate(
+        candidatas, start=1
+    ):
+        print(f"{posicion}. {noticia['titulo']}")
         print(f"   Puntuacion: {noticia['puntos']}/100")
         print(f"   Fuente: {noticia['fuente']}")
-        print(f"   Disciplina: {noticia['disciplina']}")
         print(f"   Comentarios: {noticia['comentarios']}")
+        print(f"   Likes/votos: {noticia['votos']}")
         print(f"   Antiguedad: {noticia['horas']} horas")
         print(f"   URL: {noticia['url']}\n")
 
