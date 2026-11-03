@@ -1,0 +1,73 @@
+name: Sincronizar noticias
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/noticias/**'
+      - '.github/workflows/sync-news.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-news:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar lector de metadatos
+        run: pip install PyYAML
+      - name: Convertir noticias al formato de la portada
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, re
+          from pathlib import Path
+          from datetime import date, datetime
+          import yaml
+
+          def plain(value):
+              return re.sub(r'\s+', ' ', re.sub(r'[#*_`>\[\]()]', '', value)).strip()
+
+          posts = []
+          for file in sorted(Path('data/noticias').glob('*.md')):
+              content = file.read_text(encoding='utf-8-sig')
+              match = re.match(r'^---\s*\n(.*?)\n---\s*\n?(.*)$', content, re.S)
+              if not match:
+                  print(f'Ignorando {file}: sin metadatos')
+                  continue
+              meta = yaml.safe_load(match.group(1)) or {}
+              body = match.group(2).strip()
+              paragraphs = [plain(p) for p in re.split(r'\n\s*\n', body) if plain(p)]
+              date_value = meta.get('date', '')
+              if isinstance(date_value, (datetime, date)):
+                  date_value = date_value.isoformat()
+              date_value = str(date_value)[:10]
+              video = str(meta.get('video') or meta.get('youtube') or '').strip()
+              image = str(meta.get('image') or '').strip()
+              posts.append({
+                  'title': str(meta.get('title') or file.stem),
+                  'date': date_value,
+                  'category': str(meta.get('category') or 'Downhill'),
+                  'excerpt': str(meta.get('description') or meta.get('excerpt') or (paragraphs[0][:190] if paragraphs else '')),
+                  'image': image,
+                  'youtube': video,
+                  'body': paragraphs,
+                  'link': str(meta.get('link') or '')
+              })
+          posts.sort(key=lambda p: p['date'], reverse=True)
+          target = Path('data/posts.json')
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(f'{len(posts)} noticias sincronizadas')
+          PY
+      - name: Guardar actualización
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/posts.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Actualizar noticias de la portada"
+            git push
+          fi
