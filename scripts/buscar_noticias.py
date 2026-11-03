@@ -1,9 +1,11 @@
 
+import json
 import re
 import html
 import urllib.request
 import xml.etree.ElementTree as ET
 
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from urllib.parse import urlsplit, urlunsplit
@@ -16,6 +18,10 @@ FUENTES = {
 
 MAX_NOTICIAS_POR_FUENTE = 50
 ANTIGUEDAD_MAXIMA_HORAS = 72
+
+ARCHIVO_HISTORIAL = Path(
+    "data/noticias_procesadas.json"
+)
 
 
 def limpiar_texto(texto):
@@ -66,13 +72,40 @@ def normalizar_url(url):
     ))
 
 
+def cargar_historial():
+    if not ARCHIVO_HISTORIAL.exists():
+        return set()
+
+    try:
+        with ARCHIVO_HISTORIAL.open(
+            "r", encoding="utf-8"
+        ) as archivo:
+            datos = json.load(archivo)
+
+        return {
+            normalizar_url(url)
+            for url in datos.get("procesadas", [])
+            if isinstance(url, str)
+        }
+
+    except (OSError, ValueError, TypeError):
+        print("Aviso: no se pudo leer el historial.")
+        return set()
+
+
 def buscar_noticias():
     noticias = []
     enlaces_vistos = set()
+    historial = cargar_historial()
 
     ahora = datetime.now(timezone.utc)
     fecha_limite = ahora - timedelta(
         hours=ANTIGUEDAD_MAXIMA_HORAS
+    )
+
+    print(
+        f"Noticias ya procesadas: {len(historial)}",
+        flush=True
     )
 
     for nombre, url in FUENTES.items():
@@ -94,9 +127,10 @@ def buscar_noticias():
 
             raiz = ET.fromstring(contenido)
 
-            items = raiz.findall(".//item")
+            for item in raiz.findall(
+                ".//item"
+            )[:MAX_NOTICIAS_POR_FUENTE]:
 
-            for item in items[:MAX_NOTICIAS_POR_FUENTE]:
                 titulo = item.findtext(
                     "title", ""
                 ).strip()
@@ -115,11 +149,9 @@ def buscar_noticias():
 
                 fecha = convertir_fecha(fecha_original)
 
-                # Excluir noticias sin fecha válida
                 if fecha is None:
                     continue
 
-                # Excluir noticias antiguas o futuras
                 if fecha < fecha_limite or fecha > ahora:
                     continue
 
@@ -130,15 +162,13 @@ def buscar_noticias():
                     enlace
                 )
 
-                # Evitar duplicados en esta búsqueda
                 if enlace_normalizado in enlaces_vistos:
                     continue
 
                 enlaces_vistos.add(enlace_normalizado)
 
-                comentarios = extraer_comentarios(
-                    descripcion
-                )
+                if enlace_normalizado in historial:
+                    continue
 
                 noticias.append({
                     "fuente": nombre,
@@ -148,7 +178,9 @@ def buscar_noticias():
                     "descripcion": limpiar_texto(
                         descripcion
                     )[:500],
-                    "comentarios": comentarios,
+                    "comentarios": extraer_comentarios(
+                        descripcion
+                    ),
                     "antiguedad_horas": round(
                         (ahora - fecha).total_seconds()
                         / 3600,
@@ -180,11 +212,13 @@ if __name__ == "__main__":
     noticias = buscar_noticias()
     ranking = ordenar_noticias(noticias)
 
-    print("\nRANKING DESCENSO.CL — ÚLTIMAS 72 HORAS\n")
+    print(
+        "\nRANKING DESCENSO.CL — "
+        "NOTICIAS NUEVAS DE LAS ÚLTIMAS 72 HORAS\n"
+    )
 
     for posicion, noticia in enumerate(
-        ranking,
-        start=1
+        ranking, start=1
     ):
         print(f"{posicion}. {noticia['titulo']}")
         print(f"   Fuente: {noticia['fuente']}")
@@ -193,10 +227,9 @@ if __name__ == "__main__":
             f"   Antigüedad: "
             f"{noticia['antiguedad_horas']} horas"
         )
-        print(f"   Fecha: {noticia['fecha']}")
         print(f"   URL: {noticia['url']}\n")
 
     print(
-        f"Total de noticias recientes: "
+        f"Total de noticias candidatas: "
         f"{len(ranking)}"
     )
