@@ -36,7 +36,9 @@ def limpiar_texto(texto):
 
 
 def extraer_numero(texto, patron):
-    coincidencia = re.search(patron, texto or "", re.IGNORECASE)
+    coincidencia = re.search(
+        patron, texto or "", re.IGNORECASE
+    )
     if not coincidencia:
         return None
     return int(coincidencia.group(1).replace(",", ""))
@@ -108,13 +110,17 @@ class LectorMetadatos(HTMLParser):
                 or datos.get("name")
                 or ""
             ).lower()
+
             valor = datos.get("content", "").strip()
 
             if clave and valor:
                 self.metadatos.setdefault(clave, valor)
 
         if etiqueta == "script":
-            if datos.get("type", "").lower() == "application/ld+json":
+            if (
+                datos.get("type", "").lower()
+                == "application/ld+json"
+            ):
                 self.leyendo_jsonld = True
                 self.buffer = []
 
@@ -136,6 +142,7 @@ def recorrer_json(objeto):
 
     elif isinstance(objeto, dict):
         yield objeto
+
         for clave in ("@graph", "mainEntity"):
             if clave in objeto:
                 yield from recorrer_json(objeto[clave])
@@ -149,8 +156,13 @@ def obtener_nombre(valor):
         return obtener_nombre(valor.get("name"))
 
     if isinstance(valor, list):
-        nombres = [obtener_nombre(v) for v in valor]
-        return ", ".join(n for n in nombres if n) or None
+        nombres = [
+            obtener_nombre(elemento)
+            for elemento in valor
+        ]
+        return ", ".join(
+            nombre for nombre in nombres if nombre
+        ) or None
 
     return None
 
@@ -178,7 +190,11 @@ def extraer_imagen_rss(item):
     for elemento in item.iter():
         etiqueta = elemento.tag.split("}")[-1].lower()
 
-        if etiqueta in ("thumbnail", "content", "enclosure"):
+        if etiqueta in (
+            "thumbnail",
+            "content",
+            "enclosure"
+        ):
             url = elemento.attrib.get("url")
             tipo = elemento.attrib.get("type", "")
 
@@ -198,7 +214,10 @@ def extraer_imagen_rss(item):
         re.IGNORECASE
     )
 
-    return coincidencia.group(1) if coincidencia else None
+    if coincidencia:
+        return coincidencia.group(1)
+
+    return None
 
 
 def obtener_datos_imagen(noticia):
@@ -209,7 +228,11 @@ def obtener_datos_imagen(noticia):
     noticia["fotografo"] = None
     noticia["credito"] = None
     noticia["fuente_imagen"] = noticia["url"]
+    noticia["imagen_pendiente_revision"] = True
 
+    # Solo consultar la pagina original si el RSS
+    # no trae una imagen o necesitamos metadatos.
+    # Un error HTTP 403 no detiene la busqueda.
     try:
         solicitud = urllib.request.Request(
             noticia["url"],
@@ -217,10 +240,13 @@ def obtener_datos_imagen(noticia):
         )
 
         with urllib.request.urlopen(
-            solicitud, timeout=15
+            solicitud, timeout=12
         ) as respuesta:
-            contenido = respuesta.read(1500000).decode(
-                "utf-8", errors="replace"
+            contenido = respuesta.read(
+                1500000
+            ).decode(
+                "utf-8",
+                errors="replace"
             )
 
         lector = LectorMetadatos()
@@ -247,16 +273,17 @@ def obtener_datos_imagen(noticia):
 
             for entidad in recorrer_json(datos):
                 tipos = entidad.get("@type", [])
+
                 if isinstance(tipos, str):
                     tipos = [tipos]
 
                 if "ImageObject" in tipos:
-                    fotografo = fotografo or obtener_nombre(
-                        entidad.get("creator")
-                        or entidad.get("creditText")
-                    )
                     imagen = imagen or obtener_url_imagen(
                         entidad
+                    )
+
+                    fotografo = fotografo or obtener_nombre(
+                        entidad.get("creator")
                     )
 
                 if any(
@@ -273,24 +300,39 @@ def obtener_datos_imagen(noticia):
 
     except Exception as error:
         print(
-            f"No se pudieron leer metadatos de "
+            f"Metadatos no disponibles para "
             f"{noticia['url']}: {error}",
             flush=True
         )
 
     if imagen:
-        noticia["imagen"] = urljoin(
-            noticia["url"], imagen
-        )
+        imagen = urljoin(noticia["url"], imagen)
+
+        if urlsplit(imagen).scheme in ("http", "https"):
+            noticia["imagen"] = imagen
 
     if fotografo:
         noticia["fotografo"] = fotografo
         noticia["credito"] = (
-            f"Fotografía: {fotografo} / {noticia['fuente']}"
+            f"Fotografía: {fotografo} / "
+            f"{noticia['fuente']}"
         )
 
-    noticia["imagen_pendiente_revision"] = not bool(
-        noticia["imagen"] and noticia["fotografo"]
+    elif noticia["imagen"]:
+        if noticia["fuente"] == "Pinkbike":
+            noticia["credito"] = (
+                "Fotografía obtenida del sitio oficial "
+                "de Pinkbike (www.pinkbike.com)"
+            )
+        else:
+            noticia["credito"] = (
+                f"Imagen obtenida de {noticia['fuente']}"
+            )
+
+    # La procedencia queda identificada, pero
+    # un credito generico no confirma el autor.
+    noticia["imagen_pendiente_revision"] = bool(
+        noticia["imagen"] and not noticia["fotografo"]
     )
 
     return noticia
@@ -314,7 +356,8 @@ def buscar_noticias():
 
         try:
             solicitud = urllib.request.Request(
-                feed, headers=HEADERS
+                feed,
+                headers=HEADERS
             )
 
             with urllib.request.urlopen(
@@ -446,7 +489,8 @@ def calcular_ranking(noticias):
 
 def guardar_candidatas(candidatas):
     CANDIDATAS.parent.mkdir(
-        parents=True, exist_ok=True
+        parents=True,
+        exist_ok=True
     )
 
     datos = {
@@ -484,22 +528,53 @@ if __name__ == "__main__":
     print("\nDESCENSO.CL — TOP 5 POR POPULARIDAD\n")
 
     for posicion, noticia in enumerate(
-        candidatas, start=1
+        candidatas,
+        start=1
     ):
         print(f"{posicion}. {noticia['titulo']}")
-        print(f"   Puntuacion: {noticia['puntos']}/100")
-        print(f"   Fuente: {noticia['fuente']}")
-        print(f"   Comentarios: {noticia['comentarios']}")
-        print(f"   Likes/votos: {noticia['votos']}")
-        print(f"   Antiguedad: {noticia['horas']} horas")
-        print(f"   Imagen: {noticia['imagen']}")
+        print(
+            f"   Puntuacion: "
+            f"{noticia['puntos']}/100"
+        )
+        print(
+            f"   Fuente: {noticia['fuente']}"
+        )
+        print(
+            f"   Comentarios: "
+            f"{noticia['comentarios']}"
+        )
+        print(
+            f"   Likes/votos: "
+            f"{noticia['votos']}"
+        )
+        print(
+            f"   Antiguedad: "
+            f"{noticia['horas']} horas"
+        )
+        print(
+            f"   Imagen: {noticia['imagen']}"
+        )
         print(
             f"   Fotografo: "
-            f"{noticia['fotografo'] or 'Pendiente'}"
+            f"{noticia['fotografo'] or 'No identificado'}"
         )
-        print(f"   URL: {noticia['url']}\n")
+        print(
+            f"   Credito: "
+            f"{noticia['credito'] or 'Sin imagen'}"
+        )
+        print(
+            f"   Revision: "
+            f"{noticia['imagen_pendiente_revision']}"
+        )
+        print(
+            f"   URL: {noticia['url']}\n"
+        )
 
     guardar_candidatas(candidatas)
 
-    print(f"Noticias analizadas: {len(noticias)}")
-    print(f"Candidatas seleccionadas: {len(candidatas)}")
+    print(
+        f"Noticias analizadas: {len(noticias)}"
+    )
+    print(
+        f"Candidatas seleccionadas: {len(candidatas)}"
+    )
