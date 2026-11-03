@@ -26,3 +26,19 @@ collections:
       - { label: "Imagen", name: "image", widget: "image", required: false }
       - { label: "Video YouTube", name: "video", widget: "string", required: false }
       - { label: "Texto", name: "body", widget: "markdown" }
+
+  - name: "borradores_ia"
+    label: "Borradores IA"
+    folder: "data/borradores-ia"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Título", name: "title", widget: "string" }
+      - { label: "Fecha", name: "date", widget: "datetime" }
+      - { label: "Categoría", name: "category", widget: "select", options: ["Downhill", "Enduro", "XC", "Freeride", "Videos"] }
+      - { label: "Fuente original", name: "source_url", widget: "string", required: false }
+      - { label: "Imagen", name: "image", widget: "image", required: false }
+      - { label: "Video YouTube", name: "video", widget: "string", required: false }
+      - { label: "Texto", name: "body", widget: "markdown" }
