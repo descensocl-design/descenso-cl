@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-03T21:02:17.759453+00:00",
+  "actualizado": "2026-11-03T21:19:36.343874+00:00",
   "cantidad": 5,
   "noticias": [
     {
@@ -10,8 +10,13 @@
       "descripcion": "North Shore Racks says it is taking time to \"step back and reassess the future of the business.\" ( Photos: 1, Comments: 160 )",
       "comentarios": 160,
       "votos": null,
-      "horas": 37.0,
-      "puntos": 92.3
+      "horas": 37.3,
+      "puntos": 92.2,
+      "imagen": "https://ep1.pinkbike.org/p2pb28627101/p2pb28627101.jpg",
+      "fotografo": null,
+      "credito": null,
+      "fuente_imagen": "https://www.pinkbike.com/news/north-shore-racks-pauses-operations-after-22-years.html",
+      "imagen_pendiente_revision": true
     },
     {
       "fuente": "Pinkbike",
@@ -21,8 +26,13 @@
       "descripcion": "Is the aluminum, Avinox-equipped Decoy X enough to get YT back on track? ( Photos: 23, Comments: 156 )",
       "comentarios": 156,
       "votos": null,
-      "horas": 37.0,
-      "puntos": 91.9
+      "horas": 37.3,
+      "puntos": 91.8,
+      "imagen": "https://ep1.pinkbike.org/p2pb30435456/p2pb30435456.jpg",
+      "fotografo": null,
+      "credito": null,
+      "fuente_imagen": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
+      "imagen_pendiente_revision": true
     },
     {
       "fuente": "Pinkbike",
@@ -32,30 +42,45 @@
       "descripcion": "Thieves took over $50,000 worth of bikes from the Cube Factory Racing rider's garage in the middle of the night. ( Photos: 5, Comments: 135 )",
       "comentarios": 135,
       "votos": null,
-      "horas": 37.0,
-      "puntos": 89.5
+      "horas": 37.3,
+      "puntos": 89.4,
+      "imagen": "https://ep1.pinkbike.org/p2pb30479876/p2pb30479876.jpg",
+      "fotografo": null,
+      "credito": null,
+      "fuente_imagen": "https://www.pinkbike.com/news/max-hartenstern-has-5-bikes-stolen-from-his-garage.html",
+      "imagen_pendiente_revision": true
     },
     {
       "fuente": "Pinkbike",
       "titulo": "Ghost Bikes to Close After Finding \"No Viable Solution\" to Continue",
       "url": "https://www.pinkbike.com/news/ghost-bikes-to-close-after-finding-no-viable-solution-to-continue.html",
       "fecha": "2026-11-02T08:00:00+00:00",
-      "descripcion": "Ahead of the brand's closure, the remaining stock of bikes will be sold to a single dealer. ( Photos: 1, Comments: 99 )",
-      "comentarios": 99,
+      "descripcion": "Ahead of the brand's closure, the remaining stock of bikes will be sold to a single dealer. ( Photos: 1, Comments: 100 )",
+      "comentarios": 100,
       "votos": null,
-      "horas": 37.0,
-      "puntos": 84.3
+      "horas": 37.3,
+      "puntos": 84.4,
+      "imagen": "https://ep1.pinkbike.org/p2pb28117509/p2pb28117509.jpg",
+      "fotografo": null,
+      "credito": null,
+      "fuente_imagen": "https://www.pinkbike.com/news/ghost-bikes-to-close-after-finding-no-viable-solution-to-continue.html",
+      "imagen_pendiente_revision": true
     },
     {
       "fuente": "Pinkbike",
       "titulo": "Who Had the Best Line of 2026? Vote for the adidas Line of the Year Top 10",
       "url": "https://www.pinkbike.com/news/who-had-the-best-line-of-2026-vote-for-the-adidas-line-of-the-year-top-10.html",
       "fecha": "2026-11-03T08:00:00+00:00",
-      "descripcion": "Over $10,000 in cash is on the line. Watch all 10 raw POV finalists and cast your vote once per day through November 16. ( Photos: 4, Comments: 30 )",
-      "comentarios": 30,
+      "descripcion": "Over $10,000 in cash is on the line. Watch all 10 raw POV finalists and cast your vote once per day through November 16. ( Photos: 4, Comments: 31 )",
+      "comentarios": 31,
       "votos": null,
-      "horas": 13.0,
-      "puntos": 69.7
+      "horas": 13.3,
+      "puntos": 70.2,
+      "imagen": "https://ep1.pinkbike.org/p2pb30277249/p2pb30277249.jpg",
+      "fotografo": null,
+      "credito": null,
+      "fuente_imagen": "https://www.pinkbike.com/news/who-had-the-best-line-of-2026-vote-for-the-adidas-line-of-the-year-top-10.html",
+      "imagen_pendiente_revision": true
     }
   ]
 }
