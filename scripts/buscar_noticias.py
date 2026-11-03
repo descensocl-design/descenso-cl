@@ -12,8 +12,6 @@ from email.utils import parsedate_to_datetime
 from urllib.parse import urlsplit, urlunsplit
 
 
-# CONFIGURACION DESCENSO.CL
-
 FUENTES = {
     "Pinkbike": "https://www.pinkbike.com/pinkbike_xml_feed.php",
     "Vital MTB": "https://feeds.vitalmtb.com/VitalMtbSpotlights"
@@ -24,6 +22,7 @@ MAX_HORAS = 72
 MAX_CANDIDATAS = 5
 
 HISTORIAL = Path("data/noticias_procesadas.json")
+CANDIDATAS = Path("data/noticias_candidatas.json")
 
 
 def limpiar_texto(texto):
@@ -34,9 +33,7 @@ def limpiar_texto(texto):
 
 def extraer_numero(texto, patron):
     coincidencia = re.search(
-        patron,
-        texto,
-        re.IGNORECASE
+        patron, texto, re.IGNORECASE
     )
 
     if not coincidencia:
@@ -53,8 +50,6 @@ def extraer_interacciones(descripcion):
         r"Comments:\s*([\d,]+)"
     )
 
-    # Solo registrar votos si aparecen
-    # explicitamente en los datos RSS.
     votos = extraer_numero(
         descripcion,
         r"(?:Likes|Votes):\s*([\d,]+)"
@@ -135,8 +130,7 @@ def buscar_noticias():
             )
 
             with urllib.request.urlopen(
-                solicitud,
-                timeout=20
+                solicitud, timeout=20
             ) as respuesta:
                 contenido = respuesta.read()
 
@@ -218,8 +212,6 @@ def calcular_ranking(noticias):
 
     hay_votos = max_votos > 0
 
-    # Sin datos de votos, redistribuir su peso
-    # entre comentarios y actualidad.
     peso_comentarios = 60 if hay_votos else 85
     peso_votos = 25 if hay_votos else 0
     peso_actualidad = 15
@@ -263,6 +255,34 @@ def calcular_ranking(noticias):
     )
 
 
+def guardar_candidatas(candidatas):
+    CANDIDATAS.parent.mkdir(
+        parents=True, exist_ok=True
+    )
+
+    datos = {
+        "actualizado": datetime.now(
+            timezone.utc
+        ).isoformat(),
+        "cantidad": len(candidatas),
+        "noticias": candidatas
+    }
+
+    CANDIDATAS.write_text(
+        json.dumps(
+            datos,
+            ensure_ascii=False,
+            indent=2
+        ) + "\n",
+        encoding="utf-8"
+    )
+
+    print(
+        f"Archivo generado: {CANDIDATAS}",
+        flush=True
+    )
+
+
 if __name__ == "__main__":
     noticias = buscar_noticias()
     ranking = calcular_ranking(noticias)
@@ -281,6 +301,8 @@ if __name__ == "__main__":
         print(f"   Likes/votos: {noticia['votos']}")
         print(f"   Antiguedad: {noticia['horas']} horas")
         print(f"   URL: {noticia['url']}\n")
+
+    guardar_candidatas(candidatas)
 
     print(f"Noticias analizadas: {len(noticias)}")
     print(f"Candidatas seleccionadas: {len(candidatas)}")
