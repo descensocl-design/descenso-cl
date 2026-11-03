@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Confirmar ejecución
-        run: |
-          echo "Descenso.cl: búsqueda programada cada 6 horas"
-          python --version
+  
+      - name: Buscar noticias de Pinkbike y Vital MTB
+        run: python scripts/buscar_noticias.py
+
