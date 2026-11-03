@@ -22,7 +22,9 @@ FUENTES = {
 MAX_POR_FUENTE = 50
 MAX_HORAS = 72
 MAX_CANDIDATAS = 5
-ANCHO_MINIMO = 1200
+
+# Aceptar imagenes desde 1000 pixeles de ancho
+ANCHO_MINIMO = 1000
 
 HISTORIAL = Path("data/noticias_procesadas.json")
 CANDIDATAS = Path("data/noticias_candidatas.json")
@@ -224,8 +226,8 @@ def extraer_imagen_rss(item):
 
 def leer_dimensiones_imagen(datos):
     """
-    Lee las dimensiones de JPEG o PNG sin descargar
-    la fotografía completa.
+    Lee las dimensiones de JPEG o PNG sin
+    descargar la fotografia completa.
     """
     if datos.startswith(b"\x89PNG\r\n\x1a\n"):
         if len(datos) >= 24:
@@ -235,6 +237,7 @@ def leer_dimensiones_imagen(datos):
         return None
 
     posicion = 2
+
     marcadores_sof = {
         0xC0, 0xC1, 0xC2, 0xC3,
         0xC5, 0xC6, 0xC7,
@@ -290,8 +293,8 @@ def leer_dimensiones_imagen(datos):
 
 def comprobar_imagen(url):
     """
-    Comprueba que una imagen exista y que su
-    ancho sea de al menos 1200 píxeles.
+    Comprueba que la imagen exista y tenga
+    al menos 1000 pixeles de ancho.
     """
     try:
         solicitud = urllib.request.Request(
@@ -318,7 +321,7 @@ def comprobar_imagen(url):
 
         if not dimensiones:
             print(
-                f"No se pudo verificar resolución: {url}",
+                f"No se pudo verificar resolucion: {url}",
                 flush=True
             )
             return False
@@ -343,10 +346,12 @@ def comprobar_imagen(url):
 def obtener_imagen_alta_resolucion(url, fuente):
     """
     En Pinkbike intenta cambiar p2pb por p5pb.
-    Solo utiliza la versión ampliada cuando
-    comprueba que tiene resolución suficiente.
 
-    Devuelve (url, alta_resolucion_verificada).
+    Solo utiliza la version ampliada cuando
+    comprueba que tiene resolucion suficiente.
+
+    Devuelve:
+        (url, alta_resolucion_verificada)
     """
     if not url:
         return None, False
@@ -390,14 +395,14 @@ def obtener_imagen_alta_resolucion(url, fuente):
 
     if comprobar_imagen(url_grande):
         print(
-            f"Imagen de alta resolución seleccionada: "
+            f"Imagen de alta resolucion seleccionada: "
             f"{url_grande}",
             flush=True
         )
         return url_grande, True
 
     print(
-        f"No se confirmó versión grande para {url}",
+        f"No se confirmo version grande para {url}",
         flush=True
     )
 
