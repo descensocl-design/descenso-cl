@@ -3,6 +3,7 @@ import json
 import re
 import html
 import math
+import struct
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -21,6 +22,7 @@ FUENTES = {
 MAX_POR_FUENTE = 50
 MAX_HORAS = 72
 MAX_CANDIDATAS = 5
+ANCHO_MINIMO = 1200
 
 HISTORIAL = Path("data/noticias_procesadas.json")
 CANDIDATAS = Path("data/noticias_candidatas.json")
@@ -220,6 +222,188 @@ def extraer_imagen_rss(item):
     return None
 
 
+def leer_dimensiones_imagen(datos):
+    """
+    Lee las dimensiones de JPEG o PNG sin descargar
+    la fotografía completa.
+    """
+    if datos.startswith(b"\x89PNG\r\n\x1a\n"):
+        if len(datos) >= 24:
+            return struct.unpack(">II", datos[16:24])
+
+    if not datos.startswith(b"\xff\xd8"):
+        return None
+
+    posicion = 2
+    marcadores_sof = {
+        0xC0, 0xC1, 0xC2, 0xC3,
+        0xC5, 0xC6, 0xC7,
+        0xC9, 0xCA, 0xCB,
+        0xCD, 0xCE, 0xCF
+    }
+
+    while posicion + 4 <= len(datos):
+        if datos[posicion] != 0xFF:
+            posicion += 1
+            continue
+
+        while (
+            posicion < len(datos)
+            and datos[posicion] == 0xFF
+        ):
+            posicion += 1
+
+        if posicion >= len(datos):
+            break
+
+        marcador = datos[posicion]
+        posicion += 1
+
+        if marcador in (0xD8, 0xD9):
+            continue
+
+        if marcador == 0xDA:
+            break
+
+        if posicion + 2 > len(datos):
+            break
+
+        longitud = struct.unpack(
+            ">H", datos[posicion:posicion + 2]
+        )[0]
+
+        if longitud < 2:
+            break
+
+        if marcador in marcadores_sof:
+            if posicion + 7 <= len(datos):
+                alto, ancho = struct.unpack(
+                    ">HH",
+                    datos[posicion + 3:posicion + 7]
+                )
+                return ancho, alto
+
+        posicion += longitud
+
+    return None
+
+
+def comprobar_imagen(url):
+    """
+    Comprueba que una imagen exista y que su
+    ancho sea de al menos 1200 píxeles.
+    """
+    try:
+        solicitud = urllib.request.Request(
+            url,
+            headers={
+                **HEADERS,
+                "Range": "bytes=0-65535"
+            }
+        )
+
+        with urllib.request.urlopen(
+            solicitud, timeout=12
+        ) as respuesta:
+            tipo = respuesta.headers.get(
+                "Content-Type", ""
+            ).lower()
+
+            if not tipo.startswith("image/"):
+                return False
+
+            datos = respuesta.read(65536)
+
+        dimensiones = leer_dimensiones_imagen(datos)
+
+        if not dimensiones:
+            print(
+                f"No se pudo verificar resolución: {url}",
+                flush=True
+            )
+            return False
+
+        ancho, alto = dimensiones
+
+        print(
+            f"Imagen comprobada: {ancho}x{alto} - {url}",
+            flush=True
+        )
+
+        return ancho >= ANCHO_MINIMO
+
+    except Exception as error:
+        print(
+            f"No se pudo comprobar imagen {url}: {error}",
+            flush=True
+        )
+        return False
+
+
+def obtener_imagen_alta_resolucion(url, fuente):
+    """
+    En Pinkbike intenta cambiar p2pb por p5pb.
+    Solo utiliza la versión ampliada cuando
+    comprueba que tiene resolución suficiente.
+
+    Devuelve (url, alta_resolucion_verificada).
+    """
+    if not url:
+        return None, False
+
+    if fuente != "Pinkbike":
+        return url, False
+
+    partes = urlsplit(url)
+
+    if not partes.netloc.lower().endswith(
+        ".pinkbike.org"
+    ):
+        return url, False
+
+    ruta = partes.path
+
+    coincidencia = re.search(
+        r"/p\d+pb(\d+)/p\d+pb\1\.(jpg|jpeg|png)$",
+        ruta,
+        re.IGNORECASE
+    )
+
+    if not coincidencia:
+        return url, False
+
+    identificador = coincidencia.group(1)
+    extension = coincidencia.group(2)
+
+    ruta_grande = (
+        f"/p5pb{identificador}/"
+        f"p5pb{identificador}.{extension}"
+    )
+
+    url_grande = urlunsplit((
+        partes.scheme,
+        partes.netloc,
+        ruta_grande,
+        "",
+        ""
+    ))
+
+    if comprobar_imagen(url_grande):
+        print(
+            f"Imagen de alta resolución seleccionada: "
+            f"{url_grande}",
+            flush=True
+        )
+        return url_grande, True
+
+    print(
+        f"No se confirmó versión grande para {url}",
+        flush=True
+    )
+
+    return url, False
+
+
 def obtener_datos_imagen(noticia):
     imagen = noticia.pop("imagen_rss", None)
     fotografo = None
@@ -229,10 +413,8 @@ def obtener_datos_imagen(noticia):
     noticia["credito"] = None
     noticia["fuente_imagen"] = noticia["url"]
     noticia["imagen_pendiente_revision"] = True
+    noticia["imagen_alta_resolucion"] = False
 
-    # Solo consultar la pagina original si el RSS
-    # no trae una imagen o necesitamos metadatos.
-    # Un error HTTP 403 no detiene la busqueda.
     try:
         solicitud = urllib.request.Request(
             noticia["url"],
@@ -309,7 +491,17 @@ def obtener_datos_imagen(noticia):
         imagen = urljoin(noticia["url"], imagen)
 
         if urlsplit(imagen).scheme in ("http", "https"):
+            imagen, alta_resolucion = (
+                obtener_imagen_alta_resolucion(
+                    imagen,
+                    noticia["fuente"]
+                )
+            )
+
             noticia["imagen"] = imagen
+            noticia["imagen_alta_resolucion"] = (
+                alta_resolucion
+            )
 
     if fotografo:
         noticia["fotografo"] = fotografo
@@ -329,10 +521,12 @@ def obtener_datos_imagen(noticia):
                 f"Imagen obtenida de {noticia['fuente']}"
             )
 
-    # La procedencia queda identificada, pero
-    # un credito generico no confirma el autor.
     noticia["imagen_pendiente_revision"] = bool(
-        noticia["imagen"] and not noticia["fotografo"]
+        noticia["imagen"]
+        and (
+            not noticia["fotografo"]
+            or not noticia["imagen_alta_resolucion"]
+        )
     )
 
     return noticia
@@ -553,6 +747,10 @@ if __name__ == "__main__":
         )
         print(
             f"   Imagen: {noticia['imagen']}"
+        )
+        print(
+            f"   Alta resolucion: "
+            f"{noticia['imagen_alta_resolucion']}"
         )
         print(
             f"   Fotografo: "
