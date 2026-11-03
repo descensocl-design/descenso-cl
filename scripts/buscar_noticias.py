@@ -26,15 +26,23 @@ def buscar_noticias():
             raiz = ET.fromstring(contenido)
 
             for item in raiz.findall(".//item")[:10]:
-                titulo = item.findtext("title", "").strip()
-                enlace = item.findtext("link", "").strip()
+                
+titulo = item.findtext("title", "").strip()
+enlace = item.findtext("link", "").strip()
+fecha = item.findtext("pubDate", "").strip()
+descripcion = item.findtext("description", "").strip()
+
 
                 if titulo and enlace:
-                    noticias.append({
-                        "fuente": nombre,
-                        "titulo": titulo,
-                        "url": enlace
-                    })
+                   
+noticias.append({
+    "fuente": nombre,
+    "titulo": titulo,
+    "url": enlace,
+    "fecha": fecha,
+    "descripcion": descripcion[:500]
+})
+
 
         except Exception as error:
             print(f"No se pudo leer {nombre}: {error}")
