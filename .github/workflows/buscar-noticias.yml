@@ -7,21 +7,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: buscar-noticias-mtb
+  cancel-in-progress: false
 
 jobs:
   buscar:
     runs-on: ubuntu-latest
+
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Preparar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-  
       - name: Buscar noticias de Pinkbike y Vital MTB
         run: python scripts/buscar_noticias.py
 
+      - name: Guardar noticias candidatas
+        run: |
+          if [ ! -f data/noticias_candidatas.json ]; then
+            echo "ERROR: No se genero el archivo de candidatas."
+            exit 1
+          fi
+
+          git config user.name "Descenso News Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add data/noticias_candidatas.json
+
+          if git diff --cached --quiet; then
+            echo "No hay cambios que guardar."
+          else
+            git commit -m "Actualizar noticias candidatas MTB"
+            git push
+          fi
