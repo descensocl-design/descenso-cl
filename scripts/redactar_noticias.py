@@ -4,7 +4,8 @@ import json
 import urllib.request
 import urllib.error
 
-MODELO = "gemini-2.5-flash"
+# Modelo recomendado por Google en el mensaje de error
+MODELO = "gemini-3.8-flash"
 
 
 def probar_gemini():
@@ -21,19 +22,27 @@ def probar_gemini():
     )
 
     instrucciones = """
-    Eres el redactor de Descenso.cl, un medio de mountain bike.
+Eres el redactor de Descenso.cl, un medio especializado
+en mountain bike.
 
-    Redacta un titular y un párrafo periodístico en español
-    utilizando exclusivamente estos datos ficticios de prueba:
+Esta es una PRUEBA de conexión.
 
-    - Una competencia de downhill se realizó en Chile.
-    - Participaron 50 ciclistas.
-    - La pista tenía 2 kilómetros.
-    - No se conoce el nombre del ganador.
+Redacta un titular y un párrafo periodístico en español
+utilizando exclusivamente estos datos ficticios:
 
-    No inventes nombres, fechas, lugares ni resultados.
-    Comienza tu respuesta con el texto: PRUEBA DESCENSO.
-    """
+- Una competencia de downhill se realizó en Chile.
+- Participaron 50 ciclistas.
+- La pista tenía 2 kilómetros.
+- No se conoce el nombre del ganador.
+
+REGLAS:
+- No inventes nombres de corredores.
+- No inventes fechas ni lugares específicos.
+- No inventes resultados.
+- Utiliza un estilo periodístico profesional.
+- No utilices emojis.
+- Comienza con el texto: PRUEBA DESCENSO.
+"""
 
     datos = {
         "contents": [
@@ -60,7 +69,8 @@ def probar_gemini():
 
     try:
         with urllib.request.urlopen(
-            solicitud, timeout=45
+            solicitud,
+            timeout=60
         ) as respuesta:
             resultado = json.loads(
                 respuesta.read().decode("utf-8")
@@ -68,21 +78,22 @@ def probar_gemini():
 
     except urllib.error.HTTPError as error:
         detalle = error.read().decode(
-            "utf-8", errors="replace"
+            "utf-8",
+            errors="replace"
         )
 
         print(f"ERROR HTTP: {error.code}")
+        print(detalle[:2000])
 
         if error.code == 429:
-            print("Se alcanzó un límite de uso de Gemini.")
+            print("Se alcanzó el límite de uso de Gemini.")
         elif error.code == 403:
-            print("Acceso denegado por Gemini.")
+            print("Gemini rechazó el acceso.")
         elif error.code == 404:
-            print("Modelo Gemini no disponible.")
+            print("El modelo no está disponible para esta cuenta.")
         elif error.code == 400:
-            print("Solicitud rechazada por Gemini.")
+            print("La solicitud no fue aceptada.")
 
-        print(detalle[:1500])
         raise SystemExit(1)
 
     except urllib.error.URLError as error:
@@ -93,7 +104,7 @@ def probar_gemini():
 
     if not candidatos:
         raise SystemExit(
-            "Gemini respondió sin contenido generado."
+            "Gemini respondió sin generar contenido."
         )
 
     partes = candidatos[0].get(
@@ -106,9 +117,14 @@ def probar_gemini():
     )
 
     if not texto.strip():
-        raise SystemExit("Gemini devolvió texto vacío.")
+        raise SystemExit(
+            "Gemini devolvió una respuesta vacía."
+        )
 
+    print()
+    print("====================================")
     print("CONEXIÓN CON GEMINI: CORRECTA")
+    print("====================================")
     print()
     print(texto)
     print()
