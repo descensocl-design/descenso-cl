@@ -1,0 +1,36 @@
+
+name: Probar redaccion con Gemini
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Redactar noticia de prueba
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-flash
+        run: python scripts/redactar_noticias.py
+
+      - name: Guardar resultado para revision
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prueba-noticia-gemini
+          path: data/pruebas-ia/
+          if-no-files-found: warn
+          retention-days: 3
