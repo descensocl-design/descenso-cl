@@ -1,4 +1,3 @@
-
 name: Buscar noticias MTB
 
 on:
@@ -31,7 +30,9 @@ jobs:
       - name: Buscar noticias de Pinkbike y Vital MTB
         run: python scripts/buscar_noticias.py
 
-      - name: Crear borradores sin publicar
+      - name: Crear borradores con Gemini sin publicar
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/crear_borradores.py
 
       - name: Guardar candidatas y borradores
