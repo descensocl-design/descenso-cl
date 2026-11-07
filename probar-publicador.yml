@@ -1,0 +1,33 @@
+name: Simular publicador Descenso.cl
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  simular:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verificar sintaxis del publicador
+        run: python -m py_compile scripts/publicar_noticias.py
+
+      - name: Simular publicacion sin modificar archivos
+        run: python scripts/publicar_noticias.py
+
+      - name: Confirmar que posts.json no cambio
+        run: |
+          if ! git diff --exit-code -- data/posts.json; then
+            echo 'ERROR: el simulador modifico posts.json'
+            exit 1
+          fi
+          echo 'OK: posts.json sin cambios'
