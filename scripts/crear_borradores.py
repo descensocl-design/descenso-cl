@@ -1,36 +1,36 @@
+"""Genera borradores MTB en español con Gemini, sin publicarlos automáticamente.
 
-import json
-import re
+Requiere GEMINI_API_KEY en el entorno para redacción IA. Sin clave, genera ficha.
+Solo utiliza datos de RSS y metadatos de noticias_candidatas.json.
+"""
 import hashlib
+import json
+import os
+import re
+import time
+import urllib.error
+import urllib.request
+from datetime import date, datetime, timezone
 from pathlib import Path
-from datetime import datetime, timezone, date
 from urllib.parse import urlsplit, urlunsplit
 
-
-CANDIDATAS = Path("data/noticias_candidatas.json")
-HISTORIAL = Path("data/noticias_procesadas.json")
-CARPETA_BORRADORES = Path("data/borradores-ia")
-CARPETA_PUBLICADAS = Path("data/noticias")
-
+CANDIDATAS = Path('data/noticias_candidatas.json')
+HISTORIAL = Path('data/noticias_procesadas.json')
+CARPETA_BORRADORES = Path('data/borradores-ia')
+CARPETA_PUBLICADAS = Path('data/noticias')
 MAX_BORRADORES_DIA = 5
+MODELO_GEMINI = os.getenv('GEMINI_MODEL', 'gemini-flash-lite-latest')
 
 
 def normalizar_url(url):
-    partes = urlsplit(url.strip())
-    return urlunsplit((
-        partes.scheme.lower(),
-        partes.netloc.lower(),
-        partes.path.rstrip("/"),
-        "",
-        ""
-    ))
+    partes = urlsplit(str(url or '').strip())
+    return urlunsplit((partes.scheme.lower(), partes.netloc.lower(), partes.path.rstrip('/'), '', ''))
 
 
 def cargar_json(ruta, defecto):
     if not ruta.exists():
         return defecto
-
-    return json.loads(ruta.read_text(encoding="utf-8"))
+    return json.loads(ruta.read_text(encoding='utf-8'))
 
 
 def valor_yaml(texto):
@@ -38,248 +38,58 @@ def valor_yaml(texto):
 
 
 def identificar_categoria(noticia):
-    texto = (
-        noticia.get("titulo", "") + " " +
-        noticia.get("descripcion", "")
-    ).lower()
-
-    if any(p in texto for p in [
-        "freeride", "line of the year", "rampage",
-        "slopestyle", "dirt jump"
-    ]):
-        return "Freeride"
-
-    if any(p in texto for p in [
-        "cross country", "cross-country", "xco", "xc race"
-    ]):
-        return "XC"
-
-    if any(p in texto for p in [
-        "enduro", "emtb", "e-mtb", "decoy", "trail bike"
-    ]):
-        return "Enduro"
-
-    if any(p in texto for p in [
-        "downhill", "world cup dh", "dh race"
-    ]):
-        return "Downhill"
-
-    return "Downhill"
+    texto = (noticia.get('titulo', '') + ' ' + noticia.get('descripcion', '')).lower()
+    if any(p in texto for p in ('freeride', 'line of the year', 'rampage', 'slopestyle', 'dirt jump')):
+        return 'Freeride'
+    if any(p in texto for p in ('cross country', 'cross-country', 'xco', 'xc race')):
+        return 'XC'
+    if any(p in texto for p in ('enduro', 'emtb', 'e-mtb', 'decoy', 'trail bike')):
+        return 'Enduro'
+    if any(p in texto for p in ('downhill', 'world cup dh', 'dh race')):
+        return 'Downhill'
+    return 'Downhill'
 
 
 def enlaces_existentes():
     enlaces = set()
-
-    for carpeta in [CARPETA_BORRADORES, CARPETA_PUBLICADAS]:
+    for carpeta in (CARPETA_BORRADORES, CARPETA_PUBLICADAS):
         if not carpeta.exists():
             continue
-
-        for archivo in carpeta.glob("*.md"):
-            contenido = archivo.read_text(
-                encoding="utf-8-sig"
-            )
-
-            coincidencia = re.search(
-                r'^source_url:\s*["\']?([^"\'\n]+)',
-                contenido,
-                re.MULTILINE
-            )
-
+        for archivo in carpeta.glob('*.md'):
+            contenido = archivo.read_text(encoding='utf-8-sig')
+            coincidencia = re.search(r'^source_url:\s*["\']?([^"\'\n]+)', contenido, re.MULTILINE)
             if coincidencia:
-                enlaces.add(
-                    normalizar_url(coincidencia.group(1))
-                )
-
+                enlaces.add(normalizar_url(coincidencia.group(1)))
     return enlaces
 
 
 def contar_borradores_hoy():
     hoy = datetime.now(timezone.utc).date()
     cantidad = 0
-
     if not CARPETA_BORRADORES.exists():
         return 0
-
-    for archivo in CARPETA_BORRADORES.glob("*.md"):
+    for archivo in CARPETA_BORRADORES.glob('*.md'):
         try:
-            contenido = archivo.read_text(
-                encoding="utf-8-sig"
-            )
-
-            coincidencia = re.search(
-                r'^draft_created_at:\s*["\']?(\d{4}-\d{2}-\d{2})',
-                contenido,
-                re.MULTILINE
-            )
-
-            if coincidencia:
-                fecha = date.fromisoformat(
-                    coincidencia.group(1)
-                )
-
-                if fecha == hoy:
-                    cantidad += 1
-
+            contenido = archivo.read_text(encoding='utf-8-sig')
+            coincidencia = re.search(r'^draft_created_at:\s*["\']?(\d{4}-\d{2}-\d{2})', contenido, re.MULTILINE)
+            if coincidencia and date.fromisoformat(coincidencia.group(1)) == hoy:
+                cantidad += 1
         except (OSError, ValueError):
             continue
-
     return cantidad
 
 
-def crear_borrador(noticia):
-    url = normalizar_url(noticia["url"])
-
-    identificador = hashlib.sha256(
-        url.encode("utf-8")
-    ).hexdigest()[:12]
-
-    fecha_creacion = datetime.now(timezone.utc)
-    fecha_noticia = noticia.get(
-        "fecha", fecha_creacion.isoformat()
-    )
-
-    titulo = noticia.get("titulo", "Noticia MTB")
-    categoria = identificar_categoria(noticia)
-
-    imagen = noticia.get("imagen") or ""
-    fotografo = noticia.get("fotografo") or ""
-
-    credito = noticia.get("credito") or ""
-
-    if imagen and not credito:
-        credito = (
-            "Fotografía obtenida del sitio oficial "
-            "de Pinkbike (www.pinkbike.com)"
-            if noticia.get("fuente") == "Pinkbike"
-            else f"Imagen obtenida de {noticia.get('fuente', 'fuente original')}"
-        )
-
-    pendiente = bool(
-        noticia.get("imagen_pendiente_revision", False)
-    )
-
-    nombre_archivo = (
-        fecha_creacion.strftime("%Y-%m-%d")
-        + "-"
-        + identificador
-        + ".md"
-    )
-
-    ruta = CARPETA_BORRADORES / nombre_archivo
-
-    descripcion = noticia.get("descripcion", "")
-
-    contenido = "\n".join([
-        "---",
-        f"title: {valor_yaml(titulo)}",
-        f"date: {valor_yaml(fecha_noticia)}",
-        f"category: {valor_yaml(categoria)}",
-        f"source_url: {valor_yaml(url)}",
-        f"image: {valor_yaml(imagen)}",
-        f"image_credit: {valor_yaml(credito)}",
-        f"photographer: {valor_yaml(fotografo)}",
-        f"image_pending_review: {str(pendiente).lower()}",
-        f"draft_created_at: {valor_yaml(fecha_creacion.isoformat())}",
-        "---",
-        "",
-        "**BORRADOR AUTOMÁTICO — PENDIENTE DE REDACCIÓN Y APROBACIÓN**",
-        "",
-        "Esta ficha se creó automáticamente a partir de una noticia",
-        "seleccionada por el buscador de Descenso.cl.",
-        "",
-        f"**Título original:** {titulo}",
-        "",
-        f"**Fuente:** {noticia.get('fuente', 'Pinkbike')}",
-        "",
-        f"**Descripción de referencia:** {descripcion}",
-        "",
-        f"**Artículo original:** {url}",
-        "",
-        "Antes de publicar, redactar una noticia original en español,",
-        "verificar los datos y revisar los créditos de las imágenes.",
-        ""
-    ])
-
-    ruta.write_text(contenido, encoding="utf-8")
-
-    print(f"Borrador creado: {ruta}", flush=True)
-
-    return ruta
+def contexto_de(noticia):
+    contexto = noticia.get('contexto_rss') or noticia.get('descripcion') or ''
+    return str(contexto).strip()[:8000]
 
 
-def main():
-    if not CANDIDATAS.exists():
-        print("ERROR: No existe noticias_candidatas.json")
-        raise SystemExit(1)
+def redactar_con_gemini(noticia):
+    clave = os.getenv('GEMINI_API_KEY', '').strip()
+    if not clave:
+        return None, 'Sin GEMINI_API_KEY; se conserva ficha de revisión'
 
-    datos = cargar_json(CANDIDATAS, {})
-    noticias = datos.get("noticias", [])
-
-    historial = cargar_json(
-        HISTORIAL, {"procesadas": []}
-    )
-
-    procesadas = {
-        normalizar_url(url)
-        for url in historial.get("procesadas", [])
-        if isinstance(url, str)
-    }
-
-    existentes = enlaces_existentes()
-
-    creados_hoy = contar_borradores_hoy()
-    disponibles = max(
-        0, MAX_BORRADORES_DIA - creados_hoy
-    )
-
-    print(f"Borradores creados hoy: {creados_hoy}")
-    print(f"Cupos disponibles: {disponibles}")
-
-    CARPETA_BORRADORES.mkdir(
-        parents=True, exist_ok=True
-    )
-
-    nuevos = 0
-
-    for noticia in noticias:
-        if nuevos >= disponibles:
-            break
-
-        url = normalizar_url(
-            noticia.get("url", "")
-        )
-
-        if not url:
-            continue
-
-        if url in procesadas or url in existentes:
-            print(f"Noticia duplicada: {url}")
-            continue
-
-        crear_borrador(noticia)
-
-        procesadas.add(url)
-        existentes.add(url)
-        nuevos += 1
-
-    historial["procesadas"] = sorted(procesadas)
-
-    HISTORIAL.parent.mkdir(
-        parents=True, exist_ok=True
-    )
-
-    HISTORIAL.write_text(
-        json.dumps(
-            historial,
-            ensure_ascii=False,
-            indent=2
-        ) + "\n",
-        encoding="utf-8"
-    )
-
-    print(f"Nuevos borradores creados: {nuevos}")
-    print("Publicación automática: DESACTIVADA")
-
-
-if __name__ == "__main__":
-    main()
+    contexto = contexto_de(noticia)
+    titulo = str(noticia.get('titulo', '')).strip()
+    if not titulo or not contexto:
+        return None, 'No hay título o descripción suficiente'
