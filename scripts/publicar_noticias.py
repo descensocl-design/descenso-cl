@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""Publicador conservador de Descenso.cl. Por defecto, solo simula.
+"""Publicador conservador de Descenso.cl; simula salvo que se use --publicar.
 
-Lee candidatos JSON estructurados en data/listas-para-publicar/. Nunca interpreta
-fichas Markdown como noticias aprobadas. El modo --publicar exige validación
-explícita de hechos respaldados y una autorización editorial previa.
+Lee JSON estructurado desde data/listas-para-publicar/. No interpreta borradores
+Markdown ni convierte las declaraciones de Gemini en verificaciones editoriales.
 """
 import argparse
 import json
-import re
 from datetime import date
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
@@ -16,6 +14,8 @@ POSTS = Path('data/posts.json')
 ENTRADAS = Path('data/listas-para-publicar')
 MAX_DIARIO = 3
 CATEGORIAS = {'Downhill', 'Enduro', 'Freeride', 'XC', 'Latinoamérica', 'Mundo', 'Chile', 'Araucanía'}
+MIN_PALABRAS_NOTA = 50
+MIN_PALABRAS_FUENTE = 50
 
 
 def url_normalizada(value):
@@ -31,23 +31,27 @@ def url_normalizada(value):
 def validar(n):
     if not isinstance(n, dict):
         return 'formato inválido'
-    required = ('title', 'date', 'category', 'excerpt', 'body', 'source_url')
-    if any(not n.get(k) for k in required):
+    obligatorios = ('title', 'date', 'category', 'excerpt', 'body', 'source_url')
+    if any(not n.get(k) for k in obligatorios):
         return 'faltan campos obligatorios'
+    if not all(isinstance(n[k], str) for k in ('title', 'date', 'category', 'excerpt', 'source_url')):
+        return 'campos de texto inválidos'
     if not isinstance(n['body'], list) or not all(isinstance(p, str) for p in n['body']):
         return 'body debe ser una lista de párrafos'
     if n['category'] not in CATEGORIAS:
         return 'categoría no admitida'
     try:
-        date.fromisoformat(n['date'])
+        if date.fromisoformat(n['date']).isoformat() != n['date']:
+            return 'fecha inválida (usar AAAA-MM-DD)'
     except (TypeError, ValueError):
         return 'fecha inválida (usar AAAA-MM-DD)'
     if not url_normalizada(n['source_url']):
         return 'URL de fuente inválida'
     if len(n['title'].strip()) < 15 or len(n['excerpt'].strip()) < 50:
         return 'título o resumen demasiado breve'
-    if len(' '.join(n['body']).split()) < 120:
-        return 'texto insuficiente para publicación automática'
+    palabras = len(' '.join(n['body']).split())
+    if palabras < MIN_PALABRAS_NOTA:
+        return 'texto insuficiente (mínimo 50 palabras)'
     if n.get('image'):
         return 'imagen externa requiere revisión de derechos; dejar image vacío'
     if n.get('image_pending_review', False):
@@ -56,8 +60,9 @@ def validar(n):
         return 'hechos no verificados'
     if n.get('editorial_approved') is not True:
         return 'sin aprobación editorial'
-    if n.get('source_context_words', 0) < 120:
-        return 'contexto original insuficiente'
+    palabras_fuente = n.get('source_context_words', 0)
+    if isinstance(palabras_fuente, bool) or not isinstance(palabras_fuente, int) or palabras_fuente < MIN_PALABRAS_FUENTE:
+        return 'contexto original insuficiente (mínimo 50 palabras)'
     if 'pendiente de verificación' in ' '.join(n['body']).lower():
         return 'el texto contiene advertencia de verificación'
     return None
