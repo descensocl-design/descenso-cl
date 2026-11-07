@@ -1,0 +1,37 @@
+name: Probar ampliacion de noticias
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Comprobar sintaxis
+        run: python -m py_compile scripts/ampliar_contexto.py
+      - name: Ampliar noticias existentes
+        run: python scripts/ampliar_contexto.py
+      - name: Mostrar resumen de resultados
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          ruta = Path('data/noticias_ampliadas.json')
+          datos = json.loads(ruta.read_text(encoding='utf-8'))
+          for n in datos.get('noticias', []):
+              print(f"{n.get('titulo', '')[:70]} | {n.get('palabras_contexto_ampliado', 0)} palabras | {n.get('origen_contexto_ampliado')} | {n.get('error_ampliacion') or 'sin error'}")
+          PY
+      - name: Guardar resultados para descargar
+        uses: actions/upload-artifact@v4
+        with:
+          name: noticias-ampliadas-prueba
+          path: data/noticias_ampliadas.json
