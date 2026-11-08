@@ -1,0 +1,64 @@
+
+name: Probar acceso a Pinkbike
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Comprobar acceso a articulos
+        run: |
+          python - <<'PY'
+          import urllib.request
+          import urllib.error
+
+          articulo = (
+              "beyond-gravity-explores-potential-for-races-"
+              "in-new-zealand-the-us-and-more-for-expanded-"
+              "2028-race-series.html"
+          )
+
+          urls = [
+              "https://www.pinkbike.com/news/" + articulo,
+              "https://es.pinkbike.org/news/" + articulo,
+              "https://www.pinkbike.com/pinkbike_xml_feed.php",
+          ]
+
+          for url in urls:
+              print("\nPROBANDO:", url, flush=True)
+              try:
+                  req = urllib.request.Request(
+                      url,
+                      headers={
+                          "User-Agent": "DescensoNewsBot/1.0",
+                          "Accept": "text/html, application/rss+xml",
+                      },
+                  )
+                  with urllib.request.urlopen(
+                      req, timeout=20
+                  ) as respuesta:
+                      datos = respuesta.read(1000000)
+                      print("HTTP:", respuesta.status)
+                      print("Bytes recibidos:", len(datos))
+                      print(
+                          "Tipo:",
+                          respuesta.headers.get("Content-Type"),
+                      )
+              except urllib.error.HTTPError as e:
+                  print("HTTP ERROR:", e.code)
+              except Exception as e:
+                  print("ERROR:", type(e).__name__, str(e))
+
+          print("\nPRUEBA TERMINADA")
+          PY
