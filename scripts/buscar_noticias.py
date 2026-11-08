@@ -664,61 +664,75 @@ def buscar_noticias():
     return noticias
 
 
+# Clasificación editorial orientativa. No equivale a verificación factual.
+PATRONES_NOTICIA = (
+    (r"\b(acqui(?:red|sition|res)|takeover|buyout|merger|insolven(?:t|cy)|bankrupt(?:cy)?|closure|shutdown|closes|saved from closure)\b", 1.0, "Industria"),
+    (r"\b(world cup|world championship|championships|uci|race results|race report|podium|wins|winner|victory|national champion|pan american|panamericano)\b", 0.95, "Competición"),
+    (r"\b(signs with|signing|joins team|joins the team|transfers|contract|retires|retirement|injury update)\b", 0.9, "Pilotos y equipos"),
+    (r"\b(launches|launched|unveils|unveiled|announces|announced|reveals|released|new model|new bike|new frame|expanded lineup|debut)\b", 0.8, "Lanzamientos"),
+    (r"\b(trail access|trail closure|land access|bike park opens|bike park closes|safety recall|product recall)\b", 0.9, "Comunidad"),
+)
+PATRONES_EDITORIALES = (
+    r"\b(opinion|editorial|hot take|roundtable|podcast|reader poll|poll|vote|voting|survey|giveaway|contest)\b",
+    r"\b(favorite|favourite|editors' picks|editors’ picks|best of|buyers? guide|gift guide|top ten|top 10)\b",
+    r"\b(first ride|first look|review|long term test|tested|comparison|versus|\bvs\b)\b",
+)
+
+
+def evaluar_relevancia(noticia):
+    texto = ' '.join((str(noticia.get('titulo') or ''), str(noticia.get('descripcion') or ''))).lower()
+    coincidencias = [
+        (valor, etiqueta) for patron, valor, etiqueta in PATRONES_NOTICIA
+        if re.search(patron, texto, re.IGNORECASE)
+    ]
+    penalizacion = any(re.search(p, texto, re.IGNORECASE) for p in PATRONES_EDITORIALES)
+    if coincidencias:
+        valor, etiqueta = max(coincidencias, key=lambda x: x[0])
+    else:
+        valor, etiqueta = 0.35, 'Por clasificar'
+    if penalizacion:
+        valor = min(valor, 0.15)
+        etiqueta = 'Contenido editorial / opinión'
+    return valor, etiqueta
+
+
 def calcular_ranking(noticias):
     if not noticias:
         return []
 
-    max_comentarios = max(
-        (n["comentarios"] or 0 for n in noticias),
-        default=0
-    )
-
-    max_votos = max(
-        (n["votos"] or 0 for n in noticias),
-        default=0
-    )
-
-    hay_votos = max_votos > 0
-
-    peso_comentarios = 60 if hay_votos else 85
-    peso_votos = 25 if hay_votos else 0
-    peso_actualidad = 15
+    max_comentarios = max((n.get('comentarios') or 0 for n in noticias), default=0)
+    max_votos = max((n.get('votos') or 0 for n in noticias), default=0)
 
     for noticia in noticias:
-        comentarios = noticia["comentarios"] or 0
-        votos = noticia["votos"] or 0
-
+        relevancia, tipo = evaluar_relevancia(noticia)
+        noticia['tipo_editorial'] = tipo
+        noticia['puntos_relevancia'] = round(45 * relevancia, 1)
+        noticia['puntos_actualidad'] = round(
+            30 * max(0, 1 - float(noticia.get('horas') or 0) / MAX_HORAS), 1
+        )
+        # Popularidad normalizada, sin favorecer automáticamente a una sola fuente.
+        interaccion_comentarios = (
+            math.log1p(noticia.get('comentarios') or 0) / math.log1p(max_comentarios)
+            if max_comentarios else 0
+        )
+        interaccion_votos = (
+            math.log1p(noticia.get('votos') or 0) / math.log1p(max_votos)
+            if max_votos else 0
+        )
         popularidad = (
-            math.log1p(comentarios)
-            / math.log1p(max_comentarios)
-            * peso_comentarios
-            if max_comentarios > 0 else 0
+            0.75 * interaccion_comentarios + 0.25 * interaccion_votos
+            if max_votos else interaccion_comentarios
         )
-
-        puntuacion_votos = (
-            math.log1p(votos)
-            / math.log1p(max_votos)
-            * peso_votos
-            if max_votos > 0 else 0
-        )
-
-        actualidad = max(
-            0,
-            (1 - noticia["horas"] / MAX_HORAS)
-            * peso_actualidad
-        )
-
-        noticia["puntos"] = round(
-            popularidad + puntuacion_votos + actualidad,
-            1
+        noticia['puntos_popularidad'] = round(25 * popularidad, 1)
+        noticia['puntos'] = round(
+            noticia['puntos_relevancia']
+            + noticia['puntos_actualidad']
+            + noticia['puntos_popularidad'], 1
         )
 
     return sorted(
         noticias,
-        key=lambda n: (
-            n["puntos"],
-            n["comentarios"] or 0
-        ),
+        key=lambda n: (n['puntos'], n.get('comentarios') or 0),
         reverse=True
     )
 
@@ -761,7 +775,7 @@ if __name__ == "__main__":
         for noticia in ranking[:MAX_CANDIDATAS]
     ]
 
-    print("\nDESCENSO.CL — TOP 5 POR POPULARIDAD\n")
+    print("\nDESCENSO.CL — TOP 5 POR PRIORIDAD EDITORIAL\n")
 
     for posicion, noticia in enumerate(
         candidatas,
