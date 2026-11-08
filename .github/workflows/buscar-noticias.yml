@@ -1,4 +1,4 @@
-name: Buscar noticias MTB
+name: Buscar y publicar noticias Pinkbike
 
 on:
   schedule:
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  buscar:
+  buscar-y-publicar:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,27 +27,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Buscar noticias de Pinkbike y Vital MTB
+      - name: Buscar noticias de Pinkbike
         run: python scripts/buscar_noticias.py
 
-      - name: Crear borradores con Gemini sin publicar
+      - name: Redactar y publicar hasta cinco breves diarios
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/crear_borradores.py
+        run: python scripts/automatizar_pinkbike.py --publicar
 
-      - name: Guardar candidatas y borradores
+      - name: Guardar candidatas y publicaciones
         shell: bash
         run: |
           git config user.name "Descenso News Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add data/noticias_candidatas.json
-          git add data/noticias_procesadas.json
-          git add data/borradores-ia/
+          git add data/noticias_candidatas.json data/posts.json
 
           if git diff --cached --quiet; then
             echo "No hay cambios que guardar."
           else
-            git commit -m "Actualizar candidatas y borradores MTB"
+            git commit -m "Publicar breves Pinkbike en Descenso.cl"
             git push
           fi
