@@ -106,8 +106,10 @@ def descargar(url):
         if len(texto.split()) < 80:
             return '', 'No se encontró contenido editorial suficiente'
         return texto, None
-    except (urllib.error.URLError, TimeoutError, ValueError, OSError) as e:
-        return '', f'No disponible: {type(e).__name__}'
+    except urllib.error.HTTPError as e:
+    return '', f'HTTP {e.code}: {e.reason}'
+except (urllib.error.URLError, TimeoutError, ValueError, OSError) as e:
+    return '', f'No disponible: {type(e).__name__}'
 
 
 def main():
