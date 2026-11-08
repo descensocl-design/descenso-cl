@@ -7,83 +7,223 @@
   <meta name="theme-color" content="#090909">
   <meta name="description" content="Noticias, historias y videos del mountain bike latinoamericano.">
   <title>DESCENSO.CL — Mountain Bike</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* Logo oficial de Descenso.cl */
+    .brand {
+      display: block;
+      width: min(100%, 520px);
+      line-height: 0;
+    }
+
+    .brand-logo {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    @media (max-width: 600px) {
+      .brand {
+        width: min(100%, 340px);
+      }
+
+      .brandrow {
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
+
   <header class="header">
+
     <div class="topline">
       <span>INDEPENDIENTE · DESDE CHILE PARA EL MUNDO</span>
-      <a href="https://contacto.descenso.cl/">CONTACTO ↗</a>
+      <a href="https://contacto.descenso.cl/">
+        CONTACTO ↗
+      </a>
     </div>
+
     <div class="brandrow">
-      <a class="brand" href="/">DESCENSO<span>.CL</span></a>
-      <span class="tagline">DOWNHILL / ENDURO / XC / FREERIDE</span>
+      <a
+        class="brand"
+        href="/"
+        aria-label="Descenso.cl — Inicio"
+      >
+        <img
+          src="/logo-descenso.jpg"
+          alt="DESCENSO.CL"
+          class="brand-logo"
+          width="1920"
+          height="420"
+        >
+      </a>
+
+      <span class="tagline">
+        DOWNHILL / ENDURO / XC / FREERIDE
+      </span>
     </div>
+
     <nav class="nav" aria-label="Categorías">
-      <button class="navitem active" data-filter="Todos">INICIO</button>
-      <button class="navitem" data-filter="Downhill">DOWNHILL</button>
-      <button class="navitem" data-filter="Enduro">ENDURO</button>
-      <button class="navitem" data-filter="XC">XC</button>
-      <button class="navitem" data-filter="Freeride">FREERIDE</button>
-      <button class="navitem" data-filter="Videos">VIDEOS</button>
+      <button class="navitem active" data-filter="Todos">
+        INICIO
+      </button>
+      <button class="navitem" data-filter="Downhill">
+        DOWNHILL
+      </button>
+      <button class="navitem" data-filter="Enduro">
+        ENDURO
+      </button>
+      <button class="navitem" data-filter="XC">
+        XC
+      </button>
+      <button class="navitem" data-filter="Freeride">
+        FREERIDE
+      </button>
+      <button class="navitem" data-filter="Videos">
+        VIDEOS
+      </button>
     </nav>
+
   </header>
 
   <main class="container">
+
     <div class="layout">
+
       <div class="maincol">
-        <section id="featured" class="featured" aria-label="Noticia destacada"></section>
+
+        <section
+          id="featured"
+          class="featured"
+          aria-label="Noticia destacada"
+        ></section>
+
         <section class="content">
+
           <div class="sectionbar">
-            <h2 id="section-title">ÚLTIMAS NOTICIAS</h2>
+            <h2 id="section-title">
+              ÚLTIMAS NOTICIAS
+            </h2>
             <span id="count"></span>
           </div>
+
           <div class="searchbar">
-            <label for="search">BUSCAR HISTORIAS</label>
-            <input id="search" type="search" placeholder="Buscar noticias, riders, carreras...">
+            <label for="search">
+              BUSCAR HISTORIAS
+            </label>
+            <input
+              id="search"
+              type="search"
+              placeholder="Buscar noticias, riders, carreras..."
+            >
           </div>
-          <div id="posts" class="posts" aria-live="polite"></div>
-          <div id="empty" class="empty" hidden>No encontramos publicaciones con ese filtro.</div>
+
+          <div
+            id="posts"
+            class="posts"
+            aria-live="polite"
+          ></div>
+
+          <div
+            id="empty"
+            class="empty"
+            hidden
+          >
+            No encontramos publicaciones con ese filtro.
+          </div>
+
         </section>
+
       </div>
 
       <aside class="sidebar">
+
         <section class="sidepanel">
           <h2>▶ ÚLTIMO VIDEO</h2>
           <div id="latest-video"></div>
         </section>
+
         <section class="sidepanel">
           <h2>DESCENSO.CL</h2>
-          <p>Historias, competencias y protagonistas del mountain bike. Desde Latinoamérica para el mundo.</p>
-          <a href="https://www.youtube.com/@descensocl">YOUTUBE ↗</a>
-          <a href="https://www.instagram.com/descenso.cl/">INSTAGRAM ↗</a>
-          <a href="https://www.tiktok.com/@descensocl">TIKTOK ↗</a>
+
+          <p>
+            Historias, competencias y protagonistas
+            del mountain bike. Desde Latinoamérica
+            para el mundo.
+          </p>
+
+          <a href="https://www.youtube.com/@descensocl">
+            YOUTUBE ↗
+          </a>
+
+          <a href="https://www.instagram.com/descenso.cl/">
+            INSTAGRAM ↗
+          </a>
+
+          <a href="https://www.tiktok.com/@descensocl">
+            TIKTOK ↗
+          </a>
         </section>
+
         <section class="sidepanel">
           <h2>CONTACTO</h2>
-          <p>Producciones, coberturas y colaboraciones.</p>
-          <a href="https://contacto.descenso.cl/">TARJETA DIGITAL ↗</a>
+
+          <p>
+            Producciones, coberturas y colaboraciones.
+          </p>
+
+          <a href="https://contacto.descenso.cl/">
+            TARJETA DIGITAL ↗
+          </a>
         </section>
+
       </aside>
+
     </div>
 
     <footer>
-      <strong>DESCENSO<span>.CL</span></strong>
-      <p>DOWNHILL · ENDURO · XC · FREERIDE</p>
+
+      <strong>
+        DESCENSO<span>.CL</span>
+      </strong>
+
+      <p>
+        DOWNHILL · ENDURO · XC · FREERIDE
+      </p>
+
       <div>
-        <a href="https://www.instagram.com/descenso.cl/">INSTAGRAM ↗</a>
-        <a href="https://www.youtube.com/@descensocl">YOUTUBE ↗</a>
-        <a href="https://www.tiktok.com/@descensocl">TIKTOK ↗</a>
-        <a href="https://contacto.descenso.cl/">CONTACTO ↗</a>
+        <a href="https://www.instagram.com/descenso.cl/">
+          INSTAGRAM ↗
+        </a>
+
+        <a href="https://www.youtube.com/@descensocl">
+          YOUTUBE ↗
+        </a>
+
+        <a href="https://www.tiktok.com/@descensocl">
+          TIKTOK ↗
+        </a>
+
+        <a href="https://contacto.descenso.cl/">
+          CONTACTO ↗
+        </a>
       </div>
+
     </footer>
+
   </main>
 
   <dialog id="article">
-    <button id="close" class="close">✕ CERRAR</button>
+    <button id="close" class="close">
+      ✕ CERRAR
+    </button>
     <div id="article-body"></div>
   </dialog>
 
-  <script src="script.js" defer></script>
+  <script src="/script.js" defer></script>
+
 </body>
 </html>
