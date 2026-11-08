@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
-"""Prepara o publica hasta cinco notas de Pinkbike al día.
+"""Publica hasta cinco breves diarios de Pinkbike a partir del RSS.
 
-Por defecto simula. --publicar modifica data/posts.json únicamente para notas
-con contexto fuente suficiente y redacción válida. No utiliza imágenes externas.
+Por defecto simula. --publicar actualiza data/posts.json.
+Requiere GEMINI_API_KEY para redactar; nunca inventa detalles faltantes.
 """
 import argparse
 import json
+import os
 import re
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
+from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
-
-from crear_borradores import redactar_con_gemini, contexto_de, identificar_categoria
 
 CANDIDATAS = Path('data/noticias_candidatas.json')
 POSTS = Path('data/posts.json')
 MAX_DIARIO = 5
-MIN_FUENTE = 50
-MIN_NOTA = 50
 ZONA = ZoneInfo('America/Santiago')
+MODELO = os.getenv('GEMINI_MODEL', 'gemini-flash-lite-latest')
 
 
 def normalizar_url(url):
@@ -32,94 +31,66 @@ def normalizar_url(url):
         return ''
 
 
-def preparar(noticia, hoy):
-    if not isinstance(noticia, dict) or noticia.get('fuente') != 'Pinkbike':
-        return None, 'fuente no admitida'
-    url = normalizar_url(noticia.get('url', ''))
-    if not url:
-        return None, 'URL de Pinkbike inválida'
-    comentarios = noticia.get('comentarios')
-    if type(comentarios) is not int or comentarios < 0:
-        return None, 'sin número fiable de comentarios'
-    titulo = str(noticia.get('titulo') or '').strip()
-    contexto = contexto_de(noticia)
-    if len(contexto.split()) < MIN_FUENTE:
-        return None, f'contexto insuficiente: {len(contexto.split())} palabras'
-    if len(titulo) < 15:
-        return None, 'título insuficiente'
-    texto, error = redactar_con_gemini(noticia)
-    if error or not texto:
-        return None, error or 'Gemini no devolvió texto'
-    if 'pendiente de verificaci' in texto.lower():
-        return None, 'Gemini indicó información pendiente'
-    parrafos = [p.strip() for p in re.split(r'\n\s*\n', texto) if p.strip()]
-    if len(' '.join(parrafos).split()) < MIN_NOTA:
-        return None, 'redacción demasiado breve'
-    if any(re.search(r'(?i)(^#|^---|^source_url:|^title:)', p) for p in parrafos):
-        return None, 'formato inesperado de Gemini'
-    resumen = ' '.join(parrafos).strip()[:220]
-    if len(resumen) < 50:
-        return None, 'resumen insuficiente'
-    return {
-        'title': titulo,
-        'date': hoy,
-        'category': identificar_categoria(noticia),
-        'excerpt': resumen,
-        'image': '',
-        'youtube': '',
-        'body': parrafos,
-        'link': url,
-        'auto_published': True,
-        'source_name': 'Pinkbike',
-        'source_comments_at_selection': comentarios,
-    }, None
+def limpiar(texto):
+    texto = re.sub(r'<[^>]+>', ' ', str(texto or ''))
+    texto = re.sub(r'\s+', ' ', texto)
+    return texto.strip()
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--publicar', action='store_true', help='Modificar posts.json; por defecto solo simula')
-    args = parser.parse_args()
-    if not CANDIDATAS.exists() or not POSTS.exists():
-        raise SystemExit('ERROR: faltan data/noticias_candidatas.json o data/posts.json')
-    datos = json.loads(CANDIDATAS.read_text(encoding='utf-8'))
-    posts = json.loads(POSTS.read_text(encoding='utf-8'))
-    if not isinstance(posts, list) or not isinstance(datos.get('noticias'), list):
-        raise SystemExit('ERROR: formato JSON inesperado')
-    hoy = datetime.now(ZONA).date().isoformat()
-    usados = {normalizar_url(p.get('link', '')) for p in posts if isinstance(p, dict)}
-    usados.discard('')
-    publicados = sum(1 for p in posts if isinstance(p, dict) and p.get('date') == hoy and p.get('auto_published'))
-    cupos = max(0, MAX_DIARIO - publicados)
-    noticias = sorted(
-        (n for n in datos['noticias'] if isinstance(n, dict)),
-        key=lambda n: n.get('comentarios') if type(n.get('comentarios')) is int else -1,
-        reverse=True,
+def contexto_rss(noticia):
+    # No se usa contenido externo ni se interpreta una URL como prueba de hechos.
+    partes = [limpiar(noticia.get('titulo')), limpiar(noticia.get('descripcion'))]
+    if not partes[1]:
+        partes[1] = limpiar(noticia.get('contexto_rss'))
+    return '\n'.join(p for p in partes if p)
+
+
+def redactar_breve(noticia):
+    clave = os.getenv('GEMINI_API_KEY', '').strip()
+    if not clave:
+        return None, 'falta GEMINI_API_KEY'
+    fuente = contexto_rss(noticia)
+    instrucciones = (
+        'Eres redactor de Descenso.cl, un medio chileno de mountain bike. '
+        'Escribe SOLO un breve periodístico en español basado estrictamente en el '
+        'título y descripción RSS que siguen. Máximo 75 palabras; idealmente 35 a 65. '
+        'No añadas nombres, fechas, lugares, resultados, declaraciones, cifras ni '
+        'contexto que no aparezcan explícitamente en la fuente. '
+        'Si el RSS es escaso, escribe menos: nunca rellenes con especulación. '
+        'No agregues titular, subtítulos, enlaces, créditos, hashtags ni Markdown. '
+        'No digas que se verificó el artículo completo. '
+        'Si no hay información suficiente para una oración factual útil, responde '
+        'exactamente SIN_DATOS.\n\nRSS:\n' + fuente
     )
-    aceptadas = []
-    for noticia in noticias:
-        if len(aceptadas) >= cupos:
-            break
-        url = normalizar_url(noticia.get('url', ''))
-        if url and url in usados:
-            print(f'OMITIDA duplicada: {noticia.get("titulo", "")}')
-            continue
-        # No se llama a Gemini si el texto fuente es insuficiente.
-        nota, motivo = preparar(noticia, hoy)
-        if motivo:
-            print(f'OMITIDA {noticia.get("titulo", "")}: {motivo}')
-            continue
-        aceptadas.append(nota)
-        usados.add(url)
-        print(f'APTA {nota["title"]} | comentarios: {nota["source_comments_at_selection"]}')
-    print(f'Modo: {"PUBLICAR" if args.publicar else "SIMULAR"}; cupos: {cupos}; aptas: {len(aceptadas)}')
-    if args.publicar and aceptadas:
-        temporal = POSTS.with_suffix('.json.tmp')
-        temporal.write_text(json.dumps(aceptadas + posts, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-        temporal.replace(POSTS)
-        print(f'posts.json actualizado: {len(aceptadas)} publicaciones')
-    else:
-        print('posts.json sin modificaciones')
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/{MODELO}:generateContent'
+    payload = {
+        'contents': [{'parts': [{'text': instrucciones}]}],
+        'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 350},
+    }
+    peticion = Request(
+        url,
+        data=json.dumps(payload).encode('utf-8'),
+        headers={'Content-Type': 'application/json', 'x-goog-api-key': clave},
+        method='POST',
+    )
+    try:
+        with urlopen(peticion, timeout=45) as respuesta:
+            datos = json.load(respuesta)
+        partes = datos.get('candidates', [{}])[0].get('content', {}).get('parts', [])
+        texto = '\n'.join(p.get('text', '') for p in partes if isinstance(p, dict)).strip()
+    except Exception as exc:
+        return None, f'error de Gemini: {type(exc).__name__}: {exc}'
+    if not texto or 'SIN_DATOS' in texto:
+        return None, 'Gemini no pudo redactar con los datos disponibles'
+    texto = texto.strip().strip('"')
+    if re.search(r'(?im)^\s*(#|---|title:|source_url:)', texto):
+        return None, 'Gemini devolvió un formato inesperado'
+    if len(texto.split()) < 12 or len(texto.split()) > 100:
+        return None, f'longitud no válida: {len(texto.split())} palabras'
+    return texto, None
 
 
-if __name__ == '__main__':
-    main()
+def categoria(noticia):
+    texto = contexto_rss(noticia).lower()
+    if re.search(r'\b(downhill|dh|world cup|hardline)\b', texto):
+        return 'Downhill'
