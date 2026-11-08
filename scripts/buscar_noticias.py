@@ -87,7 +87,6 @@ def extraer_interacciones(descripcion):
     return comentarios, votos
 
 
-
 def convertir_fecha(texto):
     try:
         fecha = parsedate_to_datetime(texto)
@@ -95,5 +94,3 @@ def convertir_fecha(texto):
             fecha = fecha.replace(tzinfo=timezone.utc)
         return fecha.astimezone(timezone.utc)
     except (TypeError, ValueError, IndexError):
-        return None
-
