@@ -1,0 +1,37 @@
+
+name: Probar automatizacion Pinkbike
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verificar sintaxis
+        run: python -m py_compile scripts/automatizar_pinkbike.py
+
+      - name: Ejecutar simulacion
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/automatizar_pinkbike.py
+
+      - name: Comprobar que no se modifico la web
+        run: |
+          if ! git diff --exit-code -- data/posts.json; then
+            echo "ERROR: la simulacion modifico posts.json"
+            exit 1
+          fi
+          echo "OK: posts.json no fue modificado"
