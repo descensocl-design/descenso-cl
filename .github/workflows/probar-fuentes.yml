@@ -1,8 +1,11 @@
 
-name: Probar fuentes oficiales MTB
+name: Probar fuentes complementarias
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   probar:
@@ -17,5 +20,32 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Analizar fuentes oficiales
-        run: python scripts/probar_articulo_uci.py
+      - name: Comprobar sintaxis
+        run: python -m py_compile scripts/buscar_fuentes.py
+
+      - name: Buscar fuentes complementarias
+        run: python scripts/buscar_fuentes.py
+
+      - name: Mostrar resultados
+        run: |
+          python - <<'PY'
+          import json
+
+          with open("data/fuentes_complementarias.json", encoding="utf-8") as f:
+              datos = json.load(f)
+
+          for noticia in datos["noticias"]:
+              print("\nNOTICIA:", noticia["titulo_original"])
+              print("REFERENCIAS:", len(noticia["referencias"]))
+              if noticia["error"]:
+                  print("ERROR:", noticia["error"])
+              for ref in noticia["referencias"]:
+                  print(" -", ref["medio"], "|", ref["titulo"])
+          PY
+
+      - name: Guardar resultados
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuentes-complementarias-prueba
+          path: data/fuentes_complementarias.json
+          retention-days: 7
