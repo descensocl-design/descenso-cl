@@ -1,110 +1,173 @@
-const state={posts:[],filter:'Todos',query:''};
-const $=s=>document.querySelector(s);
-function safeUrl(value,kind){try{const u=new URL(value);if(u.protocol!=='https:')return '';if(kind==='image')return u.href;if(kind==='video'){const host=u.hostname.toLowerCase();if(host==='youtu.be')return /^[\w-]{11}$/.test(u.pathname.slice(1))?u.pathname.slice(1):'';if(['youtube.com','www.youtube.com','m.youtube.com'].includes(host)){const id=u.searchParams.get('v');return id&&/^[\w-]{11}$/.test(id)?id:''}}}catch{}return ''}
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
-function formatDate(d){const t=new Date(d+'T12:00:00');return Number.isNaN(t.valueOf())?'':t.toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'})}
-function render(){const filtered=state.posts.filter(p=>(state.filter==='Todos'||p.category===state.filter||(state.filter==='Videos'&&p.youtube))&&[p.title,p.excerpt,p.category].join(' ').toLocaleLowerCase().includes(state.query));$('#section-title').textContent=state.filter==='Todos'?'ÚLTIMAS PUBLICACIONES':state.filter.toUpperCase();$('#count').textContent=`${filtered.length} PUBLICACIONES`;$('#empty').hidden=filtered.length>0;const root=$('#posts');root.replaceChildren();for(const p of filtered){const b=el('button','post');b.type='button';const thumb=el('div','thumb');const image=safeUrl(p.image,'image');if(image){const img=el('img');img.src=image;img.alt=p.title;img.loading='lazy';thumb.append(img)}else thumb.append(el('div','placeholder','DESCENSO.'));thumb.append(el('span','type',p.youtube?'▶ VIDEO':p.category.toUpperCase()));b.append(thumb);const body=el('div','post-body');body.append(el('div','meta',`${p.category.toUpperCase()}  /  ${formatDate(p.date)}`),el('h3','',p.title),el('p','',p.excerpt),el('span','read','LEER HISTORIA  ↗'));b.append(body);b.addEventListener('click',()=>openArticle(p));root.append(b)}}
-function openArticle(p){const body=$('#article-body');body.replaceChildren();body.append(el('div','article-tag',p.category.toUpperCase()),el('h2','article-title',p.title),el('div','article-date',formatDate(p.date)));const image=safeUrl(p.image,'image');if(image){const img=el('img','article-cover');img.src=image;img.alt=p.title;body.append(img)}const copy=el('div','article-copy');for(const paragraph of (p.body||[])){copy.append(el('p','',paragraph))}body.append(copy);const id=safeUrl(p.youtube,'video');if(id){const iframe=el('iframe','video-frame');iframe.src=`https://www.youtube-nocookie.com/embed/${id}`;iframe.title=`Video: ${p.title}`;iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';iframe.allowFullscreen=true;iframe.loading='lazy';body.append(iframe)}if(p.link){try{const url=new URL(p.link);if(url.protocol==='https:'){const a=el('a','read','VER ENLACE EXTERNO ↗');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';body.append(a)}}catch{}}$('#article').showModal()}
-$('#close').addEventListener('click',()=>$('#article').close());$('#article').addEventListener('click',e=>{if(e.target===$('#article'))$('#article').close()});document.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{state.filter=btn.dataset.filter;document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active',b===btn));render()}));$('#search').addEventListener('input',e=>{state.query=e.target.value.trim().toLocaleLowerCase();render()});fetch('data/posts.json').then(r=>{if(!r.ok)throw Error('No se pudo cargar publicaciones');return r.json()}).then(data=>{state.posts=Array.isArray(data)?data.filter(p=>p&&typeof p.title==='string'&&typeof p.category==='string').sort((a,b)=>b.date.localeCompare(a.date)):[];render()}).catch(()=>{$('#empty').hidden=false;$('#empty').textContent='No se pudieron cargar las publicaciones. Comprueba data/posts.json.'});
 
-/* DESCENSO.CL — PORTADA EDITORIAL V2 */
+'use strict';
 
-function createPostCard(p) {
-  const b = el('button', 'post');
-  b.type = 'button';
+const state = {posts: [], filter: 'Todos', query: ''};
+const $ = selector => document.querySelector(selector);
 
+function el(tag, cls = '', value) {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (value !== undefined) node.textContent = value;
+  return node;
+}
+
+function safeUrl(value, kind) {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'https:') return '';
+    if (kind === 'image') return url.href;
+    if (kind === 'video') {
+      const host = url.hostname.toLowerCase();
+      if (host === 'youtu.be') return /^[\w-]{11}$/.test(url.pathname.slice(1)) ? url.pathname.slice(1) : '';
+      if (['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(host)) {
+        const id = url.searchParams.get('v');
+        return id && /^[\w-]{11}$/.test(id) ? id : '';
+      }
+    }
+  } catch (_) {}
+  return '';
+}
+
+function formatDate(value) {
+  const date = new Date(String(value || '') + 'T12:00:00');
+  return Number.isNaN(date.valueOf()) ? '' : date.toLocaleDateString('es-CL', {day: 'numeric', month: 'long', year: 'numeric'});
+}
+
+function createPostCard(post) {
+  const button = el('button', 'post');
+  button.type = 'button';
   const thumb = el('div', 'thumb');
-  const image = safeUrl(p.image, 'image');
-
+  const image = safeUrl(post.image, 'image');
   if (image) {
     const img = el('img');
     img.src = image;
-    img.alt = p.title;
+    img.alt = post.title;
     img.loading = 'lazy';
     thumb.append(img);
   } else {
     thumb.append(el('div', 'placeholder', 'DESCENSO.'));
   }
-
-  thumb.append(
-    el('span', 'type', p.youtube ? '▶ VIDEO' : p.category.toUpperCase())
-  );
-
+  thumb.append(el('span', 'type', post.youtube ? '▶ VIDEO' : post.category.toUpperCase()));
   const body = el('div', 'post-body');
   body.append(
-    el('div', 'meta', `${p.category.toUpperCase()} / ${formatDate(p.date)}`),
-    el('h3', '', p.title),
-    el('p', '', p.excerpt || ''),
+    el('div', 'meta', `${post.category.toUpperCase()} / ${formatDate(post.date)}`),
+    el('h3', '', post.title),
+    el('p', '', post.excerpt || ''),
     el('span', 'read', 'LEER HISTORIA ↗')
   );
-
-  b.append(thumb, body);
-  b.addEventListener('click', () => openArticle(p));
-  return b;
+  button.append(thumb, body);
+  button.addEventListener('click', () => openArticle(post));
+  return button;
 }
 
-function renderEditorial() {
-  const filtered = state.posts.filter(p =>
-    (state.filter === 'Todos' ||
-      p.category === state.filter ||
-      (state.filter === 'Videos' && p.youtube)) &&
-    [p.title, p.excerpt, p.category]
-      .join(' ')
-      .toLocaleLowerCase()
-      .includes(state.query)
+function openArticle(post) {
+  const body = $('#article-body');
+  body.replaceChildren();
+  body.append(
+    el('div', 'article-tag', post.category.toUpperCase()),
+    el('h2', 'article-title', post.title),
+    el('div', 'article-date', formatDate(post.date))
   );
+  const image = safeUrl(post.image, 'image');
+  if (image) {
+    const img = el('img', 'article-cover');
+    img.src = image;
+    img.alt = post.title;
+    body.append(img);
+  }
+  const copy = el('div', 'article-copy');
+  for (const paragraph of (Array.isArray(post.body) ? post.body : [])) {
+    copy.append(el('p', '', String(paragraph)));
+  }
+  body.append(copy);
+  const videoId = safeUrl(post.youtube, 'video');
+  if (videoId) {
+    const frame = el('iframe', 'video-frame');
+    frame.src = `https://www.youtube-nocookie.com/embed/${videoId}`;
+    frame.title = `Video: ${post.title}`;
+    frame.loading = 'lazy';
+    frame.allowFullscreen = true;
+    frame.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';
+    body.append(frame);
+  }
+  if (post.link) {
+    try {
+      const url = new URL(post.link);
+      if (url.protocol === 'https:') {
+        const link = el('a', 'read', 'VER FUENTE ORIGINAL ↗');
+        link.href = url.href;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        body.append(link);
+      }
+    } catch (_) {}
+  }
+  $('#article').showModal();
+}
 
-  const featured = document.querySelector('#featured');
-  const root = document.querySelector('#posts');
-
+function render() {
+  const filtered = state.posts.filter(post =>
+    (state.filter === 'Todos' || post.category === state.filter || (state.filter === 'Videos' && post.youtube)) &&
+    [post.title, post.excerpt, post.category].join(' ').toLocaleLowerCase().includes(state.query)
+  );
+  const featured = $('#featured');
+  const root = $('#posts');
   featured.replaceChildren();
   root.replaceChildren();
-
-  const lead = filtered[0];
-
-  if (lead) {
-    featured.append(createPostCard(lead));
-  }
-
-  filtered.slice(1).forEach(p => {
-    root.append(createPostCard(p));
-  });
-
-  featured.hidden = !lead;
-
-  $('#section-title').textContent =
-    state.filter === 'Todos'
-      ? 'ÚLTIMAS NOTICIAS'
-      : state.filter.toUpperCase();
-
+  if (filtered.length) featured.append(createPostCard(filtered[0]));
+  featured.hidden = filtered.length === 0;
+  for (const post of filtered.slice(1)) root.append(createPostCard(post));
+  $('#section-title').textContent = state.filter === 'Todos' ? 'ÚLTIMAS NOTICIAS' : state.filter.toUpperCase();
   $('#count').textContent = `${filtered.length} PUBLICACIONES`;
   $('#empty').hidden = filtered.length > 0;
-
-  const videoBox = document.querySelector('#latest-video');
-
+  const videoBox = $('#latest-video');
   if (videoBox) {
     videoBox.replaceChildren();
-
-    const video = state.posts.find(p =>
-      safeUrl(p.youtube, 'video')
-    );
-
+    const video = state.posts.find(post => safeUrl(post.youtube, 'video'));
     if (video) {
-      const id = safeUrl(video.youtube, 'video');
-      const iframe = el('iframe');
-      iframe.src = `https://www.youtube-nocookie.com/embed/${id}`;
-      iframe.title = video.title;
-      iframe.loading = 'lazy';
-      iframe.allowFullscreen = true;
-      iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';
-
-      videoBox.append(iframe);
-      videoBox.append(el('p', '', video.title));
+      const frame = el('iframe');
+      frame.src = `https://www.youtube-nocookie.com/embed/${safeUrl(video.youtube, 'video')}`;
+      frame.title = video.title;
+      frame.loading = 'lazy';
+      frame.allowFullscreen = true;
+      frame.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';
+      videoBox.append(frame, el('p', '', video.title));
     } else {
       videoBox.append(el('p', '', 'Próximamente, nuevos videos de Descenso.cl.'));
     }
   }
 }
 
-/* Sustituye la presentación anterior sin alterar la carga de noticias */
-render = renderEditorial;
+$('#close').addEventListener('click', () => $('#article').close());
+$('#article').addEventListener('click', event => {
+  if (event.target === $('#article')) $('#article').close();
+});
+
+document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
+  state.filter = button.dataset.filter;
+  document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button));
+  render();
+}));
+
+$('#search').addEventListener('input', event => {
+  state.query = event.target.value.trim().toLocaleLowerCase();
+  render();
+});
+
+fetch('data/posts.json', {cache: 'no-store'})
+  .then(response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  })
+  .then(data => {
+    state.posts = Array.isArray(data)
+      ? data.filter(post => post && typeof post.title === 'string' && typeof post.category === 'string')
+          .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
+      : [];
+    render();
+  })
+  .catch(error => {
+    console.error('No se pudieron cargar las publicaciones:', error);
+    $('#empty').hidden = false;
+    $('#empty').textContent = 'No se pudieron cargar las publicaciones. Comprueba data/posts.json.';
+  });
