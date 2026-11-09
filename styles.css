@@ -214,3 +214,13 @@
 .article-page .source-link{display:inline-block;margin:20px 0;border-bottom:2px solid var(--red);padding-bottom:6px;font-weight:800;font-size:13px}
 .article-page .back-link{display:inline-block;margin-bottom:25px;color:#ddd;font-size:13px}
 @media(max-width:600px){.brand{width:min(100%,340px)}.brandrow{padding-top:20px;padding-bottom:20px}.article-page{margin-top:25px;padding:0 18px}}
+
+/* Ajustes editoriales v2: artículos, imágenes y legibilidad */
+.article-page{max-width:960px}
+.article-page h1{max-width:900px;font-size:clamp(32px,5.1vw,58px);line-height:1.1;overflow-wrap:break-word}
+.article-page .lede{max-width:790px}
+.article-page .article-figure{margin:30px 0 34px}
+.article-page .article-cover{display:block;width:100%;max-height:520px;object-fit:cover;margin:0;background:#18181b}
+.article-page figcaption{font-size:11px;color:#a5a5a8;padding:10px 0;border-bottom:1px solid #353538}
+.article-page .article-copy{font-size:18px;line-height:1.85}
+@media(max-width:600px){.article-page h1{font-size:clamp(30px,8vw,42px)}.article-page .article-copy{font-size:16px}}

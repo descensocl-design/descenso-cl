@@ -13,6 +13,9 @@ def slugify(value):
     return re.sub(r'[^a-z0-9]+', '-', value.lower()).strip('-')[:85] or 'noticia'
 
 def route(post):
+    permalink = str(post.get('permalink') or '')
+    if re.fullmatch(r'/noticias/[a-z0-9-]+/', permalink):
+        return permalink
     date = str(post.get('date') or '')
     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', date):
         date = 'sin-fecha'
@@ -85,7 +88,7 @@ def build():
 <nav class="nav" aria-label="Categorías"><a class="navitem" href="/">INICIO</a></nav></header>
 <main class="article-page"><a class="back-link" href="/">← VOLVER A NOTICIAS</a><div class="article-tag">{esc(category.upper())}</div>
 <h1>{esc(title)}</h1><div class="article-date">{esc(date)}</div><p class="lede">{esc(excerpt)}</p>
-<img class="article-cover" src="{esc(image)}" alt="{esc(title)}" loading="eager">
+<figure class="article-figure"><img class="article-cover" src="{esc(image)}" alt="Imagen de la noticia: {esc(title)}" loading="eager"><figcaption>{'Imagen de referencia de Descenso.cl' if '/assets/portadas/' in image else 'Imagen ilustrativa de la publicación'}</figcaption></figure>
 <div class="article-copy">{body}</div>{source_html}
 <footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main></body></html>"""
         folder = ROOT / path.lstrip('/')

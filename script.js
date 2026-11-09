@@ -75,6 +75,7 @@ function formatDate(value) {
 }
 
 function articleUrl(post) {
+  if (/^\/noticias\/[a-z0-9-]+\/$/.test(post.permalink || '')) return post.permalink;
   const title = String(post.title || 'noticia');
   const slug = title.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 85);
@@ -82,12 +83,18 @@ function articleUrl(post) {
   return `/noticias/${date}-${slug}/`;
 }
 
+function categoryCover(category) {
+  const names = ['downhill', 'enduro', 'freeride', 'xc'];
+  const key = String(category || '').toLowerCase();
+  return `/assets/portadas/${names.includes(key) ? key : 'mundo'}.svg`;
+}
+
 function createPostCard(post) {
   const button = el('a', 'post');
   button.href = articleUrl(post);
 
   const thumb = el('div', 'thumb');
-  const image = safeUrl(post.image, 'image');
+  const image = safeUrl(post.image, 'image') || categoryCover(post.category);
 
   if (image) {
     const img = el('img');
@@ -150,7 +157,7 @@ function openArticle(post) {
     el('div', 'article-date', formatDate(post.date))
   );
 
-  const image = safeUrl(post.image, 'image');
+  const image = safeUrl(post.image, 'image') || categoryCover(post.category);
 
   if (image) {
     const img = el('img', 'article-cover');

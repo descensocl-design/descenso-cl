@@ -18,6 +18,7 @@ from zoneinfo import ZoneInfo
 
 CANDIDATAS = Path('data/noticias_candidatas.json')
 POSTS = Path('data/posts.json')
+IMAGENES_AUTORIZADAS = Path('data/imagenes_autorizadas.json')
 MAX_DIARIO = 5
 ZONA = ZoneInfo('America/Santiago')
 MODELO = os.getenv('GEMINI_MODEL', 'gemini-flash-lite-latest')
@@ -180,6 +181,22 @@ def categoria(noticia):
     return 'Mundo'
 
 
+def imagen_autorizada(url_fuente):
+    """Only use images whose permission has been reviewed and entered by the editor."""
+    if not IMAGENES_AUTORIZADAS.exists():
+        return ''
+    try:
+        data = json.loads(IMAGENES_AUTORIZADAS.read_text(encoding='utf-8'))
+        entry = data.get(url_fuente, {}) if isinstance(data, dict) else {}
+        url = entry.get('image', '') if isinstance(entry, dict) else ''
+        approved = entry.get('approved') is True if isinstance(entry, dict) else False
+        if approved and isinstance(url, str) and url.startswith('https://'):
+            return url
+    except (OSError, ValueError, TypeError):
+        pass
+    return ''
+
+
 def preparar(noticia, hoy):
     if (
         not isinstance(noticia, dict)
@@ -212,10 +229,7 @@ def preparar(noticia, hoy):
         'date': hoy,
         'category': seccion,
         'excerpt': contenido['excerpt'],
-        'image': (
-            'https://descenso.cl/assets/portadas/'
-            + seccion.lower() + '.svg'
-        ),
+        'image': imagen_autorizada(url),
         'youtube': '',
         'body': contenido['body'],
         'link': url,
