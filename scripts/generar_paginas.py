@@ -69,6 +69,9 @@ def build():
         paragraphs = post.get('body') or []
         if isinstance(paragraphs, str): paragraphs = [paragraphs]
         paragraphs = [str(x) for x in paragraphs if str(x).strip()]
+        # Evitar repetir el resumen como primer párrafo del artículo.
+        if paragraphs and re.sub(r'\s+', ' ', paragraphs[0]).strip().casefold() == re.sub(r'\s+', ' ', excerpt).strip().casefold():
+            paragraphs = paragraphs[1:]
         body = '\n'.join(f'<p>{esc(x)}</p>' for x in paragraphs)
         source = safe_https(post.get('link'))
         source_html = f'<a class="source-link" href="{esc(source)}" target="_blank" rel="noopener noreferrer">VER FUENTE ORIGINAL ↗</a>' if source else ''

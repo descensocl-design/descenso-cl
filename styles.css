@@ -224,3 +224,16 @@
 .article-page figcaption{font-size:11px;color:#a5a5a8;padding:10px 0;border-bottom:1px solid #353538}
 .article-page .article-copy{font-size:18px;line-height:1.85}
 @media(max-width:600px){.article-page h1{font-size:clamp(30px,8vw,42px)}.article-page .article-copy{font-size:16px}}
+
+/* V3 — portada destacada sin texto superpuesto a portadas de respaldo. */
+.featured{min-height:0;background:transparent;margin-bottom:38px}
+.featured .post{display:grid;grid-template-columns:minmax(0,1fr);min-height:0;background:#151515;border:1px solid #29292b}
+.featured .thumb{position:relative;inset:auto;width:100%;height:auto;aspect-ratio:16/7;overflow:hidden}
+.featured .thumb::after{display:none}
+.featured .thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.featured .post-body{position:relative;min-height:0;justify-content:flex-start;padding:26px 30px 30px;background:none}
+.featured .post h3{font-size:clamp(28px,3.2vw,43px);line-height:1.12;overflow-wrap:anywhere;margin:12px 0}
+.featured .post p{margin:0 0 18px;max-width:650px;line-height:1.65}
+.featured .read{margin-top:6px;color:#fff}
+.article-page .article-copy{max-width:790px}
+@media(max-width:600px){.featured .thumb{aspect-ratio:16/9}.featured .post,.featured .post-body{min-height:0}.featured .post-body{padding:20px}.featured .post h3{font-size:clamp(25px,7vw,35px)}.featured .post p{font-size:13px}}
