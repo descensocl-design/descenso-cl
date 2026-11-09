@@ -74,9 +74,17 @@ function formatDate(value) {
   });
 }
 
+function articleUrl(post) {
+  const title = String(post.title || 'noticia');
+  const slug = title.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 85);
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(post.date) ? post.date : 'sin-fecha';
+  return `/noticias/${date}-${slug}/`;
+}
+
 function createPostCard(post) {
-  const button = el('button', 'post');
-  button.type = 'button';
+  const button = el('a', 'post');
+  button.href = articleUrl(post);
 
   const thumb = el('div', 'thumb');
   const image = safeUrl(post.image, 'image');
@@ -118,9 +126,6 @@ function createPostCard(post) {
 
   button.append(thumb, body);
 
-  button.addEventListener('click', () => {
-    openArticle(post);
-  });
 
   return button;
 }

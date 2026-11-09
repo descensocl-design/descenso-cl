@@ -56,17 +56,25 @@ jobs:
                   'body': paragraphs,
                   'link': str(meta.get('link') or '')
               })
+          existing_path = Path('data/posts.json')
+          existing = json.loads(existing_path.read_text(encoding='utf-8')) if existing_path.exists() else []
+          # Conservar noticias automáticas al sincronizar las noticias manuales.
+          manual_links = {p.get('link') for p in posts if p.get('link')}
+          auto_posts = [p for p in existing if p.get('auto_published') and p.get('link') not in manual_links]
+          posts = posts + auto_posts
           posts.sort(key=lambda p: p['date'], reverse=True)
           target = Path('data/posts.json')
           target.parent.mkdir(parents=True, exist_ok=True)
           target.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           print(f'{len(posts)} noticias sincronizadas')
           PY
+      - name: Generar páginas y sitemap
+        run: python scripts/generar_paginas.py
       - name: Guardar actualización
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/posts.json
+          git add data/posts.json noticias/ sitemap.xml robots.txt
           if ! git diff --cached --quiet; then
             git commit -m "Actualizar noticias de la portada"
             git push
