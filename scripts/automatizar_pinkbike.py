@@ -16,7 +16,8 @@ from urllib.parse import urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
-CANDIDATAS = Path('data/noticias_candidatas.json')
+CANDIDATAS = Path('data/noticias_ampliadas.json')
+CANDIDATAS_RSS = Path('data/noticias_candidatas.json')
 POSTS = Path('data/posts.json')
 IMAGENES_AUTORIZADAS = Path('data/imagenes_autorizadas.json')
 MAX_DIARIO = 5
@@ -51,21 +52,27 @@ def redactar(noticia):
         return None, 'falta GEMINI_API_KEY'
 
     fuente = contexto_rss(noticia)
+    contexto = limpiar(noticia.get('contexto_ampliado', ''))
+    # Se requiere información sustantiva antes de generar un artículo largo.
+    # El extractor es auxiliar; no se publica texto extraído literalmente.
+    if len(contexto.split()) >= 100 and noticia.get('origen_contexto_ampliado') == 'pagina_original':
+        fuente += '\n\nCONTEXTO DEL ARTÍCULO ORIGINAL:\n' + contexto[:11000]
+    if len(fuente.split()) < 95:
+        return None, 'información insuficiente para artículo completo'
     instrucciones = (
-        'Eres editor de Descenso.cl, un medio chileno de mountain bike. '
-        'Trabaja EXCLUSIVAMENTE con el título y descripción RSS siguientes. '
-        'Devuelve SOLO un objeto JSON válido con las claves "title", "excerpt" y "body". '
-        '"title": titular periodístico en español, fiel al RSS, sin sensacionalismo. '
-        '"excerpt": resumen en español de una o dos frases, máximo 220 caracteres. '
-        '"body": lista de uno a tres párrafos informativos originales en español. '
-        'No inventes hechos, nombres, fechas, cifras, resultados, declaraciones, '
-        'descripciones de videos ni antecedentes ausentes en el RSS. '
-        'No afirmes haber leído el artículo completo ni agregues opiniones o relleno. '
-        'Si el RSS solo permite una frase, escribe una sola frase. '
-        'Conserva nombres propios y marcas; traduce expresiones genéricas. '
-        'No incluyas enlaces, créditos ni Markdown. '
-        'Si no hay información factual suficiente, devuelve exactamente SIN_DATOS.\n\n'
-        'RSS:\n' + fuente
+        'Eres editor de Descenso.cl, medio chileno de mountain bike. '
+        'Redacta un artículo original en español usando SOLAMENTE hechos del material suministrado. '
+        'Devuelve SOLO JSON válido con claves "title", "excerpt" y "body". '
+        'title: titular informativo en español, sin exageraciones. '
+        'excerpt: una o dos frases de hasta 220 caracteres. '
+        'body: lista de 2 a 6 párrafos, cada uno con hechos diferentes. '
+        'Explica cifras, protagonistas, consecuencias y contexto SOLO cuando aparezcan en el material. '
+        'No repitas el excerpt en el body ni inventes hechos, resultados, declaraciones o fechas. '
+        'No copies frases extensas del original, ni traduzcas párrafos completos literalmente. '
+        'No incluyas enlaces ni Markdown. '
+        'Si no hay información para al menos 2 párrafos sustanciales, responde SIN_DATOS. '
+        'Los hechos proceden de una fuente externa y no están verificados independientemente.\n\n'
+        'MATERIAL:\n' + fuente
     )
 
     endpoint = (
@@ -77,7 +84,7 @@ def redactar(noticia):
         'contents': [{'parts': [{'text': instrucciones}]}],
         'generationConfig': {
             'temperature': 0.1,
-            'maxOutputTokens': 700
+            'maxOutputTokens': 1500
         },
     }
 
@@ -152,11 +159,11 @@ def redactar(noticia):
     if not (
         10 <= len(titulo) <= 170
         and 15 <= len(resumen) <= 220
-        and 1 <= len(cuerpo) <= 3
+        and 2 <= len(cuerpo) <= 6
     ):
         return None, 'longitud editorial inválida'
 
-    if sum(len(p.split()) for p in cuerpo) > 170:
+    if sum(len(p.split()) for p in cuerpo) > 650:
         return None, 'texto demasiado extenso para los datos RSS'
 
     return {
@@ -235,6 +242,7 @@ def preparar(noticia, hoy):
         'link': url,
         'auto_published': True,
         'source_name': 'Pinkbike',
+        'editorial_method': 'resumen_original_de_fuente_externa',
         'source_comments_at_selection': comentarios,
     }, None
 
@@ -248,13 +256,14 @@ def main():
     )
     args = parser.parse_args()
 
-    if not CANDIDATAS.exists() or not POSTS.exists():
+    origen = CANDIDATAS if CANDIDATAS.exists() else CANDIDATAS_RSS
+    if not origen.exists() or not POSTS.exists():
         raise SystemExit(
             'ERROR: faltan noticias_candidatas.json o posts.json'
         )
 
     datos = json.loads(
-        CANDIDATAS.read_text(encoding='utf-8')
+        origen.read_text(encoding='utf-8')
     )
     posts = json.loads(
         POSTS.read_text(encoding='utf-8')
