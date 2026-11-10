@@ -2,14 +2,15 @@
 
 ## Cloudflare Web Analytics
 
-El código del sitio ya incluye `/analytics.js` en la portada y noticias.
-Por defecto no carga ningún servicio externo de medición.
+**Ruta recomendada (sin tokens ni código manual):**
+1. Entrar en Cloudflare > **Workers & Pages** > proyecto Pages de Descenso.cl.
+2. Abrir **Metrics** y pulsar **Enable** en **Web Analytics**.
+3. Esperar al siguiente despliegue: Cloudflare inyecta automáticamente el beacon de medición.
+4. Consultar **Web Analytics** en la cuenta de Cloudflare para comprobar tráfico.
 
-1. En Cloudflare, activar Web Analytics para `descenso.cl` y obtener el **Site Token**.
-2. Abrir `data/analytics-config.json` y completar `cloudflare_web_analytics_token` con el token exacto.
-3. Publicar el cambio y comprobar en DevTools > Network que se carga `static.cloudflareinsights.com/beacon.min.js` y que Cloudflare registra visitantes.
+El sitio también conserva un mecanismo alternativo `/analytics.js` con `data/analytics-config.json`, desactivado por defecto. **No poner un token manual** si ya se habilita la inyección automática desde el panel, para no duplicar mediciones.
 
-**Importante:** no inventar tokens ni copiar IDs de otros sitios. Cloudflare Web Analytics requiere autorización en la cuenta correspondiente.
+Referencia oficial: https://developers.cloudflare.com/pages/how-to/web-analytics/
 
 ## Google Search Console
 
@@ -94,3 +95,24 @@ Por seguridad no se habilita un panel de acceso público ni se genera un token p
 - Cloudflare Web Analytics: requiere token específico de la propiedad.
 - Search Console: requiere verificación DNS.
 - El navegador de consulta no consiguió recuperar `descenso.cl`; no se ha confirmado el estado de los endpoints publicados. No interpretar el código en GitHub como una confirmación de despliegue.
+
+## Comprobación de activación sin credenciales
+
+Visitar `https://descenso.cl/api/site-health` una vez desplegado.
+El JSON solo muestra si los servicios están listos:
+
+```json
+{
+  "service": "descenso-comments",
+  "status": "setup_required",
+  "checks": {
+    "comments": "setup_required",
+    "reports": "setup_required",
+    "moderation": "setup_required"
+  }
+}
+```
+
+Este es **un ejemplo de estructura**, no una respuesta obtenida del sitio.
+Si aparece `setup_required`, revisar el vínculo de D1, los secretos y `database/comments.sql`. Si aparece `ready`, realizar pruebas funcionales reales con autorización.
+Si la URL responde 404, el despliegue no ha incorporado la función correspondiente.
