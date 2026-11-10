@@ -95,7 +95,13 @@ jobs:
           # Conservar noticias automáticas al sincronizar las noticias manuales.
           manual_links = {p.get('link') for p in posts if p.get('link')}
           auto_posts = [p for p in existing if p.get('auto_published') and p.get('link') not in manual_links]
-          posts = posts + auto_posts
+          # Exclusión editorial permanente: no republicar los compilados Friday Fails.
+          def contenido_excluido(post):
+              url = str(post.get('link') or '').lower()
+              title = str(post.get('title') or '').lower()
+              return ('pinkbike.com/news/video-friday-fails-' in url
+                      or 'friday fails' in title)
+          posts = [p for p in posts + auto_posts if not contenido_excluido(p)]
           posts.sort(key=lambda p: p['date'], reverse=True)
           target = Path('data/posts.json')
           target.parent.mkdir(parents=True, exist_ok=True)
