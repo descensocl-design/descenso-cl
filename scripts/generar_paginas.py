@@ -90,12 +90,48 @@ def build():
         ))[:6]
         gallery_html = ''
         if extra_images:
-            figuras = ''.join(
-                f'<figure><a href="{esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ver fotografía en tamaño completo">'
-                f'<img src="{esc(url)}" alt="Galería fotográfica: {esc(title)}" loading="lazy" decoding="async"></a></figure>'
-                for url in extra_images
-            )
-            gallery_html = f'<section class="article-gallery" aria-label="Más fotografías"><h2>GALERÍA DE FOTOS</h2><div class="article-gallery-grid">{figuras}</div></section>'
+            # Fotografías entre el contenido, no agrupadas al final.
+            remaining = [i for i, p in enumerate(body_parts) if p.startswith('<p>')]
+            for j, url in enumerate(extra_images):
+                photo = (
+                    f'<figure class="article-inline-photo"><a href="{esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ver fotografía en tamaño completo">'
+                    f'<img src="{esc(url)}" alt="Fotografía adicional: {esc(title)}" loading="lazy" decoding="async"></a></figure>'
+                )
+                if remaining:
+                    position = remaining[min(len(remaining)-1, (j+1)*len(remaining)//(len(extra_images)+1))]
+                    body_parts[position] += photo
+                else:
+                    body_parts.append(photo)
+            body = '\\n'.join(body_parts)
+        # Insertar reproductores únicamente cuando existe una URL de video válida.
+        video_url = safe_https(post.get('youtube') or post.get('video_url') or post.get('video'))
+        video_html = ''
+        if video_url:
+            parsed = urlparse(video_url)
+            host = parsed.hostname or ''
+            identifier = ''
+            if host in ('youtube.com', 'www.youtube.com', 'm.youtube.com'):
+                from urllib.parse import parse_qs
+                identifier = parse_qs(parsed.query).get('v', [''])[0]
+                if not identifier:
+                    match = re.match(r'^/(?:embed|shorts|live)/([A-Za-z0-9_-]{11})', parsed.path)
+                    identifier = match.group(1) if match else ''
+            elif host == 'youtu.be':
+                identifier = parsed.path.strip('/')
+            if re.fullmatch(r'[A-Za-z0-9_-]{11}', identifier):
+                url = f'https://www.youtube-nocookie.com/embed/{identifier}'
+                video_html = f'<figure class="article-video"><iframe src="{esc(url)}" title="Video de la noticia" loading="lazy" allowfullscreen allow="accelerometer; autoplay; encrypted-media; picture-in-picture"></iframe></figure>'
+            elif host in ('vimeo.com', 'www.vimeo.com', 'player.vimeo.com'):
+                match = re.search(r'/(?:video/)?(\\d+)', parsed.path)
+                if match:
+                    video_html = f'<figure class="article-video"><iframe src="https://player.vimeo.com/video/{match.group(1)}" title="Video de la noticia" loading="lazy" allowfullscreen></iframe></figure>'
+        if video_html:
+            body_parts.insert(min(2, len(body_parts)), video_html)
+            body = '\\n'.join(body_parts)
+        elif ('video' in title.lower() or 'fails' in title.lower()) and safe_https(post.get('link')):
+            source_video = safe_https(post.get('link'))
+            body = (f'<aside class="article-video-source"><strong>VIDEO ORIGINAL</strong><p>Esta noticia contiene material audiovisual en la fuente. No hay un enlace de inserción verificado.</p>'
+                    f'<a href="{esc(source_video)}" target="_blank" rel="noopener noreferrer">VER VIDEO EN LA FUENTE ORIGINAL ↗</a></aside>') + body
         source = safe_https(post.get('link'))
         source_name = str(post.get('source_name') or (urlparse(source).hostname or '').removeprefix('www.') or 'Fuente no especificada')
         photo_credit = str(post.get('image_credit') or ('Descenso.cl (gráfica de categoría)' if '/assets/portadas/' in image else 'Crédito no especificado'))
