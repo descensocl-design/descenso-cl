@@ -1,6 +1,6 @@
 {
   "total": 9,
-  "pending": 6,
+  "pending": 3,
   "articles": [
     {
       "title": "Shimano EP810: 750 watts, 100 Nm y un nuevo paso en la batalla de las e-MTB",
@@ -53,25 +53,21 @@
     },
     {
       "title": "¿Cuál fue la mejor línea de freeride de 2026? Diez finalistas compiten por más de 10.000 dólares",
-      "source_url": "",
+      "source_url": "https://www.pinkbike.com/news/who-had-the-best-line-of-2026-vote-for-the-adidas-line-of-the-year-top-10.html",
       "permalink": "",
       "photos_registered": 1,
       "video_registered": false,
-      "issues": [
-        "No hay enlace a la publicación original: verificar fuente y créditos"
-      ],
-      "status": "pendiente"
+      "issues": [],
+      "status": "sin_pendientes_detectados"
     },
     {
       "title": "Ghost Bikes anuncia su cierre definitivo: no encontraron una solución para continuar",
-      "source_url": "",
+      "source_url": "https://www.pinkbike.com/news/ghost-bikes-will-continue-after-last-minute-acquisition.html",
       "permalink": "",
       "photos_registered": 1,
       "video_registered": false,
-      "issues": [
-        "No hay enlace a la publicación original: verificar fuente y créditos"
-      ],
-      "status": "pendiente"
+      "issues": [],
+      "status": "sin_pendientes_detectados"
     },
     {
       "title": "Primera publicación de Descenso.cl",
@@ -87,14 +83,12 @@
     },
     {
       "title": "YT Decoy X: 1.300 watts de potencia para recuperar la confianza del mercado",
-      "source_url": "",
+      "source_url": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
       "permalink": "",
       "photos_registered": 1,
       "video_registered": false,
-      "issues": [
-        "No hay enlace a la publicación original: verificar fuente y créditos"
-      ],
-      "status": "pendiente"
+      "issues": [],
+      "status": "sin_pendientes_detectados"
     }
   ]
 }
