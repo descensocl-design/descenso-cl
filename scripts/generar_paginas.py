@@ -212,6 +212,35 @@ def build():
             '<label>Comentario <textarea name="message" minlength="12" maxlength="1500" rows="5" required placeholder="¿Qué opinas de esta noticia?"></textarea></label>'
             '<button type="submit">ENVIAR COMENTARIO</button></form></section>'
         )
+        # Navegación interna y lecturas relacionadas por disciplina.
+        related_candidates = []
+        for other in posts:
+            if not isinstance(other,dict) or other is post or not other.get('title'):
+                continue
+            other_path = route(other)
+            if other_path == path:
+                continue
+            relevance = (3 if str(other.get('category','')).casefold() == category.casefold() else 0)
+            relevance += (1 if str(other.get('date','')) >= date else 0)
+            related_candidates.append((relevance, str(other.get('date','')),other,other_path))
+        related_candidates.sort(key=lambda item:(item[0],item[1]),reverse=True)
+        related_html = '<section class="article-related" aria-label="Noticias relacionadas"><h2>SEGUIR LEYENDO</h2><div class="article-related-grid">'
+        for _,_,other,other_path in related_candidates[:3]:
+            other_image = image_for(other)
+            related_html += ('<a class="article-related-card" href="' + esc(other_path) + '">'
+                             + '<img src="' + esc(other_image) + '" alt="" loading="lazy" decoding="async">'
+                             + '<span>' + esc(str(other.get('category') or 'Mountain Bike').upper()) + '</span>'
+                             + '<strong>' + esc(other['title']) + '</strong></a>')
+        related_html += '</div></section>'
+        # Compartir con título real; WhatsApp utiliza texto y enlace del artículo.
+        from urllib.parse import quote
+        share_text = title + ' — ' + DOMAIN + path
+        share_html = ('<nav class="article-share" aria-label="Compartir noticia">'
+                      '<span>COMPARTIR NOTICIA</span>'
+                      '<a href="https://api.whatsapp.com/send?text=' + esc(quote(share_text)) + '" target="_blank" rel="noopener noreferrer" aria-label="Compartir por WhatsApp">WHATSAPP ↗</a>'
+                      '<a href="https://www.facebook.com/sharer/sharer.php?u=' + esc(quote(DOMAIN + path)) + '" target="_blank" rel="noopener noreferrer" aria-label="Compartir en Facebook">FACEBOOK ↗</a>'
+                      '<button type="button" class="article-copy-link" data-copy-article-url="' + esc(DOMAIN + path) + '">COPIAR ENLACE</button>'
+                      '<span class="article-share-feedback" aria-live="polite"></span></nav>')
         canonical = DOMAIN + path
         schema = {'@context':'https://schema.org','@type':'NewsArticle','headline':title,'description':excerpt,'datePublished':date,'image':[image],'mainEntityOfPage':canonical,'publisher':{'@type':'Organization','name':'Descenso.cl','url':DOMAIN,'logo':{'@type':'ImageObject','url':DOMAIN+'/logo-descenso.jpg'}}}
         structured = json.dumps(schema,ensure_ascii=False).replace('<','\\u003c')
@@ -229,8 +258,8 @@ def build():
 <main class="article-page"><a class="back-link" href="/">← VOLVER A NOTICIAS</a><div class="article-tag">{esc(category.upper())}</div>
 <h1>{esc(title)}</h1><div class="article-date">{esc(date)}</div><p class="lede">{esc(excerpt)}</p>
 <figure class="article-figure"><img class="article-cover" src="{esc(image)}" alt="Imagen de la noticia: {esc(title)}" loading="eager" decoding="async"><figcaption>{'DESCENSO.CL' if '/assets/portadas/' in image else esc(str(post.get('image_credit') or ''))}</figcaption></figure>
-<div class="article-copy">{body}</div>{gallery_html}{credits_html}{comments_html}
-<footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main><script src="/comments.js" defer></script></body></html>"""
+{share_html}<div class="article-copy">{body}</div>{gallery_html}{credits_html}{related_html}{share_html}{comments_html}
+<footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main><script src="/comments.js" defer></script><script src="/article-extras.js" defer></script></body></html>"""
         folder = ROOT / path.lstrip('/')
         folder.mkdir(parents=True, exist_ok=True)
         (folder/'index.html').write_text(page, encoding='utf-8')
