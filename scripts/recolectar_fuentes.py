@@ -96,7 +96,7 @@ def imagen_de_noticia(item, url):
                 candidates.append(nodo.attrib.get("url") or "")
     if not candidates:
         for field in (item.findtext("description") or "", item.findtext(CONTENT_NS) or ""):
-            m = re.search(r'<img[^>]+(?:src|data-src)=["\\\']([^"\\\']+)', field, re.I)
+            m = re.search(r"""<img[^>]+(?:src|data-src)=["']([^"']+)""", field, re.I)
             if m:
                 candidates.append(html.unescape(m.group(1)))
                 break
