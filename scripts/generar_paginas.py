@@ -90,18 +90,30 @@ def build():
         ))[:60]
         gallery_html = ''
         if extra_images:
-            # Fotografías entre el contenido, no agrupadas al final.
-            remaining = [i for i, p in enumerate(body_parts) if p.startswith('<p>')]
+            # Repartir las fotos dentro del relato, manteniendo el orden de la fuente.
+            # En fotoreportajes extensos usar grupos en dos columnas para evitar
+            # 10-15 imágenes verticales consecutivas por párrafo.
+            paragraph_positions = [i for i, part in enumerate(body_parts) if part.startswith('<p>')]
+            slots = max(1, len(paragraph_positions))
+            groups = [[] for _ in range(slots)]
             for j, url in enumerate(extra_images):
-                photo = (
-                    f'<figure class="article-inline-photo"><a href="{esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ver fotografía en tamaño completo">'
-                    f'<img src="{esc(url)}" alt="Fotografía adicional: {esc(title)}" loading="lazy" decoding="async"></a></figure>'
-                )
-                if remaining:
-                    position = remaining[min(len(remaining)-1, (j+1)*len(remaining)//(len(extra_images)+1))]
-                    body_parts[position] += photo
+                slot = min(slots - 1, j * slots // len(extra_images))
+                groups[slot].append(url)
+            for slot, urls in enumerate(groups):
+                if not urls:
+                    continue
+                figures = []
+                for url in urls:
+                    figures.append(
+                        f'<figure class="article-inline-photo"><a href="{esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ver fotografía original en tamaño completo">'
+                        f'<img src="{esc(url)}" alt="Fotografía oficial de la noticia: {esc(title)}" loading="lazy" decoding="async"></a></figure>'
+                    )
+                gallery_class = ' article-photo-run-grid' if len(urls) >= 4 else ''
+                group_html = f'<div class="article-photo-run{gallery_class}">' + ''.join(figures) + '</div>'
+                if paragraph_positions:
+                    body_parts[paragraph_positions[slot]] += group_html
                 else:
-                    body_parts.append(photo)
+                    body_parts.append(group_html)
             body = '\n'.join(body_parts)
         # Insertar reproductores únicamente cuando existe una URL de video válida.
         video_url = safe_https(post.get('video_embed') or post.get('youtube') or post.get('video_url') or post.get('video'))
