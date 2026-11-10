@@ -167,6 +167,13 @@ jobs:
         run: python scripts/aplicar_editorial.py
       - name: Verificar que noticias y galerías no retrocedieron
         run: python scripts/verificar_catalogo.py
+      - name: Verificar sintaxis de JavaScript y funciones Cloudflare
+        run: |
+          node --check comments.js
+          node --check analytics.js
+          node --check article-extras.js
+          node --check "functions/api/comments/[[slug]].js"
+          node --check "functions/api/comment-reports/[[slug]].js"
       - name: Generar páginas y sitemap
         run: python scripts/generar_paginas.py
       - name: Auditar multimedia y fuentes de todas las noticias
