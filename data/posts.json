@@ -244,13 +244,15 @@
       "Fuente: Pinkbike, publicación del 3 de noviembre de 2026.",
       "Fotografía: Fotografía obtenida del sitio oficial de Pinkbike www.pinkbike.com."
     ],
-    "link": ""
+    "link": "https://www.pinkbike.com/news/who-had-the-best-line-of-2026-vote-for-the-adidas-line-of-the-year-top-10.html",
+    "source_name": "Pinkbike",
+    "image_source_url": "https://www.pinkbike.com/news/who-had-the-best-line-of-2026-vote-for-the-adidas-line-of-the-year-top-10.html"
   },
   {
     "title": "Ghost Bikes anuncia su cierre definitivo: no encontraron una solución para continuar",
     "date": "2026-11-03",
     "category": "Downhill",
-    "excerpt": "La histórica marca alemana de bicicletas iniciará su proceso de cierre tras fracasar los intentos por encontrar un comprador o una alternativa que permitiera mantener sus operaciones.",
+    "excerpt": "ACTUALIZACIÓN 6/11/2026: Ghost Bikes evita su desaparición tras la compra de la marca por Bike Tree GmbH. La noticia inicial de cierre fue superada por este acuerdo.",
     "image": "https://ep1.pinkbike.org/p5pb28117509/p5pb28117509.jpg",
     "images": [],
     "image_approved": false,
@@ -273,7 +275,18 @@
       "Fuente: Pinkbikehttps://www.pinkbike.com/news/ghost-bikes-to-close-after-finding-no-viable-solution-to-continue.html. Información publicada por Ed Spratt el 2 de noviembre de 2026.",
       "Fotografía: Fotografía obtenida del sitio oficial de Pinkbike www.pinkbike.com."
     ],
-    "link": ""
+    "link": "https://www.pinkbike.com/news/ghost-bikes-will-continue-after-last-minute-acquisition.html",
+    "source_name": "Pinkbike",
+    "image_source_url": "https://www.pinkbike.com/news/ghost-bikes-will-continue-after-last-minute-acquisition.html",
+    "editorial_update": {
+      "date": "2026-11-06",
+      "heading": "ACTUALIZACIÓN: Ghost Bikes evita su desaparición",
+      "paragraphs": [
+        "El 6 de noviembre de 2026 Pinkbike informó que Bike Tree GmbH adquirió la marca Ghost Bikes y su propiedad intelectual, evitando su desaparición definitiva. La información de cierre publicada el 2 de noviembre quedó superada por esta nueva operación.",
+        "El anuncio de compra no aclara todavía qué sucederá con los 53 trabajadores, ni cómo se resolverán todas las garantías y los repuestos. La continuidad de la marca no implica que todas sus antiguas operaciones estén garantizadas."
+      ],
+      "source": "https://www.pinkbike.com/news/ghost-bikes-will-continue-after-last-minute-acquisition.html"
+    }
   },
   {
     "title": "Primera publicación de Descenso.cl",
@@ -319,6 +332,8 @@
       "Fuente: Pinkbikehttps://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html. Análisis original de Seb Stott.",
       "Fotografía: Ian Linton / Pinkbike."
     ],
-    "link": ""
+    "link": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
+    "source_name": "Pinkbike",
+    "image_source_url": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html"
   }
 ]
