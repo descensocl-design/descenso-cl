@@ -6,6 +6,7 @@ on:
       - 'data/noticias/**'
       - 'data/posts.json'
       - 'scripts/generar_paginas.py'
+      - 'scripts/auditar_multimedia.py'
       - 'scripts/completar_fotos_fuente.py'
       - 'scripts/fotos_del_articulo_original.py'
       - 'scripts/auditar_fotos_matthew.py'
@@ -130,11 +131,13 @@ jobs:
         run: python scripts/recuperar_videos_fuente.py
       - name: Generar páginas y sitemap
         run: python scripts/generar_paginas.py
+      - name: Auditar multimedia y fuentes de todas las noticias
+        run: python scripts/auditar_multimedia.py
       - name: Guardar actualización
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/posts.json data/diagnostico-fotos.json noticias/ sitemap.xml robots.txt
+          git add data/posts.json data/diagnostico-fotos.json data/revision-multimedia.json noticias/ sitemap.xml robots.txt
           if ! git diff --cached --quiet; then
             git commit -m "Actualizar noticias de la portada"
             git push origin HEAD:main
