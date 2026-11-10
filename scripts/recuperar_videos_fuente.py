@@ -35,10 +35,13 @@ class Frames(HTMLParser):
     def __init__(self):
         super().__init__(); self.urls=[]
     def handle_starttag(self, tag, attrs):
-        if tag != 'iframe': return
         values = dict(attrs)
-        for key in ('src','data-src'):
-            if values.get(key): self.urls.append(values[key])
+        if tag == 'iframe':
+            for key in ('src','data-src'):
+                if values.get(key): self.urls.append(values[key])
+        # Solo reproductores declarados explícitamente por la página original.
+        if tag == 'meta' and values.get('property','').lower() in ('og:video:url','og:video:secure_url','twitter:player'):
+            if values.get('content'): self.urls.append(values['content'])
 
 def main():
     posts = json.loads(POSTS.read_text(encoding='utf-8'))
