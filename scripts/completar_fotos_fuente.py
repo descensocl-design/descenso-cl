@@ -8,6 +8,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
+from buscar_noticias import leer_dimensiones_imagen
 
 POSTS = Path("data/posts.json")
 FEEDS = {
@@ -48,10 +49,40 @@ def imagen_del_rss(item, url):
         return imagen
     return ""
 
+def version_grande(url):
+    """Sube p2pb a p5pb sólo si la imagen grande existe y mide >=1200 px."""
+    m = re.search(r"/p[0-9]pb([0-9]+)/p[0-9]pb\\1\\.(jpe?g|png)(?:[?#].*)?$", url, re.I)
+    if not m:
+        return url
+    ident, ext = m.groups()
+    base = urlsplit(url)
+    candidato = urlunsplit((base.scheme, base.netloc, f"/p5pb{ident}/p5pb{ident}.{ext}", "", ""))
+    try:
+        req = Request(candidato, headers={"User-Agent": "Mozilla/5.0", "Range": "bytes=0-65535"})
+        with urlopen(req, timeout=12) as resp:
+            if not resp.headers.get("Content-Type", "").lower().startswith("image/"):
+                return url
+            muestra = resp.read(65536)
+        dimensiones = leer_dimensiones_imagen(muestra)
+        if dimensiones and dimensiones[0] >= 1200:
+            print(f"ALTA RESOLUCIÓN: {dimensiones[0]}x{dimensiones[1]} {candidato}", flush=True)
+            return candidato
+        print(f"Imagen grande no comprobada: {candidato}", flush=True)
+    except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
+        print(f"Sin versión grande comprobada: {type(exc).__name__}", flush=True)
+    return url
+
 def main():
     posts = json.loads(POSTS.read_text(encoding="utf-8"))
     if not isinstance(posts, list):
         raise SystemExit("Formato posts.json inválido")
+    actualizadas = 0
+    for post in posts:
+        if isinstance(post, dict) and post.get("image") and "pinkbike.org/" in post["image"]:
+            grande = version_grande(post["image"])
+            if grande != post["image"]:
+                post["image"] = grande
+                actualizadas += 1
     pendientes = {}
     for post in posts:
         if not isinstance(post, dict) or not post.get("auto_published") or post.get("image"):
@@ -60,7 +91,9 @@ def main():
         if url:
             pendientes[url] = post
     if not pendientes:
-        print("Sin publicaciones automáticas pendientes de imagen")
+        if actualizadas:
+            POSTS.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+        print(f"Sin publicaciones nuevas pendientes; imágenes mejoradas: {actualizadas}")
         return
     agregadas = 0
     for fuente, feed in FEEDS.items():
@@ -79,14 +112,14 @@ def main():
             if not imagen:
                 continue
             post = pendientes.pop(url)
-            post["image"] = imagen
+            post["image"] = version_grande(imagen)
             post["image_credit"] = f"{fuente} / imagen de la noticia original (fotógrafo por confirmar)"
             post["image_source_url"] = url
             agregadas += 1
             print(f"FOTO: {post.get('title')}: {imagen}")
-    if agregadas:
+    if agregadas or actualizadas:
         POSTS.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Fotos incorporadas: {agregadas}. Pendientes: {len(pendientes)}.")
+    print(f"Fotos incorporadas: {agregadas}. Mejoradas: {actualizadas}. Pendientes: {len(pendientes)}.")
 
 if __name__ == "__main__":
     main()
