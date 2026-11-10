@@ -72,7 +72,17 @@ def build():
         # Evitar repetir el resumen como primer párrafo del artículo.
         if paragraphs and re.sub(r'\s+', ' ', paragraphs[0]).strip().casefold() == re.sub(r'\s+', ' ', excerpt).strip().casefold():
             paragraphs = paragraphs[1:]
-        body = '\n'.join(f'<p>{esc(x)}</p>' for x in paragraphs)
+        # Markdown editorial: los subtítulos '##' deben ser encabezados, no párrafos.
+        body_parts = []
+        for x in paragraphs:
+            value = x.strip()
+            if value.startswith('## '):
+                body_parts.append(f'<h2>{esc(value[3:])}</h2>')
+            elif value.startswith('### '):
+                body_parts.append(f'<h3>{esc(value[4:])}</h3>')
+            else:
+                body_parts.append(f'<p>{esc(value)}</p>')
+        body = '\n'.join(body_parts)
         source = safe_https(post.get('link'))
         source_name = str(post.get('source_name') or (urlparse(source).hostname or '').removeprefix('www.') or 'Fuente no especificada')
         photo_credit = str(post.get('image_credit') or ('Descenso.cl (gráfica de categoría)' if '/assets/portadas/' in image else 'Crédito no especificado'))
