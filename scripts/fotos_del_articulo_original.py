@@ -115,7 +115,7 @@ def main():
             print("Sin fotos nuevas:",post.get("title"),"bloques:",len(sections),"candidatas:",len(unique),flush=True)
     if count:
         POSTS.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    Path("data/diagnostico-fotos.json").write_text(json.dumps(debug,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+    Path("data/diagnostico-fotos.json").write_text(json.dumps(debug,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("Noticias con fotografías adicionales actualizadas:",count)
 
 if __name__=="__main__":main()
