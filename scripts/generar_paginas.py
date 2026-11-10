@@ -104,13 +104,13 @@ def build():
                     body_parts.append(photo)
             body = '\n'.join(body_parts)
         # Insertar reproductores únicamente cuando existe una URL de video válida.
-        video_url = safe_https(post.get('youtube') or post.get('video_url') or post.get('video'))
+        video_url = safe_https(post.get('video_embed') or post.get('youtube') or post.get('video_url') or post.get('video'))
         video_html = ''
         if video_url:
             parsed = urlparse(video_url)
             host = parsed.hostname or ''
             identifier = ''
-            if host in ('youtube.com', 'www.youtube.com', 'm.youtube.com'):
+            if host in ('youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com'):
                 from urllib.parse import parse_qs
                 identifier = parse_qs(parsed.query).get('v', [''])[0]
                 if not identifier:
@@ -122,9 +122,11 @@ def build():
                 url = f'https://www.youtube-nocookie.com/embed/{identifier}'
                 video_html = f'<figure class="article-video"><iframe src="{esc(url)}" title="Video de la noticia" loading="lazy" allowfullscreen allow="accelerometer; autoplay; encrypted-media; picture-in-picture"></iframe></figure>'
             elif host in ('vimeo.com', 'www.vimeo.com', 'player.vimeo.com'):
-                match = re.search(r'/(?:video/)?(\\d+)', parsed.path)
+                match = re.search(r'/(?:video/)?(\d+)', parsed.path)
                 if match:
                     video_html = f'<figure class="article-video"><iframe src="https://player.vimeo.com/video/{match.group(1)}" title="Video de la noticia" loading="lazy" allowfullscreen></iframe></figure>'
+            elif host in ('www.pinkbike.com', 'pinkbike.com') and re.match(r'^/(?:video|embed)/', parsed.path):
+                video_html = f'<figure class="article-video"><iframe src="{esc(video_url)}" title="Video original de Pinkbike" loading="lazy" allowfullscreen></iframe></figure>'
         if video_html:
             body_parts.insert(min(2, len(body_parts)), video_html)
             body = '\n'.join(body_parts)
