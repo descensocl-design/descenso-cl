@@ -260,7 +260,7 @@ def build():
 <h1>{esc(title)}</h1><div class="article-date">{esc(date)}</div><p class="lede">{esc(excerpt)}</p>
 <figure class="article-figure"><img class="article-cover" src="{esc(image)}" alt="Imagen de la noticia: {esc(title)}" loading="eager" decoding="async"><figcaption>{'DESCENSO.CL' if '/assets/portadas/' in image else esc(str(post.get('image_credit') or ''))}</figcaption></figure>
 {share_html}<div class="article-copy">{body}</div>{gallery_html}{credits_html}{related_html}{share_html}{comments_html}
-<footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main><script src="/comments.js" defer></script><script src="/article-extras.js" defer></script></body></html>"""
+<footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main><script src="/comments.js" defer></script><script src="/article-extras.js" defer></script><script src="/analytics.js" defer></script></body></html>"""
         folder = ROOT / path.lstrip('/')
         folder.mkdir(parents=True, exist_ok=True)
         (folder/'index.html').write_text(page, encoding='utf-8')
