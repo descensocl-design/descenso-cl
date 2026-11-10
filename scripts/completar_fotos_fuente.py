@@ -29,7 +29,7 @@ def normalizar(url):
     except ValueError:
         return ""
 
-def imagen_del_rss(item, url):
+def imagenes_del_rss(item, url):
     candidatas = []
     for nodo in item.iter():
         tag = nodo.tag.split("}")[-1].lower()
@@ -40,6 +40,7 @@ def imagen_del_rss(item, url):
     for texto in (item.findtext(CONTENT), item.findtext("description")):
         for m in re.finditer(r"""<img\b[^>]*\b(?:src|data-src)\s*=\s*["']([^"']+)["']""", texto or "", re.I):
             candidatas.append(html.unescape(m.group(1)))
+    resultados = []
     for candidata in candidatas:
         imagen = urljoin(url, candidata)
         u = urlsplit(imagen)
@@ -47,8 +48,12 @@ def imagen_del_rss(item, url):
             continue
         if any(v in u.path.lower() for v in ("avatar", "logo", "pixel", "tracking", "sprite")):
             continue
-        return imagen
-    return ""
+        key = re.sub(r"/p[0-9]pb([0-9]+)/p[0-9]pb\\1", r"/photo/\\1", imagen)
+        if key not in {re.sub(r"/p[0-9]pb([0-9]+)/p[0-9]pb\\1", r"/photo/\\1", x) for x in resultados}:
+            resultados.append(imagen)
+        if len(resultados) >= 7:
+            break
+    return resultados
 
 def version_grande(url):
     """Selecciona la versión comprobada de al menos 1000 píxeles de ancho."""
@@ -87,17 +92,18 @@ def main():
                 actualizadas += 1
     pendientes = {}
     for post in posts:
-        if not isinstance(post, dict) or not post.get("auto_published") or post.get("image"):
+        if not isinstance(post, dict) or not post.get("auto_published"):
             continue
         url = normalizar(post.get("link", ""))
-        if url:
+        if url and (not post.get("image") or len(post.get("images", [])) < 4):
             pendientes[url] = post
     if not pendientes:
         if actualizadas:
             POSTS.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print(f"Sin publicaciones nuevas pendientes; imágenes mejoradas: {actualizadas}")
+        print(f"Sin artículos con galerías pendientes; imágenes mejoradas: {actualizadas}")
         return
     agregadas = 0
+    galerias = 0
     for fuente, feed in FEEDS.items():
         try:
             req = Request(feed, headers={"User-Agent": "Mozilla/5.0 (compatible; DescensoPhotoBot/1.0)"})
@@ -110,18 +116,26 @@ def main():
             url = normalizar(item.findtext("link") or "")
             if url not in pendientes:
                 continue
-            imagen = imagen_del_rss(item, url)
-            if not imagen:
+            imagenes = imagenes_del_rss(item, url)
+            if not imagenes:
                 continue
             post = pendientes.pop(url)
-            post["image"] = version_grande(imagen)
-            post["image_credit"] = f"{fuente} / imagen de la noticia original (fotógrafo por confirmar)"
+            fotos = [version_grande(imagen) for imagen in imagenes[:6]]
+            fotos = list(dict.fromkeys(fotos))
+            if not post.get("image"):
+                post["image"] = fotos[0]
+                agregadas += 1
+            # Mantener sólo imágenes originales de esta noticia.
+            fotos = [f for f in fotos if f != post["image"]][:5]
+            if fotos:
+                post["images"] = fotos
+                galerias += 1
+            post["image_credit"] = post.get("image_credit") or f"{fuente} / fotografías del artículo original (autor por confirmar)"
             post["image_source_url"] = url
-            agregadas += 1
-            print(f"FOTO: {post.get('title')}: {imagen}")
-    if agregadas or actualizadas:
+            print(f"GALERÍA: {post.get('title')}: {len(fotos)} imágenes adicionales")
+    if agregadas or actualizadas or galerias:
         POSTS.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Fotos incorporadas: {agregadas}. Mejoradas: {actualizadas}. Pendientes: {len(pendientes)}.")
+    print(f"Portadas: {agregadas}. Galerías: {galerias}. Mejoradas: {actualizadas}. Pendientes: {len(pendientes)}.")
 
 if __name__ == "__main__":
     main()
