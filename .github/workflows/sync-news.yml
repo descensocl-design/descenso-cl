@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'data/noticias/**'
+      - 'data/posts.json'
       - 'scripts/generar_paginas.py'
       - 'scripts/completar_fotos_fuente.py'
       - '.github/workflows/sync-news.yml'
