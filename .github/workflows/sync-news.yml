@@ -95,18 +95,27 @@ jobs:
           posts = list(unicos.values())
           existing_path = Path('data/posts.json')
           existing = json.loads(existing_path.read_text(encoding='utf-8')) if existing_path.exists() else []
-          # Conservar fuentes y notas editoriales de noticias manuales en las
-          # regeneraciones; los datos nuevos nunca deben borrar correcciones.
+          # Preservar correcciones editoriales aun si cambia el título.
+          # Identidad estable de una noticia: fecha + imagen principal.
           prior_by_key = {(str(p.get('date')), str(p.get('title','')).strip().casefold()): p
                           for p in existing if isinstance(p, dict)}
+          prior_by_cover = {(str(p.get('date')), str(p.get('image',''))): p
+                            for p in existing if isinstance(p, dict) and p.get('image')}
           for manual in posts:
-              prior = prior_by_key.get((str(manual.get('date')), str(manual.get('title','')).strip().casefold()))
-              if not prior:
-                  continue
-              for attr in ('link', 'source_name', 'image_source_url', 'editorial_update', 'official_video_collection'):
-                  if not manual.get(attr) and prior.get(attr):
-                      manual[attr] = prior[attr]
-              if prior.get('editorial_update') and prior.get('excerpt'):
+              prior = (prior_by_key.get((str(manual.get('date')), str(manual.get('title','')).strip().casefold()))
+                       or prior_by_cover.get((str(manual.get('date')), str(manual.get('image','')))))
+              if not prior: continue
+              for attr in ('link','source_name','image_source_url','editorial_update','official_video_collection','media_review','permalink'):
+                  if not manual.get(attr) and prior.get(attr): manual[attr] = prior[attr]
+              if prior.get('images') and not manual.get('images'):
+                  manual['images'] = prior['images']
+              override = prior.get('editorial_override')
+              if isinstance(override,dict):
+                  for attr in ('title','excerpt','body','category'):
+                      if override.get(attr):
+                          manual[attr] = override[attr]
+                  manual['editorial_override'] = override
+              elif prior.get('editorial_update') and prior.get('excerpt'):
                   manual['excerpt'] = prior['excerpt']
           # Conservar noticias automáticas al sincronizar las noticias manuales.
           manual_links = {p.get('link') for p in posts if p.get('link')}
