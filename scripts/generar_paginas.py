@@ -203,13 +203,14 @@ def build():
         article_slug = path.strip('/').split('/')[-1]
         comments_html = (
             f'<section id="comments" class="comments-section" data-article="{esc(article_slug)}">'
-            '<h2>COMENTARIOS</h2>'
+            '<h2>COMENTARIOS <span class="comment-count" data-comment-count>0</span></h2>'
             '<p class="comments-status" data-comments-status>Cargando comentarios…</p>'
             '<div class="comments-list" data-comments-list></div>'
             '<form class="comment-form" hidden>'
             '<div class="comment-controls"><label>Nombre <input name="name" maxlength="40" minlength="2" required placeholder="Tu nombre"></label>'
             '<label class="comment-anon"><input type="checkbox" name="anonymous"> Comentar anónimo</label></div>'
             '<label>Comentario <textarea name="message" minlength="12" maxlength="1500" rows="5" required placeholder="¿Qué opinas de esta noticia?"></textarea></label>'
+            '<div class="comment-honeypot" aria-hidden="true"><label>Sitio web <input name="website" tabindex="-1" autocomplete="off"></label></div>'
             '<button type="submit">ENVIAR COMENTARIO</button></form></section>'
         )
         # Navegación interna y lecturas relacionadas por disciplina.
