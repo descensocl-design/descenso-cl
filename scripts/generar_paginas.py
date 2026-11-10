@@ -106,6 +106,18 @@ def build():
             f'<p>Fotografía: {esc(photo_credit)}</p>'
             '</div>'
         )
+        article_slug = path.strip('/').split('/')[-1]
+        comments_html = (
+            f'<section id="comments" class="comments-section" data-article="{esc(article_slug)}">'
+            '<h2>COMENTARIOS</h2>'
+            '<p class="comments-status" data-comments-status>Cargando comentarios…</p>'
+            '<div class="comments-list" data-comments-list></div>'
+            '<form class="comment-form" hidden>'
+            '<div class="comment-controls"><label>Nombre <input name="name" maxlength="40" minlength="2" required placeholder="Tu nombre"></label>'
+            '<label class="comment-anon"><input type="checkbox" name="anonymous"> Comentar anónimo</label></div>'
+            '<label>Comentario <textarea name="message" minlength="12" maxlength="1500" rows="5" required placeholder="¿Qué opinas de esta noticia?"></textarea></label>'
+            '<button type="submit">ENVIAR COMENTARIO</button></form></section>'
+        )
         canonical = DOMAIN + path
         schema = {'@context':'https://schema.org','@type':'NewsArticle','headline':title,'description':excerpt,'datePublished':date,'image':[image],'mainEntityOfPage':canonical,'publisher':{'@type':'Organization','name':'Descenso.cl','url':DOMAIN,'logo':{'@type':'ImageObject','url':DOMAIN+'/logo-descenso.jpg'}}}
         structured = json.dumps(schema,ensure_ascii=False).replace('<','\\u003c')
@@ -123,8 +135,8 @@ def build():
 <main class="article-page"><a class="back-link" href="/">← VOLVER A NOTICIAS</a><div class="article-tag">{esc(category.upper())}</div>
 <h1>{esc(title)}</h1><div class="article-date">{esc(date)}</div><p class="lede">{esc(excerpt)}</p>
 <figure class="article-figure"><img class="article-cover" src="{esc(image)}" alt="Imagen de la noticia: {esc(title)}" loading="eager" decoding="async"><figcaption>{'DESCENSO.CL' if '/assets/portadas/' in image else esc(str(post.get('image_credit') or ''))}</figcaption></figure>
-<div class="article-copy">{body}</div>{gallery_html}{credits_html}
-<footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main></body></html>"""
+<div class="article-copy">{body}</div>{gallery_html}{credits_html}{comments_html}
+<footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main><script src="/comments.js" defer></script></body></html>"""
         folder = ROOT / path.lstrip('/')
         folder.mkdir(parents=True, exist_ok=True)
         (folder/'index.html').write_text(page, encoding='utf-8')
