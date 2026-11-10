@@ -174,6 +174,8 @@ jobs:
           node --check article-extras.js
           node --check "functions/api/comments/[[slug]].js"
           node --check "functions/api/comment-reports/[[slug]].js"
+          node --check functions/api/moderation.js
+          node --check admin/moderacion.js
       - name: Generar páginas y sitemap
         run: python scripts/generar_paginas.py
       - name: Auditar multimedia y fuentes de todas las noticias
