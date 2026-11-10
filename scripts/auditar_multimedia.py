@@ -21,7 +21,7 @@ def main():
         issues=[]
         if not has_source:
             issues.append("No hay enlace a la publicación original: verificar fuente y créditos")
-        if p.get("auto_published") and not images:
+        if p.get("auto_published") and not images and not p.get("media_review"):
             issues.append("Solo portada: comprobar si la noticia original contiene fotografías adicionales")
         if is_video_article and not video:
             issues.append("La noticia anuncia video, pero no tiene reproductor original verificado")
@@ -31,6 +31,7 @@ def main():
           "title":title,"source_url":source,"permalink":p.get("permalink",""),
           "photos_registered":int(bool(p.get("image")))+len(images),
           "video_registered":bool(video),
+          "source_media_review":p.get("media_review") or None,
           "issues":issues,
           "status":"pendiente" if issues else "sin_pendientes_detectados"
         })
