@@ -24,14 +24,18 @@ def valid_image(raw, base):
 
 def photo_candidates(container, base):
     photos = []
-    for tag in container.find_all(["img", "a", "source"]):
+    for tag in container.find_all(["img", "a", "source", "picture"]):
         values = []
-        if tag.name == "a": values.append(tag.get("href"))
+        if tag.name == "a":
+            values.append(tag.get("href"))
         elif tag.name == "source":
             values.extend(x.strip().split(" ")[0] for x in (tag.get("srcset") or "").split(","))
         else:
             values.extend(tag.get(k) for k in ATTRS)
             values.extend(x.strip().split(" ")[0] for x in (tag.get("srcset") or "").split(","))
+        # Pinkbike puede colocar fotografías en atributos de elementos contenedores.
+        for key in ("data-photo", "data-image", "data-url", "data-fullsize", "data-large-url"):
+            if tag.get(key): values.append(tag.get(key))
         for raw in values:
             u = valid_image(raw,base)
             if u:
@@ -76,7 +80,8 @@ def main():
             if bodylen>=650 and pictures:
                 ranked.append((len(pictures),min(bodylen,20000),root))
         if not ranked:
-            print("Sin cuerpo de fotos detectable:",post.get("title"),flush=True);continue
+            # Diagnóstico acotado al artículo, sin importar imágenes de recomendaciones.
+            print("Sin cuerpo de fotos detectable:",post.get("title"),"candidatos",len(roots),flush=True);continue
         ranked.sort(key=lambda x:(x[0],x[1]),reverse=True)
         root=ranked[0][2]
         # Descartar imágenes fuera del cuerpo incluso cuando un contenedor es muy grande:
