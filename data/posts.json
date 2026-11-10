@@ -57,7 +57,7 @@
     "source_name": "Pinkbike",
     "source_comments_at_selection": 53,
     "permalink": "/noticias/2026-11-08-randoms-sedona-mountain-bike-festival-2026/",
-    "image_credit": "Pinkbike / imagen de la noticia original (fotógrafo por confirmar)",
+    "image_credit": "Pinkbike — fotografías del artículo original",
     "image_source_url": "https://www.pinkbike.com/news/randoms-sedona-mountain-bike-festival-2026.html",
     "images": [
       "https://ep1.pinkbike.org/p5pb30494788/p5pb30494788.jpg",
@@ -211,7 +211,7 @@
     "source_name": "Pinkbike — relato original de Matthew Fairbrother",
     "source_comments_at_selection": 14,
     "permalink": "/noticias/2026-11-08-video-matthew-fairbrother-mountain-bikes-in-el-salvador-from-murder-capital-to-mounta/",
-    "image_credit": "Pinkbike / imagen del artículo original de Matthew Fairbrother (fotógrafo por confirmar)",
+    "image_credit": "Pinkbike — fotografías del artículo original",
     "image_source_url": "https://www.pinkbike.com/news/video-matthew-fairbrother-mountain-bikes-in-el-salvador-from-murder-capital-to-mountain-bike-haven.html",
     "editorial_method": "artículo_original_basado_en_testimonio_publicado",
     "video_embed": "https://www.youtube-nocookie.com/embed/vkZ0AeDet8w",
@@ -315,6 +315,13 @@
           "source": "https://www.youtube.com/watch?v=pGB2DXJsF1k"
         }
       ]
+    },
+    "media_review": {
+      "date": "2026-11-10",
+      "kind": "video_collection",
+      "source_checked": "https://www.pinkbike.com/news/who-had-the-best-line-of-2026-vote-for-the-adidas-line-of-the-year-top-10.html",
+      "notes": "Los diez reproductores originales están incorporados; fotos adicionales no verificadas.",
+      "video_players": 10
     }
   },
   {
@@ -367,7 +374,7 @@
     "image": "https://ep1.pinkbike.org/p5pb30435456/p5pb30435456.jpg",
     "images": [],
     "image_approved": false,
-    "image_credit": "",
+    "image_credit": "Ian Linton / Pinkbike",
     "youtube": "",
     "body": [
       "La marca alemana vuelve a apostar fuerte por las bicicletas eléctricas con una nueva Decoy de aluminio, motor Avinox M2S y un precio de entrada que busca sacudir el segmento e-MTB.",
@@ -390,6 +397,13 @@
     ],
     "link": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
     "source_name": "Pinkbike",
-    "image_source_url": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html"
+    "image_source_url": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
+    "media_review": {
+      "date": "2026-11-10",
+      "kind": "review_with_photos",
+      "source_checked": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
+      "notes": "La fuente original tiene múltiples fotografías de Ian Linton, pero Pinkbike bloquea la descarga automatizada del HTML (HTTP 403); sus URLs individuales no están verificadas.",
+      "needs_additional_photos": true
+    }
   }
 ]
