@@ -8,6 +8,7 @@ on:
       - 'scripts/generar_paginas.py'
       - 'scripts/completar_fotos_fuente.py'
       - 'scripts/fotos_del_articulo_original.py'
+      - 'scripts/auditar_fotos_matthew.py'
       - 'scripts/recuperar_videos_fuente.py'
       - '.github/workflows/sync-news.yml'
   workflow_dispatch:
@@ -111,6 +112,8 @@ jobs:
           PY
       - name: Recuperar fotos desde el RSS de las fuentes originales
         run: python scripts/completar_fotos_fuente.py
+      - name: Auditar fotos exactas de Matthew
+        run: python scripts/auditar_fotos_matthew.py
       - name: Recuperar fotos del cuerpo de las publicaciones originales
         run: python scripts/fotos_del_articulo_original.py
       - name: Recuperar reproductores de video originales
@@ -121,7 +124,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/posts.json noticias/ sitemap.xml robots.txt
+          git add data/posts.json data/auditoria-matthew-fuente.json noticias/ sitemap.xml robots.txt
           if ! git diff --cached --quiet; then
             git commit -m "Actualizar noticias de la portada"
             git push origin HEAD:main
