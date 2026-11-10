@@ -46,12 +46,20 @@ jobs:
               date_value = str(date_value)[:10]
               video = str(meta.get('video') or meta.get('youtube') or '').strip()
               image = str(meta.get('image') or '').strip()
+              # Las fotos nuevas solo se muestran si han sido autorizadas.
+              # Los gráficos locales de Descenso son siempre admisibles.
+              image_approved = meta.get('image_approved') is True
+              if image and not (image_approved or image.startswith('/assets/')):
+                  print(f'Fotografía sin autorizar en {file}: se usa portada de categoría')
+                  image = ''
               posts.append({
                   'title': str(meta.get('title') or file.stem),
                   'date': date_value,
                   'category': str(meta.get('category') or 'Downhill'),
                   'excerpt': str(meta.get('description') or meta.get('excerpt') or (paragraphs[0][:190] if paragraphs else '')),
                   'image': image,
+                  'image_approved': image_approved,
+                  'image_credit': str(meta.get('image_credit') or '').strip(),
                   'youtube': video,
                   'body': paragraphs,
                   'link': str(meta.get('link') or '')
