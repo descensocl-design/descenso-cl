@@ -95,7 +95,8 @@ def main():
         if not isinstance(post, dict) or not post.get("auto_published"):
             continue
         url = normalizar(post.get("link", ""))
-        if url and (not post.get("image") or len(post.get("images", [])) < 4):
+        if url and not post.get("images"):
+            # El RSS no debe sobrescribir una galería ya verificada desde el artículo.
             pendientes[url] = post
     if not pendientes:
         if actualizadas:
