@@ -51,7 +51,7 @@ def imagen_del_rss(item, url):
 
 def version_grande(url):
     """Sube p2pb a p5pb sólo si la imagen grande existe y mide >=1200 px."""
-    m = re.search(r"/p[0-9]pb([0-9]+)/p[0-9]pb\\1\\.(jpe?g|png)(?:[?#].*)?$", url, re.I)
+    m = re.search(r"/p[0-9]pb([0-9]+)/p[0-9]pb\1\.(jpe?g|png)(?:[?#].*)?$", url, re.I)
     if not m:
         return url
     ident, ext = m.groups()
