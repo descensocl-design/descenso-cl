@@ -1,0 +1,17 @@
+.moderation-page{max-width:1000px;margin:0 auto;padding:44px 24px 100px}
+.moderation-page h1{font-size:clamp(28px,5vw,52px);letter-spacing:-.05em;margin:0 0 14px}
+.intro-moderation{color:var(--muted);line-height:1.6;max-width:700px}
+.moderation-access{display:flex;flex-direction:column;gap:12px;max-width:500px;padding:22px;background:#161618;border:1px solid #353538;margin:30px 0}
+.moderation-access label,.moderation-toolbar label{font-size:12px;font-weight:800}
+.moderation-access input,.moderation-toolbar select{background:#202023;color:white;border:1px solid #57575a;border-radius:0;padding:12px}
+.moderation-access button,.moderation-toolbar button,.moderation-actions button{cursor:pointer;border:1px solid var(--red);background:transparent;color:white;font-size:11px;font-weight:900;letter-spacing:.6px;padding:12px}
+.moderation-access p{font-size:12px;color:var(--muted);line-height:1.6}
+.moderation-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #444;padding:12px 0 22px}
+.moderation-card{background:#161618;border:1px solid #343438;margin:14px 0;padding:20px}
+.moderation-card-header,.moderation-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center}
+.moderation-card-header span,.moderation-meta{font-size:11px;color:var(--muted)}
+.moderation-comment{line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.moderation-meta a{text-decoration:underline}
+.moderation-actions{margin-top:15px}.moderation-actions button:disabled{opacity:.5;cursor:wait}
+#moderation-status{font-size:13px;color:#ddd;margin:18px 0}
+@media(max-width:570px){.moderation-page{padding:28px 16px}.moderation-toolbar button{padding:10px}.moderation-card{padding:14px}}
