@@ -87,7 +87,7 @@ def build():
         extra_images = list(dict.fromkeys(
             safe_https(x) for x in extra_images
             if safe_https(x) and safe_https(x) != image
-        ))[:24]
+        ))[:60]
         gallery_html = ''
         if extra_images:
             # Fotografías entre el contenido, no agrupadas al final.
