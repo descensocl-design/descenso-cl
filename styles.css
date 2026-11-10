@@ -237,3 +237,8 @@
 .featured .read{margin-top:6px;color:#fff}
 .article-page .article-copy{max-width:790px}
 @media(max-width:600px){.featured .thumb{aspect-ratio:16/9}.featured .post,.featured .post-body{min-height:0}.featured .post-body{padding:20px}.featured .post h3{font-size:clamp(25px,7vw,35px)}.featured .post p{font-size:13px}}
+
+/* Créditos discretos al final de las noticias */
+.article-page .article-credits{max-width:790px;margin:32px 0 24px;padding-top:14px;border-top:1px solid var(--line);color:#97979b;font-size:11px;line-height:1.6}
+.article-page .article-credits p{margin:3px 0}
+.article-page .article-credits a{text-decoration:underline;text-underline-offset:2px}
