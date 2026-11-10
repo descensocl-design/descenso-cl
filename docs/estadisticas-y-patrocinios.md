@@ -69,3 +69,28 @@ UPDATE comments SET status='rejected' WHERE id='ID_DEL_COMENTARIO';
 ```
 
 **Estado:** estas operaciones requieren acceso autorizado a Cloudflare; los cambios en GitHub por sí solos no crean la base ni activan los servicios externos.
+
+## Panel privado de moderación
+
+Panel preparado en `https://descenso.cl/admin/comentarios.html`.
+La ruta no se enlaza desde la portada y tiene metadatos de no indexación. La **seguridad real** está en la API, no en ocultar la dirección.
+
+En **Cloudflare Pages > Settings > Variables and Secrets** registrar `MODERATION_TOKEN` como secreto de **al menos 32 caracteres aleatorios**. Usar un valor diferente de `COMMENTS_SALT`. No subir el token a GitHub, ni enviarlo por correo o por este chat.
+
+Después de desplegar Pages, ingresar al panel con ese token. El panel permite ver comentarios denunciados, recientes u ocultos, y cambiar un comentario de `approved` a `rejected` o al revés. El token solo reside en la memoria de la pestaña mientras se utiliza; recargar o cerrar la página requiere ingresarlo de nuevo.
+
+Comprobación sin publicar datos privados:
+- Abrir `https://descenso.cl/api/moderation` sin token. Debe devolver **401** si D1 está vinculada y el endpoint está desplegado.
+- Confirmar que `https://descenso.cl/admin/comentarios.html` muestra la pantalla de ingreso.
+- Con el token real, confirmar que el listado de denuncias carga sin errores. Si responde 503, revisar la base D1 y el esquema `database/comments.sql`.
+- Una vez que existan denuncias reales, usar el panel para revisar el contenido antes de ocultarlo.
+
+Por seguridad no se habilita un panel de acceso público ni se genera un token predeterminado. La API comprueba el token de forma segura y no lo devuelve en sus respuestas. Configurar Cloudflare WAF para limitar intentos reiterados sobre `/api/moderation` es recomendable.
+
+## Estado de activación (10 de noviembre de 2026)
+
+- Código y esquema de comentarios, denuncias y moderación: preparados en GitHub.
+- Binding `COMMENTS_DB`, secretos `COMMENTS_SALT` y `MODERATION_TOKEN`: requieren configuración en la cuenta de Cloudflare.
+- Cloudflare Web Analytics: requiere token específico de la propiedad.
+- Search Console: requiere verificación DNS.
+- El navegador de consulta no consiguió recuperar `descenso.cl`; no se ha confirmado el estado de los endpoints publicados. No interpretar el código en GitHub como una confirmación de despliegue.
