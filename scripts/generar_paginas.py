@@ -152,10 +152,20 @@ def build():
             if collection_source:
                 entries = video_collection.get('entries',[])[:30]
                 collection_html = '<section class="article-video-collection"><h2>' + esc(video_collection.get('heading','VIDEOS EN LA FUENTE ORIGINAL')) + '</h2>'
-                collection_html += '<p>' + esc(video_collection.get('note','')) + '</p><ol>'
-                for name in entries:
-                    collection_html += '<li>' + esc(name) + '</li>'
-                collection_html += '</ol><a href="' + esc(collection_source) + '" target="_blank" rel="noopener noreferrer">VER LOS REPRODUCTORES ORIGINALES EN PINKBIKE ↗</a></section>'
+                collection_html += '<p>' + esc(video_collection.get('note','')) + '</p>'
+                count_embeds = 0
+                for entry in entries:
+                    title_video = str(entry.get('title','')) if isinstance(entry,dict) else str(entry)
+                    embed = safe_https(entry.get('embed')) if isinstance(entry,dict) else ''
+                    collection_html += '<div class="article-video-entry"><h3>' + esc(title_video) + '</h3>'
+                    # Solo insertar videos de YouTube verificados desde el HTML editorial.
+                    if embed and embed.startswith('https://www.youtube-nocookie.com/embed/'):
+                        collection_html += '<div class="article-video-player"><iframe src="' + esc(embed) + '" title="' + esc(title_video) + '" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>'
+                        count_embeds += 1
+                    collection_html += '</div>'
+                if not count_embeds:
+                    collection_html += '<a href="' + esc(collection_source) + '" target="_blank" rel="noopener noreferrer">VER REPRODUCTORES EN PINKBIKE ↗</a>'
+                collection_html += '</section>'
                 body += collection_html
         # Nota editorial fechada para corregir hechos que cambiaron tras publicar.
         correction = post.get('editorial_update')
