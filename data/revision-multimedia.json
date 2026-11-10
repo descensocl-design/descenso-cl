@@ -74,7 +74,13 @@
       "photos_registered": 1,
       "video_registered": true,
       "video_players": 10,
-      "source_media_review": null,
+      "source_media_review": {
+        "date": "2026-11-10",
+        "kind": "video_collection",
+        "source_checked": "https://www.pinkbike.com/news/who-had-the-best-line-of-2026-vote-for-the-adidas-line-of-the-year-top-10.html",
+        "notes": "Los diez reproductores originales están incorporados; fotos adicionales no verificadas.",
+        "video_players": 10
+      },
       "issues": [],
       "status": "sin_pendientes_detectados"
     },
@@ -112,7 +118,13 @@
       "photos_registered": 1,
       "video_registered": false,
       "video_players": 0,
-      "source_media_review": null,
+      "source_media_review": {
+        "date": "2026-11-10",
+        "kind": "review_with_photos",
+        "source_checked": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
+        "notes": "La fuente original tiene múltiples fotografías de Ian Linton, pero Pinkbike bloquea la descarga automatizada del HTML (HTTP 403); sus URLs individuales no están verificadas.",
+        "needs_additional_photos": true
+      },
       "issues": [],
       "status": "sin_pendientes_detectados"
     }
