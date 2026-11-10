@@ -80,35 +80,44 @@ def main():
             if bodylen>=650 and pictures:
                 ranked.append((len(pictures),min(bodylen,20000),root))
         if not ranked:
-            # Algunas notas Pinkbike usan bloques multimedia personalizados fuera
-            # del contenedor de párrafos. Buscar únicamente en la región editorial
-            # delimitada desde el reproductor principal hasta las etiquetas finales.
-            start = re.search(r'<(?:iframe|div)[^>]*(?:youtube|video-player|video-container)',page,re.I)
-            end = re.search(r'(?:Posted In:|Author Info:|Must Read This Week|id=["\\\']comments)',page,re.I)
-            if start and end and end.start()>start.start():
-                fragment=page[start.start():end.start()]
-                raw_links=re.findall(r'https?:(?:\\/\\/|//)[^"\\'\\s<>]+',fragment)
-                recovered=[]
+            # Pinkbike puede colocar fotografías en bloques multimedia que no
+            # utilizan etiquetas img, pero solamente extraemos enlaces dentro
+            # de la región editorial, nunca de artículos recomendados.
+            start = re.search(r'<(?:iframe|div)[^>]*(?:youtube|video-player|video-container)', page, re.I)
+            end_marker = re.search(r'(?:Posted In:|Author Info:|Must Read This Week|id=["\x27]comments)', page, re.I)
+            if start and end_marker and end_marker.start() > start.start():
+                fragment = page[start.start():end_marker.start()]
+                raw_links = re.findall(r"https?:(?:\\/\\/|//)[^\x22\x27\s<>]+", fragment)
+                recovered = []
                 for raw in raw_links:
-                    raw=raw.replace('\\\\/','/').replace('&amp;','&')
-                    original=valid_image(raw,link)
+                    raw = raw.replace("\\/", "/").replace("&amp;", "&")
+                    original = valid_image(raw, link)
                     if original: recovered.append(original)
-                unique=[];keys=set()
+                unique = []
+                keys = set()
                 for url in recovered:
-                    m=re.search(r'p\\d+pb(\\d+)',urlsplit(url).path)
-                    key=m.group(1) if m else urlsplit(url).path
-                    if key not in keys:keys.add(key);unique.append(url)
-                cover=post.get("image","")
-                cm=re.search(r'p\\d+pb(\\d+)',cover)
-                coverkey=cm.group(1) if cm else urlsplit(cover).path
-                additional=[u for u in unique if (re.search(r'p\\d+pb(\\d+)',u).group(1) if re.search(r'p\\d+pb(\\d+)',u) else urlsplit(u).path)!=coverkey][:10]
+                    m = re.search(r"p\d+pb(\d+)", urlsplit(url).path)
+                    key = m.group(1) if m else urlsplit(url).path
+                    if key not in keys:
+                        keys.add(key)
+                        unique.append(url)
+                cover = post.get("image", "")
+                cm = re.search(r"p\d+pb(\d+)", cover)
+                coverkey = cm.group(1) if cm else urlsplit(cover).path
+                additional = []
+                for url in unique:
+                    m = re.search(r"p\d+pb(\d+)", url)
+                    key = m.group(1) if m else urlsplit(url).path
+                    if key != coverkey: additional.append(url)
+                additional = additional[:10]
                 if additional:
-                    post["images"]=additional
-                    post["image_source_url"]=link
-                    count+=1
-                    print("FOTOS DEL ARTÍCULO (multimedia):",post.get("title"),len(additional),flush=True)
+                    post["images"] = additional
+                    post["image_source_url"] = link
+                    count += 1
+                    print("FOTOS DEL ARTÍCULO (multimedia):", post.get("title"), len(additional), flush=True)
                     continue
-            print("Sin cuerpo de fotos detectable:",post.get("title"),"candidatos",len(roots),flush=True);continue
+            print("Sin cuerpo de fotos detectable:", post.get("title"), "candidatos", len(roots), flush=True)
+            continue
         ranked.sort(key=lambda x:(x[0],x[1]),reverse=True)
         root=ranked[0][2]
         # Descartar imágenes fuera del cuerpo incluso cuando un contenedor es muy grande:
