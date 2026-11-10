@@ -46,6 +46,7 @@ def photo_candidates(container, base):
 def main():
     posts=json.loads(POSTS.read_text(encoding="utf-8"))
     count=0
+    debug=[]
     for post in posts:
         if not isinstance(post,dict) or not post.get("auto_published"): continue
         link=post.get("link") or ""
@@ -57,6 +58,7 @@ def main():
                 if "text/html" not in resp.headers.get("content-type","").lower(): continue
                 page=resp.read(3500000).decode("utf-8","replace")
         except Exception as e:
+            debug.append({"title":post.get("title"),"error":str(e)[:160]})
             print("Fuente inaccesible:",post.get("title"),str(e)[:140],flush=True);continue
         soup=BeautifulSoup(page,"html.parser")
         # Pinkbike publica galerías editoriales como múltiples bloques .blog-section.
@@ -103,6 +105,7 @@ def main():
             identifier=m.group(1) if m else urlsplit(photo).path
             if identifier != cover_id: additional.append(photo)
         additional=additional[:60]
+        debug.append({"title":post.get("title"),"sections":len(sections),"photos_found":len(unique),"additional":len(additional)})
         if additional and additional!=post.get("images",[]):
             post["images"]=additional
             post["image_source_url"]=link
@@ -112,6 +115,7 @@ def main():
             print("Sin fotos nuevas:",post.get("title"),"bloques:",len(sections),"candidatas:",len(unique),flush=True)
     if count:
         POSTS.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    Path("data/diagnostico-fotos.json").write_text(json.dumps(debug,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
     print("Noticias con fotografías adicionales actualizadas:",count)
 
 if __name__=="__main__":main()
