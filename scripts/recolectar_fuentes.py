@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit, urljoin
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
 
@@ -85,6 +85,29 @@ def contexto(item):
     return max((limpiar(x) for x in opciones if x), key=len, default="")
 
 
+def imagen_de_noticia(item, url):
+    """Priorizar la imagen que el propio artículo distribuye en RSS."""
+    candidates = []
+    for nodo in item.iter():
+        etiqueta = nodo.tag.split("}")[-1].lower()
+        tipo = (nodo.attrib.get("type") or "").lower()
+        if etiqueta in ("thumbnail", "content", "enclosure"):
+            if etiqueta != "enclosure" or tipo.startswith("image/") or nodo.attrib.get("url", "").lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+                candidates.append(nodo.attrib.get("url") or "")
+    if not candidates:
+        for field in (item.findtext("description") or "", item.findtext(CONTENT_NS) or ""):
+            m = re.search(r'<img[^>]+(?:src|data-src)=["\\\']([^"\\\']+)', field, re.I)
+            if m:
+                candidates.append(html.unescape(m.group(1)))
+                break
+    for candidate in candidates:
+        target = urljoin(url, html.unescape(candidate))
+        parts = urlsplit(target)
+        if parts.scheme == "https" and parts.hostname:
+            return urlunsplit((parts.scheme, parts.netloc, parts.path, "", ""))
+    return ""
+
+
 def extraer(feed, nombre, corte, ahora):
     req = Request(feed, headers={"User-Agent": "DescensoEditorialBot/1.0 (+https://descenso.cl)"})
     with urlopen(req, timeout=18) as respuesta:
@@ -111,6 +134,8 @@ def extraer(feed, nombre, corte, ahora):
             "fecha": fecha.isoformat(),
             "contexto": cuerpo,
             "palabras": len(cuerpo.split()),
+            "imagen": imagen_de_noticia(item, url),
+            "image_credit": f"{nombre} / fuente original (fotógrafo por confirmar)",
             "imagen_pendiente_revision": True,
         })
     return encontrados
