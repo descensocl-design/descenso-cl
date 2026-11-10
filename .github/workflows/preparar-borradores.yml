@@ -24,6 +24,18 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/preparar_borradores.py
+      - name: Comprobar resultado editorial
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          hoy = datetime.now(ZoneInfo("America/Santiago")).date().isoformat()
+          archivos = list(Path("data/borradores-ia").glob(f"{hoy}-*.md"))
+          print(f"Borradores con fecha de hoy: {len(archivos)}")
+          if not archivos:
+              raise SystemExit("SIN BORRADORES: ninguna noticia obtuvo contexto suficiente. Revisar RSS, fuentes y errores HTTP 403.")
+          PY
       - name: Guardar borradores en rama de pruebas
         run: |
           git config user.name "Descenso News Bot"
