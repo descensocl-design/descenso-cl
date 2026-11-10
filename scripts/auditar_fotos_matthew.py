@@ -7,8 +7,13 @@ from bs4 import BeautifulSoup
 SOURCE="https://www.pinkbike.com/news/video-matthew-fairbrother-mountain-bikes-in-el-salvador-from-murder-capital-to-mountain-bike-haven.html"
 OUTPUT=Path("data/auditoria-matthew-fuente.json")
 def main():
-    with urlopen(Request(SOURCE,headers={"User-Agent":"Mozilla/5.0"}),timeout=25) as r:
-        html=r.read(4000000).decode("utf-8","replace")
+    try:
+        with urlopen(Request(SOURCE,headers={"User-Agent":"Mozilla/5.0"}),timeout=25) as r:
+            html=r.read(4000000).decode("utf-8","replace")
+    except Exception as e:
+        OUTPUT.write_text(json.dumps({"source":SOURCE,"error":str(e)},ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+        print("AUDITORIA: fuente inaccesible",type(e).__name__,flush=True)
+        return
     soup=BeautifulSoup(html,"html.parser")
     rows=[]
     for tag in soup.find_all(True):
