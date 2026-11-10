@@ -24,7 +24,7 @@ def valid_image(raw, base):
 
 def photo_candidates(container, base):
     photos = []
-    for tag in container.find_all(["img", "a", "source", "picture"]):
+    for tag in container.find_all(["img", "a", "source", "picture", "div"]):
         values = []
         if tag.name == "a":
             values.append(tag.get("href"))
@@ -34,7 +34,7 @@ def photo_candidates(container, base):
             values.extend(tag.get(k) for k in ATTRS)
             values.extend(x.strip().split(" ")[0] for x in (tag.get("srcset") or "").split(","))
         # Pinkbike puede colocar fotografías en atributos de elementos contenedores.
-        for key in ("data-photo", "data-image", "data-url", "data-fullsize", "data-large-url"):
+        for key in ("data-photo", "data-image", "data-url", "data-fullsize", "data-large-url", "data-fancybox", "data-background-image"):
             if tag.get(key): values.append(tag.get(key))
         for raw in values:
             u = valid_image(raw,base)
@@ -109,7 +109,7 @@ def main():
                     m = re.search(r"p\d+pb(\d+)", url)
                     key = m.group(1) if m else urlsplit(url).path
                     if key != coverkey: additional.append(url)
-                additional = additional[:10]
+                additional = additional[:24]
                 if additional:
                     post["images"] = additional
                     post["image_source_url"] = link
@@ -136,7 +136,7 @@ def main():
         m=re.search(r"p\d+pb(\d+)",urlsplit(current).path)
         cover_id=m.group(1) if m else urlsplit(current).path
         additional=[u for u in images if (re.search(r"p\d+pb(\d+)",urlsplit(u).path).group(1) if re.search(r"p\d+pb(\d+)",urlsplit(u).path) else urlsplit(u).path)!=cover_id]
-        additional=additional[:10]
+        additional=additional[:24]
         if additional and additional!=post.get("images",[]):
             post["images"]=additional
             post["image_source_url"]=link
