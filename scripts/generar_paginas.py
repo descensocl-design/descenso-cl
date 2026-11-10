@@ -146,6 +146,19 @@ def build():
             source_video = safe_https(post.get('link'))
             body = (f'<aside class="article-video-source"><strong>VIDEO ORIGINAL</strong><p>Esta noticia contiene material audiovisual en la fuente. No hay un enlace de inserción verificado.</p>'
                     f'<a href="{esc(source_video)}" target="_blank" rel="noopener noreferrer">VER VIDEO EN LA FUENTE ORIGINAL ↗</a></aside>') + body
+        # Nota editorial fechada para corregir hechos que cambiaron tras publicar.
+        correction = post.get('editorial_update')
+        if isinstance(correction,dict) and correction.get('paragraphs'):
+            items = correction.get('paragraphs',[])
+            if isinstance(items,list):
+                note = '<aside class="article-editorial-update"><strong>' + esc(correction.get('heading','ACTUALIZACIÓN EDITORIAL')) + '</strong>'
+                for para in items:
+                    note += '<p>' + esc(para) + '</p>'
+                correction_source = safe_https(correction.get('source'))
+                if correction_source:
+                    note += '<p><a href="' + esc(correction_source) + '" target="_blank" rel="noopener noreferrer">VER FUENTE DE LA ACTUALIZACIÓN ↗</a></p>'
+                note += '</aside>'
+                body = note + body
         source = safe_https(post.get('link'))
         source_name = str(post.get('source_name') or (urlparse(source).hostname or '').removeprefix('www.') or 'Fuente no especificada')
         photo_credit = str(post.get('image_credit') or ('Descenso.cl (gráfica de categoría)' if '/assets/portadas/' in image else 'Crédito no especificado'))
