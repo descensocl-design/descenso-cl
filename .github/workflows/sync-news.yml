@@ -54,6 +54,8 @@ jobs:
               date_value = str(date_value)[:10]
               video = str(meta.get('video') or meta.get('youtube') or '').strip()
               image = str(meta.get('image') or '').strip()
+              images = meta.get('images') if isinstance(meta.get('images'), list) else []
+              images = [str(url).strip() for url in images if isinstance(url, str) and str(url).startswith('https://')][:12]
               # Las fotos nuevas solo se muestran si han sido autorizadas.
               # Los gráficos locales de Descenso son siempre admisibles.
               image_approved = meta.get('image_approved') is True
@@ -70,6 +72,7 @@ jobs:
                   'category': str(meta.get('category') or 'Downhill'),
                   'excerpt': str(meta.get('description') or meta.get('excerpt') or (paragraphs[0][:190] if paragraphs else '')),
                   'image': image,
+                  'images': images,
                   'image_approved': image_approved,
                   'image_credit': str(meta.get('image_credit') or '').strip(),
                   'youtube': video,
