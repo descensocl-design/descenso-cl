@@ -80,7 +80,34 @@ def main():
             if bodylen>=650 and pictures:
                 ranked.append((len(pictures),min(bodylen,20000),root))
         if not ranked:
-            # Diagnóstico acotado al artículo, sin importar imágenes de recomendaciones.
+            # Algunas notas Pinkbike usan bloques multimedia personalizados fuera
+            # del contenedor de párrafos. Buscar únicamente en la región editorial
+            # delimitada desde el reproductor principal hasta las etiquetas finales.
+            start = re.search(r'<(?:iframe|div)[^>]*(?:youtube|video-player|video-container)',page,re.I)
+            end = re.search(r'(?:Posted In:|Author Info:|Must Read This Week|id=["\\\']comments)',page,re.I)
+            if start and end and end.start()>start.start():
+                fragment=page[start.start():end.start()]
+                raw_links=re.findall(r'https?:(?:\\/\\/|//)[^"\\'\\s<>]+',fragment)
+                recovered=[]
+                for raw in raw_links:
+                    raw=raw.replace('\\\\/','/').replace('&amp;','&')
+                    original=valid_image(raw,link)
+                    if original: recovered.append(original)
+                unique=[];keys=set()
+                for url in recovered:
+                    m=re.search(r'p\\d+pb(\\d+)',urlsplit(url).path)
+                    key=m.group(1) if m else urlsplit(url).path
+                    if key not in keys:keys.add(key);unique.append(url)
+                cover=post.get("image","")
+                cm=re.search(r'p\\d+pb(\\d+)',cover)
+                coverkey=cm.group(1) if cm else urlsplit(cover).path
+                additional=[u for u in unique if (re.search(r'p\\d+pb(\\d+)',u).group(1) if re.search(r'p\\d+pb(\\d+)',u) else urlsplit(u).path)!=coverkey][:10]
+                if additional:
+                    post["images"]=additional
+                    post["image_source_url"]=link
+                    count+=1
+                    print("FOTOS DEL ARTÍCULO (multimedia):",post.get("title"),len(additional),flush=True)
+                    continue
             print("Sin cuerpo de fotos detectable:",post.get("title"),"candidatos",len(roots),flush=True);continue
         ranked.sort(key=lambda x:(x[0],x[1]),reverse=True)
         root=ranked[0][2]
