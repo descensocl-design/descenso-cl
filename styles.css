@@ -242,3 +242,32 @@
 .article-page .article-credits{max-width:790px;margin:32px 0 24px;padding-top:14px;border-top:1px solid var(--line);color:#97979b;font-size:11px;line-height:1.6}
 .article-page .article-credits p{margin:3px 0}
 .article-page .article-credits a{text-decoration:underline;text-underline-offset:2px}
+
+/* Galerías editoriales y comentarios */
+.article-gallery{margin:42px 0 28px;max-width:790px}
+.article-gallery h2,.comments-section h2{font-size:19px;font-weight:900;letter-spacing:.07em;margin:0 0 18px}
+.article-gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.article-gallery-grid figure{margin:0;overflow:hidden;background:#181818}
+.article-gallery-grid a{display:block}
+.article-gallery-grid img{display:block;width:100%;height:100%;aspect-ratio:4/3;object-fit:cover;transition:transform .2s}
+.article-gallery-grid a:hover img{transform:scale(1.025)}
+.article-page .article-copy h2{font-size:clamp(24px,3.1vw,33px);line-height:1.2;margin:38px 0 18px;letter-spacing:-.025em}
+.article-page .article-copy h3{font-size:22px;margin:28px 0 14px}
+.comments-section{max-width:790px;margin:44px 0;padding:24px 0;border-top:2px solid #ef2b32}
+.comments-status,.comments-list>p{font-size:13px;color:#aaa;line-height:1.6}
+.comments-list{display:grid;gap:12px;margin:20px 0}
+.reader-comment{background:#151517;padding:16px;border:1px solid #303035}
+.reader-comment-head{display:flex;justify-content:space-between;gap:12px;font-size:13px}
+.reader-comment-head time{color:#999}
+.reader-comment p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;font-size:14px;margin:12px 0 0}
+.comment-form{display:grid;gap:16px;margin-top:20px}
+.comment-form[hidden]{display:none}
+.comment-form label{display:grid;gap:7px;font-size:13px;color:#eee}
+.comment-controls{display:flex;align-items:end;gap:20px;flex-wrap:wrap}
+.comment-controls>label:first-child{flex:1;min-width:180px}
+.comment-form .comment-anon{display:flex;align-items:center;gap:8px;padding-bottom:12px}
+.comment-form input:not([type=checkbox]),.comment-form textarea{width:100%;padding:12px;background:#171719;color:#fff;border:1px solid #4a4a4d;border-radius:2px;font:inherit}
+.comment-form input:disabled{opacity:.5}
+.comment-form button{justify-self:start;background:#e72a30;color:#fff;font-weight:900;border:0;padding:13px 20px;cursor:pointer}
+.comment-form button:disabled{opacity:.6;cursor:wait}
+@media(max-width:600px){.article-gallery-grid{grid-template-columns:1fr}.article-gallery-grid img{aspect-ratio:16/10}}
