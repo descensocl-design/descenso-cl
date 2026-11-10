@@ -37,3 +37,35 @@ Toda publicidad debe estar claramente identificada y diferenciada del contenido 
 El formulario permite nombre o anónimo y sigue publicando inmediatamente.
 La API limita envíos por visitante, prohíbe enlaces y HTML, rechaza duplicados recientes y utiliza un campo antispam invisible.
 El campo es una barrera básica; para entornos de mucho tráfico conviene añadir Cloudflare Turnstile, reglas WAF y seguimiento de abuso.
+
+## Activar y comprobar los comentarios en Cloudflare
+
+En Cloudflare Pages > proyecto de Descenso.cl > **Settings > Bindings**, enlazar una base **D1** bajo el nombre exacto `COMMENTS_DB`.
+Agregar en **Variables and Secrets** la variable secreta `COMMENTS_SALT` con un valor aleatorio largo. No subirla a GitHub.
+Ejecutar `database/comments.sql` en la consola de la base D1 vinculada. Sus sentencias `CREATE TABLE IF NOT EXISTS` conservan los comentarios existentes.
+Desplegar nuevamente el proyecto para que el binding esté disponible en Pages Functions.
+
+Verificación sin publicar comentarios de prueba:
+- Visitar `https://descenso.cl/api/comments/2026-11-03-cual-fue-la-mejor-linea-de-freeride-de-2026-diez-finalistas-compiten-por-mas-de-10-00`.
+- La respuesta debe incluir `"configured":true` y `"comments":[]` o los comentarios actuales.
+- Si `configured:false`, revisar binding, `COMMENTS_SALT` y ejecución de SQL.
+
+### Moderación y reportes
+
+Cada comentario muestra un control **REPORTAR**, con motivos abuso, spam u otro.
+Los reportes se almacenan en `comment_reports`, no publican identidades y no ocultan opiniones automáticamente.
+Se limita cada visitante a una denuncia por comentario y veinte denuncias diarias.
+
+Para priorizar la revisión, ejecutar en la consola D1:
+```sql
+SELECT c.id, c.article_slug, c.display_name, c.message, COUNT(r.id) AS reportes
+FROM comment_reports r JOIN comments c ON c.id=r.comment_id
+WHERE c.status='approved'
+GROUP BY c.id ORDER BY reportes DESC, MAX(r.created_at) DESC LIMIT 50;
+```
+Ocultar solo si corresponde, sin destruir evidencia:
+```sql
+UPDATE comments SET status='rejected' WHERE id='ID_DEL_COMENTARIO';
+```
+
+**Estado:** estas operaciones requieren acceso autorizado a Cloudflare; los cambios en GitHub por sí solos no crean la base ni activan los servicios externos.
