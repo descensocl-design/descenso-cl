@@ -9,6 +9,7 @@ on:
       - 'scripts/generar_paginas.py'
       - 'scripts/auditar_multimedia.py'
       - 'scripts/aplicar_editorial.py'
+      - 'scripts/verificar_catalogo.py'
       - 'scripts/completar_fotos_fuente.py'
       - 'scripts/fotos_del_articulo_original.py'
       - 'scripts/auditar_fotos_matthew.py'
@@ -164,6 +165,8 @@ jobs:
         run: python scripts/recuperar_videos_fuente.py
       - name: Aplicar correcciones y galerías verificadas tras las fuentes
         run: python scripts/aplicar_editorial.py
+      - name: Verificar que noticias y galerías no retrocedieron
+        run: python scripts/verificar_catalogo.py
       - name: Generar páginas y sitemap
         run: python scripts/generar_paginas.py
       - name: Auditar multimedia y fuentes de todas las noticias
