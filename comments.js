@@ -22,26 +22,38 @@
     button.setAttribute('aria-label','Reportar comentario de '+comment.display_name);
     return button;
   }
-  list.addEventListener('click',async event=>{
+  list.addEventListener('click',event=>{
     const button=event.target.closest('.comment-report-button');
     if(!button||button.disabled)return;
-    const reason=window.prompt('¿Por qué quieres reportar este comentario? Escribe: spam, abuso u otro','abuso');
-    if(reason===null)return;
-    const selected=reason.trim().toLocaleLowerCase();
-    if(!['spam','abuso','otro'].includes(selected)){
-      status.textContent='Usa una de estas opciones: spam, abuso u otro.';
-      return;
+    const parent=button.closest('.reader-comment');
+    const previous=parent.querySelector('.comment-report-form');
+    if(previous){previous.remove();return;}
+    const form=document.createElement('form');
+    form.className='comment-report-form';
+    const label=document.createElement('label');
+    label.textContent='Motivo del reporte';
+    const select=document.createElement('select');
+    select.name='reason';
+    for(const [value,text] of [['abuso','Abuso o acoso'],['spam','Spam'],['otro','Otro motivo']]){
+      const opt=document.createElement('option');opt.value=value;opt.textContent=text;select.append(opt);
     }
-    button.disabled=true;
-    try{
-      const response=await fetch(reportEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment_id:button.dataset.commentId,reason:selected})});
-      const data=await response.json();
-      status.textContent=data.message||data.error||'No se pudo enviar el reporte';
-      if(response.ok)button.textContent='REPORTADO';
-      else button.disabled=false;
-    }catch{
-      status.textContent='No se pudo enviar el reporte';button.disabled=false;
-    }
+    label.append(select);
+    const sendReport=document.createElement('button');sendReport.type='submit';sendReport.textContent='ENVIAR REPORTE';
+    const cancel=document.createElement('button');cancel.type='button';cancel.textContent='CANCELAR';
+    cancel.addEventListener('click',()=>form.remove());
+    form.append(label,sendReport,cancel);
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();sendReport.disabled=true;
+      try{
+        const response=await fetch(reportEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment_id:button.dataset.commentId,reason:select.value})});
+        const data=await response.json();
+        status.textContent=data.message||data.error||'No se pudo enviar el reporte';
+        if(response.ok){button.textContent='REPORTADO';button.disabled=true;form.remove();}
+        else sendReport.disabled=false;
+      }catch{status.textContent='No se pudo enviar el reporte';sendReport.disabled=false;}
+    });
+    parent.append(form);
+    select.focus();
   });
 
   anonymous.addEventListener('change',()=>{nameInput.disabled=anonymous.checked;nameInput.required=!anonymous.checked});
