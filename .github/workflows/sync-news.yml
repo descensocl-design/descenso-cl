@@ -56,6 +56,15 @@ jobs:
                   'body': paragraphs,
                   'link': str(meta.get('link') or '')
               })
+          # Dos archivos con igual título y fecha corresponden a una sola noticia.
+          # Conservar una copia sin borrar sus archivos Markdown originales.
+          unicos = {}
+          for post in posts:
+              clave = (post['date'], post['title'].strip().casefold())
+              unicos.setdefault(clave, post)
+          if len(unicos) != len(posts):
+              print(f'Duplicados editoriales omitidos: {len(posts) - len(unicos)}')
+          posts = list(unicos.values())
           existing_path = Path('data/posts.json')
           existing = json.loads(existing_path.read_text(encoding='utf-8')) if existing_path.exists() else []
           # Conservar noticias automáticas al sincronizar las noticias manuales.
