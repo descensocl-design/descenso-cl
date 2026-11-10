@@ -375,3 +375,12 @@
 .comment-report-button:disabled{opacity:.65;cursor:default}
 .reader-comment-head strong{overflow-wrap:anywhere}
 .comments-section [aria-live]{min-height:1em}
+
+
+.comment-report-form{margin-top:10px;padding:12px;background:#171719;border:1px solid #38383c;display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.comment-report-form label{display:flex;flex-direction:column;gap:5px;font-size:11px;letter-spacing:.4px;color:#ddd}
+.comment-report-form select{background:#202023;color:#fff;border:1px solid #57575a;padding:8px;font:inherit;min-width:150px}
+.comment-report-form button{background:none;border:1px solid #57575a;color:#fff;padding:9px 11px;font-size:10px;font-weight:800;cursor:pointer}
+.comment-report-form button[type=submit]{border-color:var(--red)}
+.comment-report-form button:disabled{opacity:.55;cursor:wait}
+@media(max-width:570px){.comment-report-form label{width:100%}.comment-report-form select{width:100%}}
