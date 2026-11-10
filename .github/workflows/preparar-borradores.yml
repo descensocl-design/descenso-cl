@@ -16,26 +16,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Buscar noticias
-        run: python scripts/buscar_noticias.py
-      - name: Ampliar contexto
-        run: python scripts/ampliar_contexto.py
-      - name: Preparar borradores sin publicar
+      - name: Recopilar fuentes editoriales RSS
+        run: python scripts/recolectar_fuentes.py
+      - name: Generar artículos originales para revisión (no publica)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/preparar_borradores.py
-      - name: Comprobar resultado editorial
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          from datetime import datetime
-          from zoneinfo import ZoneInfo
-          hoy = datetime.now(ZoneInfo("America/Santiago")).date().isoformat()
-          archivos = list(Path("data/borradores-ia").glob(f"{hoy}-*.md"))
-          print(f"Borradores con fecha de hoy: {len(archivos)}")
-          if not archivos:
-              raise SystemExit("SIN BORRADORES: ninguna noticia obtuvo contexto suficiente. Revisar RSS, fuentes y errores HTTP 403.")
-          PY
+        run: python scripts/redactar_borradores.py
       - name: Guardar borradores en rama de pruebas
         run: |
           git config user.name "Descenso News Bot"
