@@ -1,6 +1,6 @@
 {
   "total": 9,
-  "pending": 1,
+  "pending": 2,
   "articles": [
     {
       "title": "Shimano EP810: 750 watts, 100 Nm y un nuevo paso en la batalla de las e-MTB",
@@ -80,14 +80,16 @@
     },
     {
       "title": "Ghost Bikes anuncia su cierre definitivo: no encontraron una solución para continuar",
-      "source_url": "https://www.pinkbike.com/news/ghost-bikes-will-continue-after-last-minute-acquisition.html",
+      "source_url": "",
       "permalink": "",
       "photos_registered": 1,
       "video_registered": false,
       "video_players": 0,
       "source_media_review": null,
-      "issues": [],
-      "status": "sin_pendientes_detectados"
+      "issues": [
+        "No hay enlace a la publicación original: verificar fuente y créditos"
+      ],
+      "status": "pendiente"
     },
     {
       "title": "Primera publicación de Descenso.cl",
