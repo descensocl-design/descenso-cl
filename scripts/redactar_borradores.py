@@ -133,6 +133,8 @@ def main():
             "category": clasificar(n["titulo"]),
             "description": resultado["excerpt"],
             "image": "",
+            "image_candidate": n.get("imagen", ""),
+            "image_credit": n.get("image_credit", f"{n['fuente']} / fuente original"),
             "source_url": n["url"],
             "source_name": n["fuente"],
             "image_pending_review": True,
@@ -143,7 +145,7 @@ def main():
             lineas.extend([f"## {seccion['heading'].strip()}", ""])
             for parrafo in seccion["paragraphs"]:
                 lineas.extend([parrafo.strip(), ""])
-        lineas.extend([f"**Fuente:** [{n['fuente']}]({n['url']}).", "", "**Fotografía:** pendiente de autorización.", "", "**Revisión editorial pendiente:** confirmar datos, autoría, derechos de imagen y aprobar antes de mover a data/noticias/.", ""])
+        lineas.extend([f"**Fuente:** [{n['fuente']}]({n['url']}).", "", f"**Fotografía candidata:** {n.get('imagen') or 'No identificada'}", f"**Crédito:** {n.get('image_credit', n['fuente'])}.", "", "**Revisión editorial pendiente:** confirmar datos, autoría, derechos de imagen y aprobar antes de mover a data/noticias/.", ""])
         archivo.write_text("\n".join(lineas), encoding="utf-8")
         existentes.add(n["url"])
         nuevos += 1
