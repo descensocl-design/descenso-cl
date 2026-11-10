@@ -146,6 +146,17 @@ def build():
             source_video = safe_https(post.get('link'))
             body = (f'<aside class="article-video-source"><strong>VIDEO ORIGINAL</strong><p>Esta noticia contiene material audiovisual en la fuente. No hay un enlace de inserción verificado.</p>'
                     f'<a href="{esc(source_video)}" target="_blank" rel="noopener noreferrer">VER VIDEO EN LA FUENTE ORIGINAL ↗</a></aside>') + body
+        video_collection = post.get('official_video_collection')
+        if isinstance(video_collection,dict) and video_collection.get('entries'):
+            collection_source = safe_https(video_collection.get('source'))
+            if collection_source:
+                entries = video_collection.get('entries',[])[:30]
+                collection_html = '<section class="article-video-collection"><h2>' + esc(video_collection.get('heading','VIDEOS EN LA FUENTE ORIGINAL')) + '</h2>'
+                collection_html += '<p>' + esc(video_collection.get('note','')) + '</p><ol>'
+                for name in entries:
+                    collection_html += '<li>' + esc(name) + '</li>'
+                collection_html += '</ol><a href="' + esc(collection_source) + '" target="_blank" rel="noopener noreferrer">VER LOS REPRODUCTORES ORIGINALES EN PINKBIKE ↗</a></section>'
+                body += collection_html
         # Nota editorial fechada para corregir hechos que cambiaron tras publicar.
         correction = post.get('editorial_update')
         if isinstance(correction,dict) and correction.get('paragraphs'):
