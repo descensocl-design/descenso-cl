@@ -13,6 +13,37 @@
   const send = form.querySelector('button[type=submit]');
   const honeypot = form.elements.namedItem('website');
   const endpoint = '/api/comments/' + encodeURIComponent(slug);
+  const reportEndpoint = '/api/comment-reports/' + encodeURIComponent(slug);
+  function reportButton(comment){
+    const button=document.createElement('button');
+    button.type='button';button.className='comment-report-button';
+    button.textContent='REPORTAR';
+    button.dataset.commentId=comment.id;
+    button.setAttribute('aria-label','Reportar comentario de '+comment.display_name);
+    return button;
+  }
+  list.addEventListener('click',async event=>{
+    const button=event.target.closest('.comment-report-button');
+    if(!button||button.disabled)return;
+    const reason=window.prompt('¿Por qué quieres reportar este comentario? Escribe: spam, abuso u otro','abuso');
+    if(reason===null)return;
+    const selected=reason.trim().toLocaleLowerCase();
+    if(!['spam','abuso','otro'].includes(selected)){
+      status.textContent='Usa una de estas opciones: spam, abuso u otro.';
+      return;
+    }
+    button.disabled=true;
+    try{
+      const response=await fetch(reportEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment_id:button.dataset.commentId,reason:selected})});
+      const data=await response.json();
+      status.textContent=data.message||data.error||'No se pudo enviar el reporte';
+      if(response.ok)button.textContent='REPORTADO';
+      else button.disabled=false;
+    }catch{
+      status.textContent='No se pudo enviar el reporte';button.disabled=false;
+    }
+  });
+
   anonymous.addEventListener('change',()=>{nameInput.disabled=anonymous.checked;nameInput.required=!anonymous.checked});
   try {
     const res=await fetch(endpoint,{cache:'no-store'});
@@ -34,7 +65,7 @@
       const author=document.createElement('strong');author.textContent=comment.display_name;
       const date=document.createElement('time');date.textContent=new Date(comment.created_at).toLocaleDateString('es-CL');
       const body=document.createElement('p');body.textContent=comment.message;
-      header.append(author,date);article.append(header,body);list.append(article);
+      header.append(author,date);article.append(header,body,reportButton(comment));list.append(article);
     }
     form.hidden=false;
   } catch(e){status.textContent='Los comentarios no están disponibles en este momento.';form.hidden=true}
@@ -58,7 +89,7 @@
         const body=document.createElement('p');
         body.textContent=data.comment.message;
         header.append(author,date);
-        article.append(header,body);
+        article.append(header,body,reportButton(data.comment));
         list.prepend(article);
         const countNode=root.querySelector('[data-comment-count]');
         if(countNode)countNode.textContent=String((Number(countNode.textContent)||0)+1);
