@@ -51,7 +51,7 @@ def imagen_del_rss(item, url):
     return ""
 
 def version_grande(url):
-    """Selecciona la versión comprobada de más de 1200 píxeles de ancho."""
+    """Selecciona la versión comprobada de al menos 1000 píxeles de ancho."""
     m = re.search(r"/p[0-9]pb([0-9]+)/p[0-9]pb\1\.(jpe?g|png)(?:[?#].*)?$", url, re.I)
     if not m:
         return url
@@ -68,7 +68,7 @@ def version_grande(url):
             with Image.open(BytesIO(data)) as foto:
                 ancho, alto = foto.size
             print(f"Resolución de {size}: {ancho}x{alto} para {ident}", flush=True)
-            if ancho >= 1200:
+            if ancho >= 1000:
                 return candidata
         except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
             print(f"Versión {size} no disponible: {type(exc).__name__}: {exc}", flush=True)
