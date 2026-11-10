@@ -112,7 +112,7 @@ function createPostCard(post) {
     el(
       'span',
       'type',
-      post.youtube
+      (post.youtube || post.video_embed || post.official_video_collection?.entries?.length)
         ? '▶ VIDEO'
         : String(post.category).toUpperCase()
     )
@@ -233,7 +233,7 @@ function render() {
     const matchesCategory =
       state.filter === 'Todos' ||
       post.category === state.filter ||
-      (state.filter === 'Videos' && post.youtube);
+      (state.filter === 'Videos' && (post.youtube || post.video_embed || (post.official_video_collection && post.official_video_collection.entries && post.official_video_collection.entries.length)));
 
     const searchableText = [
       post.title,
@@ -266,14 +266,14 @@ function render() {
     featured.replaceChildren();
 
     if (filtered.length > 0) {
-      featured.append(
-        createPostCard(filtered[0])
-      );
+      for (const post of filtered.slice(0,3)) {
+        featured.append(createPostCard(post));
+      }
     }
 
     featured.hidden = filtered.length === 0;
 
-    for (const post of filtered.slice(1)) {
+    for (const post of filtered.slice(3)) {
       root.append(createPostCard(post));
     }
   } else {
@@ -306,14 +306,11 @@ function render() {
     videoBox.replaceChildren();
 
     const video = state.posts.find(post =>
-      safeUrl(post.youtube, 'video')
+      safeUrl(post.youtube, 'video') || /^https:\/\/www\.youtube-nocookie\.com\/embed\/[A-Za-z0-9_-]{11}$/.test(post.video_embed || '')
     );
 
     if (video) {
-      const videoId = safeUrl(
-        video.youtube,
-        'video'
-      );
+      const videoId = safeUrl(video.youtube, 'video') || (video.video_embed || '').split('/').pop();
 
       const iframe = el('iframe');
 
