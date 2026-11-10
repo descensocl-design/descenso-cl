@@ -74,7 +74,15 @@ def build():
             paragraphs = paragraphs[1:]
         body = '\n'.join(f'<p>{esc(x)}</p>' for x in paragraphs)
         source = safe_https(post.get('link'))
-        source_html = f'<a class="source-link" href="{esc(source)}" target="_blank" rel="noopener noreferrer">VER FUENTE ORIGINAL ↗</a>' if source else ''
+        source_name = str(post.get('source_name') or (urlparse(source).hostname or '').removeprefix('www.') or 'Fuente no especificada')
+        photo_credit = str(post.get('image_credit') or ('Descenso.cl (gráfica de categoría)' if '/assets/portadas/' in image else 'Crédito no especificado'))
+        source_detail = (f'<a href="{esc(source)}" target="_blank" rel="noopener noreferrer">{esc(source_name)}</a>' if source else esc(source_name))
+        credits_html = (
+            '<div class="article-credits" aria-label="Fuentes y créditos">'
+            f'<p>Información: {source_detail}</p>'
+            f'<p>Fotografía: {esc(photo_credit)}</p>'
+            '</div>'
+        )
         canonical = DOMAIN + path
         schema = {'@context':'https://schema.org','@type':'NewsArticle','headline':title,'description':excerpt,'datePublished':date,'image':[image],'mainEntityOfPage':canonical,'publisher':{'@type':'Organization','name':'Descenso.cl','url':DOMAIN,'logo':{'@type':'ImageObject','url':DOMAIN+'/logo-descenso.jpg'}}}
         structured = json.dumps(schema,ensure_ascii=False).replace('<','\\u003c')
@@ -91,8 +99,8 @@ def build():
 <nav class="nav" aria-label="Categorías"><a class="navitem" href="/">INICIO</a></nav></header>
 <main class="article-page"><a class="back-link" href="/">← VOLVER A NOTICIAS</a><div class="article-tag">{esc(category.upper())}</div>
 <h1>{esc(title)}</h1><div class="article-date">{esc(date)}</div><p class="lede">{esc(excerpt)}</p>
-<figure class="article-figure"><img class="article-cover" src="{esc(image)}" alt="Imagen de la noticia: {esc(title)}" loading="eager"><figcaption>{esc(str(post.get('image_credit') or ('Gráfica de Descenso.cl' if '/assets/portadas/' in image else 'Imagen de archivo')))}</figcaption></figure>
-<div class="article-copy">{body}</div>{source_html}
+<figure class="article-figure"><img class="article-cover" src="{esc(image)}" alt="Imagen de la noticia: {esc(title)}" loading="eager"><figcaption>{'DESCENSO.CL' if '/assets/portadas/' in image else esc(str(post.get('image_credit') or ''))}</figcaption></figure>
+<div class="article-copy">{body}</div>{credits_html}
 <footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main></body></html>"""
         folder = ROOT / path.lstrip('/')
         folder.mkdir(parents=True, exist_ok=True)
