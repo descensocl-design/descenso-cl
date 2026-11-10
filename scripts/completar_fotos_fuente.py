@@ -94,7 +94,7 @@ def main():
             pendientes[url] = post
     if not pendientes:
         if actualizadas:
-            POSTS.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+            POSTS.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"Sin publicaciones nuevas pendientes; imágenes mejoradas: {actualizadas}")
         return
     agregadas = 0
