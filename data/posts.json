@@ -61,30 +61,6 @@
     "image_source_url": "https://www.pinkbike.com/news/randoms-sedona-mountain-bike-festival-2026.html"
   },
   {
-    "title": "Video: Friday Fails llega a su edición 428",
-    "date": "2026-11-08",
-    "category": "Mundo",
-    "excerpt": "Pinkbike publicó Friday Fails #428, la entrega semanal de caídas y momentos inesperados sobre la bicicleta, acompañada de una votación para elegir la secuencia más llamativa.",
-    "image": "https://ep1.pinkbike.org/p5pb30490295/p5pb30490295.jpg",
-    "youtube": "",
-    "body": [
-      "La serie Friday Fails de Pinkbike alcanzó su edición número 428 el 6 de noviembre de 2026. El formato vuelve a reunir videos de situaciones inesperadas en bicicleta: un registro semanal que, por su naturaleza, se disfruta más viendo las imágenes que leyendo una descripción de cada caída.",
-      "## La comunidad elige su momento de la semana",
-      "La publicación incluye una votación para escoger la secuencia más llamativa entre 25 alternativas. Los lectores pueden revisar el material original y participar en el sitio de Pinkbike. Esta entrega forma parte de una programación que también incluye Saturday Sends y Sunday Saves, dedicada a otro tipo de maniobras.",
-      "Los comentarios de los espectadores reflejan que no todos interpretan del mismo modo lo ocurrido en los clips. Incluso hay quienes consideran que uno de los momentos destacados encajaría mejor en Sunday Saves, porque termina pareciéndose a una recuperación improbable y no a una caída convencional.",
-      "## El video es la noticia",
-      "En esta ocasión, la fuente no incluye fichas técnicas verificables de las bicicletas, identificación completa de todos los ciclistas ni información sobre posibles lesiones. Por eso, sería incorrecto inventar nombres, lugares o consecuencias para hacer más larga la nota.",
-      "Desde Descenso.cl recomendamos ver el montaje en la publicación original y decidir qué secuencia merece el primer puesto. El atractivo de Friday Fails está precisamente en las imágenes y en las reacciones de una comunidad que sabe que, en el mountain bike, la línea entre un error y una salvada puede ser mínima."
-    ],
-    "link": "https://www.pinkbike.com/news/video-friday-fails-428.html",
-    "auto_published": true,
-    "source_name": "Pinkbike",
-    "source_comments_at_selection": 42,
-    "permalink": "/noticias/2026-11-08-video-friday-fails-428/",
-    "image_credit": "Pinkbike / imagen de la noticia original (fotógrafo por confirmar)",
-    "image_source_url": "https://www.pinkbike.com/news/video-friday-fails-428.html"
-  },
-  {
     "title": "Beyond Gravity evalúa carreras en Nueva Zelanda y Estados Unidos para 2028",
     "date": "2026-11-08",
     "category": "Mundo",
@@ -117,7 +93,7 @@
     "category": "Freeride",
     "excerpt": "Una Rocky Mountain Grind de comienzos de los 2000 apareció cubierta de polvo en un granero. Dylan Tremblay revisó sus componentes, infló los neumáticos y volvió a llevarla al terreno.",
     "image": "https://ep1.pinkbike.org/p5pb30495442/p5pb30495442.jpg",
-    "youtube": "",
+    "youtube": "https://www.youtube.com/watch?v=6fB0MSljomQ",
     "body": [
       "Una bicicleta guardada durante años en un granero terminó convirtiéndose en protagonista de un nuevo video de Dylan Tremblay. Se trata de una Rocky Mountain Grind rígida, perteneciente a la época en que el freeride experimentaba con geometrías, componentes robustos y trucos que hoy se consideran parte de la historia de la disciplina.",
       "## Una máquina de otra época",
@@ -136,7 +112,8 @@
     "source_comments_at_selection": 14,
     "permalink": "/noticias/2026-11-08-video-dylan-tremblay-finds-rides-an-early-2000s-rocky-mountain-freeride-hardtail/",
     "image_credit": "Pinkbike / imagen de la noticia original (fotógrafo por confirmar)",
-    "image_source_url": "https://www.pinkbike.com/news/video-dylan-tremblay-finds-and-rides-an-early-2000s-rocky-mountain-freeride-hardtail.html"
+    "image_source_url": "https://www.pinkbike.com/news/video-dylan-tremblay-finds-and-rides-an-early-2000s-rocky-mountain-freeride-hardtail.html",
+    "video_embed": "https://www.youtube-nocookie.com/embed/6fB0MSljomQ"
   },
   {
     "title": "Matthew Fairbrother descubre el mountain bike de El Salvador y las historias detrás de sus senderos",
