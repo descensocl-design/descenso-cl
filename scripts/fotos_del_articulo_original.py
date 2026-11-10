@@ -59,89 +59,53 @@ def main():
         except Exception as e:
             print("Fuente inaccesible:",post.get("title"),str(e)[:140],flush=True);continue
         soup=BeautifulSoup(page,"html.parser")
-        # Un artículo de Pinkbike contiene texto significativo; detectar el cuerpo por
-        # cantidad de párrafos, evitando el resto de la página (recomendaciones, comentarios).
-        roots=[]
-        for selector in ("[itemprop='articleBody']","#article-content",".article-content",".news-article-content",".blog-section",".blog-content",".news-content","article"):
-            roots.extend(soup.select(selector))
-        for paragraph in soup.find_all("p"):
-            if len(paragraph.get_text(" ",strip=True))<120:continue
-            for parent in list(paragraph.parents)[:5]:
-                if parent.name in ("body","html"):break
-                if len(parent.find_all("p"))>=3:roots.append(parent)
-        dedup=[];seen_roots=set()
-        for root in roots:
-            if id(root) not in seen_roots:
-                seen_roots.add(id(root)); dedup.append(root)
-        ranked=[]
-        for root in dedup:
-            bodylen=sum(len(p.get_text(" ",strip=True)) for p in root.find_all("p"))
-            pictures=photo_candidates(root,link)
-            if bodylen>=650 and pictures:
-                ranked.append((len(pictures),min(bodylen,20000),root))
-        if not ranked:
-            # Pinkbike puede colocar fotografías en bloques multimedia que no
-            # utilizan etiquetas img, pero solamente extraemos enlaces dentro
-            # de la región editorial, nunca de artículos recomendados.
-            start = re.search(r'<(?:iframe|div)[^>]*(?:youtube|video-player|video-container)', page, re.I)
-            end_marker = re.search(r'(?:Posted In:|Author Info:|Must Read This Week|id=["\x27]comments)', page, re.I)
-            if start and end_marker and end_marker.start() > start.start():
-                fragment = page[start.start():end_marker.start()]
-                raw_links = re.findall(r"https?:(?:\\/\\/|//)[^\x22\x27\s<>]+", fragment)
-                recovered = []
-                for raw in raw_links:
-                    raw = raw.replace("\\/", "/").replace("&amp;", "&")
-                    original = valid_image(raw, link)
-                    if original: recovered.append(original)
-                unique = []
-                keys = set()
-                for url in recovered:
-                    m = re.search(r"p\d+pb(\d+)", urlsplit(url).path)
-                    key = m.group(1) if m else urlsplit(url).path
-                    if key not in keys:
-                        keys.add(key)
-                        unique.append(url)
-                cover = post.get("image", "")
-                cm = re.search(r"p\d+pb(\d+)", cover)
-                coverkey = cm.group(1) if cm else urlsplit(cover).path
-                additional = []
-                for url in unique:
-                    m = re.search(r"p\d+pb(\d+)", url)
-                    key = m.group(1) if m else urlsplit(url).path
-                    if key != coverkey: additional.append(url)
-                additional = additional[:24]
-                if additional:
-                    post["images"] = additional
-                    post["image_source_url"] = link
-                    count += 1
-                    print("FOTOS DEL ARTÍCULO (multimedia):", post.get("title"), len(additional), flush=True)
+        # Pinkbike publica galerías editoriales como múltiples bloques .blog-section.
+        # Cada bloque puede tener una sola fotografía y una leyenda breve; no
+        # exigir 650 caracteres, ya que elimina justamente los fotoreportajes.
+        for unwanted in soup.select("script,style,nav,footer,.sidebar,.related-articles,.most-read,.news-comments-container,#commenttop"):
+            unwanted.decompose()
+        sections = soup.select(".blog-section")
+        # Conservar solo las secciones anteriores al área de comentarios.
+        # No buscar fotos en toda la página ni en tarjetas recomendadas.
+        if sections:
+            photos=[]
+            for section in sections:
+                if section.find_parent(class_="sidebar") or section.find_parent(class_="related-articles"):
                     continue
-            print("Sin cuerpo de fotos detectable:", post.get("title"), "candidatos", len(roots), flush=True)
-            continue
-        ranked.sort(key=lambda x:(x[0],x[1]),reverse=True)
-        root=ranked[0][2]
-        # Descartar imágenes fuera del cuerpo incluso cuando un contenedor es muy grande:
-        # utilizar la zona editorial anterior al pie del artículo/comentarios.
-        for selector in (".comments", "#comments", ".comment-list", ".sidebar", ".related-articles", ".most-read"):
-            for el in root.select(selector): el.decompose()
-        found=photo_candidates(root,link)
-        images=[];ids=set()
-        for u in found:
-            m=re.search(r"p\d+pb(\d+)",urlsplit(u).path)
-            identity=m.group(1) if m else urlsplit(u).path
-            if identity in ids:continue
-            ids.add(identity);images.append(u)
-        if not images:continue
-        current=post.get("image") or ""
-        m=re.search(r"p\d+pb(\d+)",urlsplit(current).path)
-        cover_id=m.group(1) if m else urlsplit(current).path
-        additional=[u for u in images if (re.search(r"p\d+pb(\d+)",urlsplit(u).path).group(1) if re.search(r"p\d+pb(\d+)",urlsplit(u).path) else urlsplit(u).path)!=cover_id]
-        additional=additional[:24]
+                photos.extend(photo_candidates(section,link))
+        else:
+            # Fallback a contenedores de artículo, sin confundir con la portada.
+            roots=[]
+            for selector in ("[itemprop='articleBody']","#article-content",".article-content",".news-article-content",".blog-content",".news-content","article"):
+                roots.extend(soup.select(selector))
+            ranked=[]
+            for root in roots:
+                pictures=photo_candidates(root,link)
+                if pictures:
+                    ranked.append((len(pictures),root))
+            photos=photo_candidates(max(ranked,key=lambda x:x[0])[1],link) if ranked else []
+        unique=[];seen=set()
+        for photo in photos:
+            m=re.search(r"p\d+pb(\d+)",urlsplit(photo).path)
+            identifier=m.group(1) if m else urlsplit(photo).path
+            if identifier in seen: continue
+            seen.add(identifier);unique.append(photo)
+        cover=post.get("image") or ""
+        m=re.search(r"p\d+pb(\d+)",urlsplit(cover).path)
+        cover_id=m.group(1) if m else urlsplit(cover).path
+        additional=[]
+        for photo in unique:
+            m=re.search(r"p\d+pb(\d+)",urlsplit(photo).path)
+            identifier=m.group(1) if m else urlsplit(photo).path
+            if identifier != cover_id: additional.append(photo)
+        additional=additional[:60]
         if additional and additional!=post.get("images",[]):
             post["images"]=additional
             post["image_source_url"]=link
             count+=1
-            print("FOTOS ORIGINALES:",post.get("title"),"nuevas:",len(additional),flush=True)
+            print("FOTOS DEL ARTÍCULO:",post.get("title"),"bloques:",len(sections),"fotos:",len(additional),flush=True)
+        else:
+            print("Sin fotos nuevas:",post.get("title"),"bloques:",len(sections),"candidatas:",len(unique),flush=True)
     if count:
         POSTS.write_text(json.dumps(posts,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("Noticias con fotografías adicionales actualizadas:",count)
