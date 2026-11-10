@@ -22,6 +22,8 @@ export async function onRequestPost({request,env,params}){
   const comment=await env.COMMENTS_DB.prepare("SELECT id FROM comments WHERE id=? AND article_slug=? AND status='approved'").bind(id,slug).first();
   if(!comment)return json({error:"Comentario no disponible"},404);
   const key=await hashVisitor(request,env.COMMENTS_SALT);
+  const recentCount=await env.COMMENTS_DB.prepare("SELECT COUNT(*) AS n FROM comment_reports WHERE reporter_hash=? AND created_at>=?").bind(key,new Date(Date.now()-86400000).toISOString()).first();
+  if(recentCount&&Number(recentCount.n)>=20)return json({error:"Límite diario de reportes alcanzado"},429);
   await env.COMMENTS_DB.prepare("INSERT OR IGNORE INTO comment_reports (id,comment_id,article_slug,reporter_hash,reason,created_at) VALUES (?,?,?,?,?,?)")
    .bind(crypto.randomUUID(),id,slug,key,reason,new Date().toISOString()).run();
   return json({ok:true,message:"Reporte recibido. Gracias por avisarnos."});
