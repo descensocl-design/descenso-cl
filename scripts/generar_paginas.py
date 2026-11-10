@@ -102,7 +102,7 @@ def build():
                     body_parts[position] += photo
                 else:
                     body_parts.append(photo)
-            body = '\\n'.join(body_parts)
+            body = '\n'.join(body_parts)
         # Insertar reproductores únicamente cuando existe una URL de video válida.
         video_url = safe_https(post.get('youtube') or post.get('video_url') or post.get('video'))
         video_html = ''
@@ -127,7 +127,7 @@ def build():
                     video_html = f'<figure class="article-video"><iframe src="https://player.vimeo.com/video/{match.group(1)}" title="Video de la noticia" loading="lazy" allowfullscreen></iframe></figure>'
         if video_html:
             body_parts.insert(min(2, len(body_parts)), video_html)
-            body = '\\n'.join(body_parts)
+            body = '\n'.join(body_parts)
         elif ('video' in title.lower() or 'fails' in title.lower()) and safe_https(post.get('link')):
             source_video = safe_https(post.get('link'))
             body = (f'<aside class="article-video-source"><strong>VIDEO ORIGINAL</strong><p>Esta noticia contiene material audiovisual en la fuente. No hay un enlace de inserción verificado.</p>'
