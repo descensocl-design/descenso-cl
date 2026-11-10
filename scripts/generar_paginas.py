@@ -156,9 +156,11 @@ def build():
                 count_embeds = 0
                 for entry in entries:
                     title_video = str(entry.get('title','')) if isinstance(entry,dict) else str(entry)
+                    description = str(entry.get('description','')) if isinstance(entry,dict) else ''
                     embed = safe_https(entry.get('embed')) if isinstance(entry,dict) else ''
                     collection_html += '<div class="article-video-entry"><h3>' + esc(title_video) + '</h3>'
-                    # Solo insertar videos de YouTube verificados desde el HTML editorial.
+                    if description:
+                        collection_html += '<p>' + esc(description) + '</p>'
                     if embed and embed.startswith('https://www.youtube-nocookie.com/embed/'):
                         collection_html += '<div class="article-video-player"><iframe src="' + esc(embed) + '" title="' + esc(title_video) + '" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>'
                         count_embeds += 1
@@ -166,7 +168,15 @@ def build():
                 if not count_embeds:
                     collection_html += '<a href="' + esc(collection_source) + '" target="_blank" rel="noopener noreferrer">VER REPRODUCTORES EN PINKBIKE ↗</a>'
                 collection_html += '</section>'
-                body += collection_html
+                marker = str(video_collection.get('marker') or '')
+                if video_collection.get('placement') == 'inline_at_marker' and marker.startswith('## '):
+                    marker_html = '<h2>' + esc(marker[3:]) + '</h2>'
+                    if marker_html in body:
+                        body = body.replace(marker_html, collection_html, 1)
+                    else:
+                        body += collection_html
+                else:
+                    body += collection_html
         # Nota editorial fechada para corregir hechos que cambiaron tras publicar.
         correction = post.get('editorial_update')
         if isinstance(correction,dict) and correction.get('paragraphs'):
