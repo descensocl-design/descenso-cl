@@ -374,7 +374,25 @@
     "category": "Enduro",
     "excerpt": "La marca alemana vuelve a apostar fuerte por las bicicletas eléctricas con una nueva Decoy de aluminio, motor Avinox M2S y un precio de entrada que busca sacudir el segmento e-MTB.",
     "image": "https://ep1.pinkbike.org/p5pb30435456/p5pb30435456.jpg",
-    "images": [],
+    "images": [
+      "https://ep1.pinkbike.org/p5pb30435483/p5pb30435483.jpg",
+      "https://ep1.pinkbike.org/p5pb30435472/p5pb30435472.jpg",
+      "https://ep1.pinkbike.org/p5pb30435471/p5pb30435471.jpg",
+      "https://ep1.pinkbike.org/p5pb30435469/p5pb30435469.jpg",
+      "https://ep1.pinkbike.org/p5pb30435468/p5pb30435468.jpg",
+      "https://ep1.pinkbike.org/p5pb30435467/p5pb30435467.jpg",
+      "https://ep1.pinkbike.org/p5pb30435466/p5pb30435466.jpg",
+      "https://ep1.pinkbike.org/p5pb30435465/p5pb30435465.jpg",
+      "https://ep1.pinkbike.org/p5pb30435464/p5pb30435464.jpg",
+      "https://ep1.pinkbike.org/p5pb30435463/p5pb30435463.jpg",
+      "https://ep1.pinkbike.org/p5pb30435462/p5pb30435462.jpg",
+      "https://ep1.pinkbike.org/p5pb30435461/p5pb30435461.jpg",
+      "https://ep1.pinkbike.org/p5pb30435460/p5pb30435460.jpg",
+      "https://ep1.pinkbike.org/p5pb30435459/p5pb30435459.jpg",
+      "https://ep1.pinkbike.org/p5pb30435458/p5pb30435458.jpg",
+      "https://ep1.pinkbike.org/p5pb30435457/p5pb30435457.jpg",
+      "https://ep1.pinkbike.org/p5pb30435455/p5pb30435455.jpg"
+    ],
     "image_approved": false,
     "image_credit": "Ian Linton / Pinkbike",
     "youtube": "",
@@ -399,13 +417,13 @@
     ],
     "link": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
     "source_name": "Pinkbike",
-    "image_source_url": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
+    "image_source_url": "https://www.pinkbike.com/u/seb-stott/album/YT-Decoy/",
     "media_review": {
       "date": "2026-11-10",
-      "kind": "review_with_photos",
-      "source_checked": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
-      "notes": "La fuente original tiene múltiples fotografías de Ian Linton, pero Pinkbike bloquea la descarga automatizada del HTML (HTTP 403); sus URLs individuales no están verificadas.",
-      "needs_additional_photos": true
+      "kind": "official_pinkbike_photo_album",
+      "source_checked": "https://www.pinkbike.com/u/seb-stott/album/YT-Decoy/",
+      "verified_photo_ids": 18,
+      "notes": "Imágenes identificadas directamente en el álbum YT-Decoy que enlaza el análisis original de Pinkbike; otras páginas del álbum no verificadas."
     }
   }
 ]
