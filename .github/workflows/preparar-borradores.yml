@@ -1,0 +1,35 @@
+name: Preparar borradores editoriales (prueba)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  borradores:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/borradores-editoriales
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Buscar noticias
+        run: python scripts/buscar_noticias.py
+      - name: Ampliar contexto
+        run: python scripts/ampliar_contexto.py
+      - name: Preparar borradores sin publicar
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/preparar_borradores.py
+      - name: Guardar borradores en rama de pruebas
+        run: |
+          git config user.name "Descenso News Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/borradores-ia/
+          if ! git diff --cached --quiet; then
+            git commit -m "Preparar borradores para revisión editorial"
+            git push origin HEAD:feature/borradores-editoriales
+          fi
