@@ -16,7 +16,7 @@ async function visitorKey(request, secret) {
 export async function onRequestGet({request, env, params}) {
   const slug = normalizeSlug(params.slug);
   if (!slug) return json({error:"Noticia inválida"},400);
-  if (!env.COMMENTS_DB) return json({configured:false,comments:[]});
+  if (!env.COMMENTS_DB || !env.COMMENTS_SALT) return json({configured:false,comments:[]});
   try {
     const r = await env.COMMENTS_DB.prepare(
       "SELECT id, display_name, message, created_at FROM comments WHERE article_slug=? AND status='approved' ORDER BY created_at DESC LIMIT 100"
