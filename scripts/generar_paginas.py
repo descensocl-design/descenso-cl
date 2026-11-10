@@ -83,6 +83,19 @@ def build():
             else:
                 body_parts.append(f'<p>{esc(value)}</p>')
         body = '\n'.join(body_parts)
+        extra_images = post.get('images') if isinstance(post.get('images'), list) else []
+        extra_images = list(dict.fromkeys(
+            safe_https(x) for x in extra_images
+            if safe_https(x) and safe_https(x) != image
+        ))[:6]
+        gallery_html = ''
+        if extra_images:
+            figuras = ''.join(
+                f'<figure><a href="{esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ver fotografía en tamaño completo">'
+                f'<img src="{esc(url)}" alt="Galería fotográfica: {esc(title)}" loading="lazy" decoding="async"></a></figure>'
+                for url in extra_images
+            )
+            gallery_html = f'<section class="article-gallery" aria-label="Más fotografías"><h2>GALERÍA DE FOTOS</h2><div class="article-gallery-grid">{figuras}</div></section>'
         source = safe_https(post.get('link'))
         source_name = str(post.get('source_name') or (urlparse(source).hostname or '').removeprefix('www.') or 'Fuente no especificada')
         photo_credit = str(post.get('image_credit') or ('Descenso.cl (gráfica de categoría)' if '/assets/portadas/' in image else 'Crédito no especificado'))
@@ -110,7 +123,7 @@ def build():
 <main class="article-page"><a class="back-link" href="/">← VOLVER A NOTICIAS</a><div class="article-tag">{esc(category.upper())}</div>
 <h1>{esc(title)}</h1><div class="article-date">{esc(date)}</div><p class="lede">{esc(excerpt)}</p>
 <figure class="article-figure"><img class="article-cover" src="{esc(image)}" alt="Imagen de la noticia: {esc(title)}" loading="eager" decoding="async"><figcaption>{'DESCENSO.CL' if '/assets/portadas/' in image else esc(str(post.get('image_credit') or ''))}</figcaption></figure>
-<div class="article-copy">{body}</div>{credits_html}
+<div class="article-copy">{body}</div>{gallery_html}{credits_html}
 <footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main></body></html>"""
         folder = ROOT / path.lstrip('/')
         folder.mkdir(parents=True, exist_ok=True)
