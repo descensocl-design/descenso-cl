@@ -7,6 +7,7 @@ on:
       - 'data/posts.json'
       - 'scripts/generar_paginas.py'
       - 'scripts/completar_fotos_fuente.py'
+      - 'scripts/fotos_del_articulo_original.py'
       - 'scripts/recuperar_videos_fuente.py'
       - '.github/workflows/sync-news.yml'
   workflow_dispatch:
@@ -24,7 +25,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Instalar lector de metadatos
-        run: pip install PyYAML Pillow
+        run: pip install PyYAML Pillow beautifulsoup4
       - name: Convertir noticias al formato de la portada
         shell: bash
         run: |
@@ -110,6 +111,8 @@ jobs:
           PY
       - name: Recuperar fotos desde el RSS de las fuentes originales
         run: python scripts/completar_fotos_fuente.py
+      - name: Recuperar fotos del cuerpo de las publicaciones originales
+        run: python scripts/fotos_del_articulo_original.py
       - name: Recuperar reproductores de video originales
         run: python scripts/recuperar_videos_fuente.py
       - name: Generar páginas y sitemap
