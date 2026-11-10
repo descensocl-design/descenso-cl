@@ -1,4 +1,4 @@
-// Cloudflare Pages Function — comentarios públicos con revisión editorial.
+// Cloudflare Pages Function — comentarios públicos inmediatos con controles antispam.
 // Vincular una base D1 con nombre de binding COMMENTS_DB para activar el servicio.
 const json = (data, status=200) => new Response(JSON.stringify(data), {
   status, headers: { "content-type":"application/json; charset=utf-8", "cache-control":"no-store", "x-content-type-options":"nosniff" }
@@ -51,8 +51,8 @@ export async function onRequestPost({request, env, params}) {
     if (lastDay && lastDay.n >= 10) return json({error:"Límite diario de comentarios alcanzado"},429);
     const id = crypto.randomUUID();
     await env.COMMENTS_DB.prepare(
-      "INSERT INTO comments (id, article_slug, display_name, message, status, visitor_hash, created_at) VALUES (?, ?, ?, ?, 'pending', ?, ?)"
+      "INSERT INTO comments (id, article_slug, display_name, message, status, visitor_hash, created_at) VALUES (?, ?, ?, ?, 'approved', ?, ?)"
     ).bind(id, slug, name, message, key, now).run();
-    return json({ok:true,pending:true,message:"Comentario recibido. Aparecerá tras la revisión editorial."},201);
+    return json({ok:true,pending:false,message:"Comentario publicado correctamente."},201);
   } catch(e) {return json({error:"No se pudo guardar el comentario"},503)}
 }
