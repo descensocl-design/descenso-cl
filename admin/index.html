@@ -7,6 +7,23 @@
   <title>Descenso.cl | Administración</title>
 </head>
 <body>
+  <div id="nc-root"></div>
+
+  <script>
+    window.CMS_MANUAL_INIT = true;
+  </script>
   <script src="https://unpkg.com/decap-cms@3/dist/decap-cms.js"></script>
+  <script>
+    window.addEventListener("load", function () {
+      if (window.CMS) {
+        window.CMS.init();
+      } else {
+        document.body.insertAdjacentHTML(
+          "beforeend",
+          "<p>No se pudo cargar Decap CMS.</p>"
+        );
+      }
+    });
+  </script>
 </body>
 </html>
