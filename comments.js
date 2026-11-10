@@ -20,7 +20,7 @@
       status.textContent='Los comentarios estarán disponibles próximamente.';
       form.hidden=true; return;
     }
-    status.textContent='Comparte tu opinión. Los comentarios se revisan antes de aparecer.';
+    status.textContent='Comparte tu opinión. Tu comentario se publica al instante.';
     list.replaceChildren();
     if(!data.comments.length){
       const empty=document.createElement('p');empty.textContent='Todavía no hay comentarios. Sé el primero.';list.append(empty);
@@ -41,7 +41,7 @@
       const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nameInput.value,anonymous:anonymous.checked,message:message.value})});
       const data=await res.json();
       status.textContent=data.message||data.error||'No se pudo enviar';
-      if(res.ok) form.reset();
+      if(res.ok) {form.reset();setTimeout(()=>location.reload(),700); }
     } catch(e){status.textContent='No se pudo conectar con el servidor.'}
     finally{send.disabled=false}
   });
