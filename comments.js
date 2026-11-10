@@ -11,6 +11,7 @@
   const anonymous = form.elements.namedItem('anonymous');
   const message = form.elements.namedItem('message');
   const send = form.querySelector('button[type=submit]');
+  const honeypot = form.elements.namedItem('website');
   const endpoint = '/api/comments/' + encodeURIComponent(slug);
   anonymous.addEventListener('change',()=>{nameInput.disabled=anonymous.checked;nameInput.required=!anonymous.checked});
   try {
@@ -22,6 +23,8 @@
     }
     status.textContent='Comparte tu opinión. Tu comentario se publica al instante.';
     list.replaceChildren();
+    const countNode = root.querySelector('[data-comment-count]');
+    if(countNode)countNode.textContent=String(data.comments.length);
     if(!data.comments.length){
       const empty=document.createElement('p');empty.textContent='Todavía no hay comentarios. Sé el primero.';list.append(empty);
     }
@@ -38,10 +41,31 @@
   form.addEventListener('submit',async e=>{
     e.preventDefault();send.disabled=true;status.textContent='Enviando comentario…';
     try{
-      const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nameInput.value,anonymous:anonymous.checked,message:message.value})});
+      const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nameInput.value,anonymous:anonymous.checked,message:message.value,website:honeypot?.value||''})});
       const data=await res.json();
       status.textContent=data.message||data.error||'No se pudo enviar';
-      if(res.ok) {form.reset();setTimeout(()=>location.reload(),700); }
+      if(res.ok && data.comment) {
+        const previouslyEmpty=list.querySelector('p');
+        if(previouslyEmpty && previouslyEmpty.textContent.includes('Todavía no hay comentarios'))previouslyEmpty.remove();
+        const article=document.createElement('article');
+        article.className='reader-comment';
+        const header=document.createElement('div');
+        header.className='reader-comment-head';
+        const author=document.createElement('strong');
+        author.textContent=data.comment.display_name;
+        const date=document.createElement('time');
+        date.textContent=new Date(data.comment.created_at).toLocaleDateString('es-CL');
+        const body=document.createElement('p');
+        body.textContent=data.comment.message;
+        header.append(author,date);
+        article.append(header,body);
+        list.prepend(article);
+        const countNode=root.querySelector('[data-comment-count]');
+        if(countNode)countNode.textContent=String((Number(countNode.textContent)||0)+1);
+        form.reset();
+        nameInput.disabled=false;
+        nameInput.required=true;
+      }
     } catch(e){status.textContent='No se pudo conectar con el servidor.'}
     finally{send.disabled=false}
   });
