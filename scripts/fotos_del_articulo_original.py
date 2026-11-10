@@ -62,6 +62,8 @@ def main():
         # Pinkbike publica galerías editoriales como múltiples bloques .blog-section.
         # Cada bloque puede tener una sola fotografía y una leyenda breve; no
         # exigir 650 caracteres, ya que elimina justamente los fotoreportajes.
+        comments_start = soup.select_one(".news-comments-container") or soup.select_one("#commenttop")
+        before_comments = {id(tag) for tag in comments_start.find_all_previous()} if comments_start else None
         for unwanted in soup.select("script,style,nav,footer,.sidebar,.related-articles,.most-read,.news-comments-container,#commenttop"):
             unwanted.decompose()
         sections = soup.select(".blog-section")
@@ -70,6 +72,8 @@ def main():
         if sections:
             photos=[]
             for section in sections:
+                if before_comments is not None and id(section) not in before_comments:
+                    continue
                 if section.find_parent(class_="sidebar") or section.find_parent(class_="related-articles"):
                     continue
                 photos.extend(photo_candidates(section,link))
