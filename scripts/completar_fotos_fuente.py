@@ -8,7 +8,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
-from buscar_noticias import leer_dimensiones_imagen
+from io import BytesIO
+from PIL import Image
 
 POSTS = Path("data/posts.json")
 FEEDS = {
@@ -50,26 +51,27 @@ def imagen_del_rss(item, url):
     return ""
 
 def version_grande(url):
-    """Sube p2pb a p5pb sólo si la imagen grande existe y mide >=1200 px."""
+    """Selecciona la versión comprobada de más de 1200 píxeles de ancho."""
     m = re.search(r"/p[0-9]pb([0-9]+)/p[0-9]pb\1\.(jpe?g|png)(?:[?#].*)?$", url, re.I)
     if not m:
         return url
     ident, ext = m.groups()
     base = urlsplit(url)
-    candidato = urlunsplit((base.scheme, base.netloc, f"/p5pb{ident}/p5pb{ident}.{ext}", "", ""))
-    try:
-        req = Request(candidato, headers={"User-Agent": "Mozilla/5.0", "Range": "bytes=0-65535"})
-        with urlopen(req, timeout=12) as resp:
-            if not resp.headers.get("Content-Type", "").lower().startswith("image/"):
-                return url
-            muestra = resp.read(65536)
-        dimensiones = leer_dimensiones_imagen(muestra)
-        if dimensiones and dimensiones[0] >= 1200:
-            print(f"ALTA RESOLUCIÓN: {dimensiones[0]}x{dimensiones[1]} {candidato}", flush=True)
-            return candidato
-        print(f"Imagen grande no comprobada: {candidato}", flush=True)
-    except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
-        print(f"Sin versión grande comprobada: {type(exc).__name__}", flush=True)
+    for size in ("p0pb", "p5pb"):
+        candidata = urlunsplit((base.scheme, base.netloc, f"/{size}{ident}/{size}{ident}.{ext}", "", ""))
+        try:
+            req = Request(candidata, headers={"User-Agent": "Mozilla/5.0", "Range": "bytes=0-262143"})
+            with urlopen(req, timeout=12) as resp:
+                if not resp.headers.get("Content-Type", "").lower().startswith("image/"):
+                    continue
+                data = resp.read(262144)
+            with Image.open(BytesIO(data)) as foto:
+                ancho, alto = foto.size
+            print(f"Resolución de {size}: {ancho}x{alto} para {ident}", flush=True)
+            if ancho >= 1200:
+                return candidata
+        except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
+            print(f"Versión {size} no disponible: {type(exc).__name__}: {exc}", flush=True)
     return url
 
 def main():
