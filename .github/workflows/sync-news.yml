@@ -5,6 +5,7 @@ on:
     paths:
       - 'data/noticias/**'
       - 'scripts/generar_paginas.py'
+      - 'scripts/completar_fotos_fuente.py'
       - '.github/workflows/sync-news.yml'
   workflow_dispatch:
 permissions:
@@ -93,6 +94,8 @@ jobs:
           target.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           print(f'{len(posts)} noticias sincronizadas')
           PY
+      - name: Recuperar fotos desde el RSS de las fuentes originales
+        run: python scripts/completar_fotos_fuente.py
       - name: Generar páginas y sitemap
         run: python scripts/generar_paginas.py
       - name: Guardar actualización
