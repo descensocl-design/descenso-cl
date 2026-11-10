@@ -37,6 +37,8 @@ export async function onRequestPost({request, env, params}) {
   if (size > 5000) return json({error:"Comentario demasiado largo"},413);
   let body;
   try {body = await request.json()}catch {return json({error:"JSON inválido"},400)}
+  // Honeypot invisible para humanos; los bots suelen completarlo.
+  if (body.website || body.company_site) return json({ok:true,pending:false,message:"Comentario recibido."},202);
   const anonymous = body.anonymous === true;
   const name = anonymous ? "Anónimo" : String(body.name || "").trim();
   const message = String(body.message || "").trim();
@@ -49,10 +51,17 @@ export async function onRequestPost({request, env, params}) {
     if (last && Date.now() - Date.parse(last.created_at) < 120000) return json({error:"Puedes enviar otro comentario después de dos minutos"},429);
     const lastDay = await env.COMMENTS_DB.prepare("SELECT COUNT(*) n FROM comments WHERE visitor_hash=? AND created_at>=?").bind(key, new Date(Date.now()-86400000).toISOString()).first();
     if (lastDay && lastDay.n >= 10) return json({error:"Límite diario de comentarios alcanzado"},429);
+    // Evitar duplicados exactos del mismo visitante en la misma noticia.
+    const recent = await env.COMMENTS_DB.prepare(
+      "SELECT message FROM comments WHERE visitor_hash=? AND article_slug=? ORDER BY created_at DESC LIMIT 8"
+    ).bind(key,slug).all();
+    if ((recent.results || []).some(item => String(item.message||"").trim().toLocaleLowerCase()===message.toLocaleLowerCase())) {
+      return json({error:"Ese comentario ya fue publicado en esta noticia"},409);
+    }
     const id = crypto.randomUUID();
     await env.COMMENTS_DB.prepare(
       "INSERT INTO comments (id, article_slug, display_name, message, status, visitor_hash, created_at) VALUES (?, ?, ?, ?, 'approved', ?, ?)"
     ).bind(id, slug, name, message, key, now).run();
-    return json({ok:true,pending:false,message:"Comentario publicado correctamente."},201);
+    return json({ok:true,pending:false,message:"Comentario publicado correctamente.",comment:{id,display_name:name,message,created_at:now}},201);
   } catch(e) {return json({error:"No se pudo guardar el comentario"},503)}
 }
