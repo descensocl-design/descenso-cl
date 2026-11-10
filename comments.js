@@ -67,6 +67,9 @@
       if(!gallery.querySelector('figure'))gallery.remove();
     }
   }
+  // El generador del servidor ya inserta el reproductor original.
+  // No añadirlo nuevamente desde el navegador cuando existe uno.
+  if (copy.querySelector('.article-video iframe')) return;
   // Los videos deben contener una URL real de YouTube/Vimeo; nunca simular reproductores.
   try{
     const res=await fetch('/data/posts.json',{cache:'no-store'});
