@@ -284,3 +284,10 @@
 .article-video-source strong{font-size:13px;letter-spacing:.05em}
 .article-video-source p{font-size:14px;color:#bbb}
 .article-video-source a{color:#fff;font-weight:800;text-decoration:underline;text-underline-offset:4px}
+
+/* Galerías largas: imágenes originales intercaladas con el contenido. */
+.article-copy .article-photo-run{max-width:790px;margin:24px 0 34px}
+.article-copy .article-photo-run .article-inline-photo{margin:0}
+.article-copy .article-photo-run-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.article-copy .article-photo-run-grid img{width:100%;height:auto;display:block;object-fit:contain}
+@media(max-width:560px){.article-copy .article-photo-run-grid{gap:8px}}
