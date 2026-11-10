@@ -279,3 +279,8 @@
 .article-video{max-width:790px;margin:32px 0 38px}
 .article-video iframe{display:block;width:100%;aspect-ratio:16/9;height:auto;border:0;background:#080808}
 @media(max-width:600px){.article-copy .article-inline-photo,.article-video{margin:24px 0 30px}}
+
+.article-video-source{max-width:790px;border-left:3px solid #e72a30;background:#151517;padding:20px 22px;margin:24px 0 32px;line-height:1.6}
+.article-video-source strong{font-size:13px;letter-spacing:.05em}
+.article-video-source p{font-size:14px;color:#bbb}
+.article-video-source a{color:#fff;font-weight:800;text-decoration:underline;text-underline-offset:4px}
