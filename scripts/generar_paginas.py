@@ -91,7 +91,7 @@ def build():
 <nav class="nav" aria-label="Categorías"><a class="navitem" href="/">INICIO</a></nav></header>
 <main class="article-page"><a class="back-link" href="/">← VOLVER A NOTICIAS</a><div class="article-tag">{esc(category.upper())}</div>
 <h1>{esc(title)}</h1><div class="article-date">{esc(date)}</div><p class="lede">{esc(excerpt)}</p>
-<figure class="article-figure"><img class="article-cover" src="{esc(image)}" alt="Imagen de la noticia: {esc(title)}" loading="eager"><figcaption>{'Imagen de referencia de Descenso.cl' if '/assets/portadas/' in image else ('Imagen de archivo autorizada' if post.get('image_approved') else 'Imagen de archivo; revisar derechos de uso')}</figcaption></figure>
+<figure class="article-figure"><img class="article-cover" src="{esc(image)}" alt="Imagen de la noticia: {esc(title)}" loading="eager"><figcaption>{esc(str(post.get('image_credit') or ('Gráfica de Descenso.cl' if '/assets/portadas/' in image else 'Imagen de archivo')))}</figcaption></figure>
 <div class="article-copy">{body}</div>{source_html}
 <footer><strong>DESCENSO<span>.CL</span></strong><p>DOWNHILL · ENDURO · XC · FREERIDE</p><a href="/">VOLVER A LA PORTADA ↗</a></footer></main></body></html>"""
         folder = ROOT / path.lstrip('/')
