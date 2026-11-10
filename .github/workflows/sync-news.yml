@@ -54,7 +54,9 @@ jobs:
               image_approved = meta.get('image_approved') is True
               fecha_clave = str(meta.get('date') or '')[:10]
               ya_publicada = imagenes_existentes.get((str(meta.get('title') or file.stem), fecha_clave)) == image
-              if image and not (image_approved or image.startswith('/assets/') or ya_publicada):
+              # Conservar material heredado anterior a esta regla, sin declararlo autorizado.
+              heredada = fecha_clave < '2026-11-10'
+              if image and not (image_approved or image.startswith('/assets/') or ya_publicada or heredada):
                   print(f'Fotografía sin autorizar en {file}: se usa portada de categoría')
                   image = ''
               posts.append({
