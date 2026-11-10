@@ -103,7 +103,7 @@ jobs:
               prior = prior_by_key.get((str(manual.get('date')), str(manual.get('title','')).strip().casefold()))
               if not prior:
                   continue
-              for attr in ('link', 'source_name', 'image_source_url', 'editorial_update'):
+              for attr in ('link', 'source_name', 'image_source_url', 'editorial_update', 'official_video_collection'):
                   if not manual.get(attr) and prior.get(attr):
                       manual[attr] = prior[attr]
               if prior.get('editorial_update') and prior.get('excerpt'):
