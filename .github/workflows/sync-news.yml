@@ -30,6 +30,9 @@ jobs:
           def plain(value):
               return re.sub(r'\s+', ' ', re.sub(r'[#*_`>\[\]()]', '', value)).strip()
 
+          # Conservar imágenes ya publicadas para evitar regresiones visuales.
+          anteriores = json.loads(Path('data/posts.json').read_text(encoding='utf-8')) if Path('data/posts.json').exists() else []
+          imagenes_existentes = {(p.get('title'), p.get('date')): p.get('image') for p in anteriores if isinstance(p, dict)}
           posts = []
           for file in sorted(Path('data/noticias').glob('*.md')):
               content = file.read_text(encoding='utf-8-sig')
@@ -49,7 +52,9 @@ jobs:
               # Las fotos nuevas solo se muestran si han sido autorizadas.
               # Los gráficos locales de Descenso son siempre admisibles.
               image_approved = meta.get('image_approved') is True
-              if image and not (image_approved or image.startswith('/assets/')):
+              fecha_clave = str(meta.get('date') or '')[:10]
+              ya_publicada = imagenes_existentes.get((str(meta.get('title') or file.stem), fecha_clave)) == image
+              if image and not (image_approved or image.startswith('/assets/') or ya_publicada):
                   print(f'Fotografía sin autorizar en {file}: se usa portada de categoría')
                   image = ''
               posts.append({
