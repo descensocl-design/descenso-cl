@@ -122,3 +122,5 @@ Si la URL responde 404, el despliegue no ha incorporado la función correspondie
 Cuando Cloudflare Pages no muestre **Reintentar implementación**, un commit nuevo en la rama `main` del repositorio conectado `descensocl-design/descenso-cl` puede activar automáticamente una nueva implementación de producción. Confirmar el resultado en **Workers y Pages > descenso-cl > Implementaciones**. Los secretos de producción deben estar guardados en el entorno correcto antes del despliegue.
 
 <!-- Despliegue de configuración de secretos de Producción: 2026-11-10 posterior a MODERATION_TOKEN -->
+
+<!-- Activación de configuración de Producción posterior a renovación de MODERATION_TOKEN: 2026-11-10 (segunda verificación) -->
