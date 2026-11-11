@@ -99,16 +99,16 @@ def build():
             for j, url in enumerate(extra_images):
                 slot = min(slots - 1, j * slots // len(extra_images))
                 groups[slot].append(url)
-            for slot, urls in enumerate(groups):
-                if not urls:
+            for slot, photo_urls in enumerate(groups):
+                if not photo_urls:
                     continue
                 figures = []
-                for url in urls:
+                for url in photo_urls:
                     figures.append(
                         f'<figure class="article-inline-photo"><a href="{esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ver fotografía original en tamaño completo">'
                         f'<img src="{esc(url)}" alt="Fotografía oficial de la noticia: {esc(title)}" loading="lazy" decoding="async"></a></figure>'
                     )
-                gallery_class = ' article-photo-run-grid' if len(urls) >= 4 else ''
+                gallery_class = ' article-photo-run-grid' if len(photo_urls) >= 4 else ''
                 group_html = f'<div class="article-photo-run{gallery_class}">' + ''.join(figures) + '</div>'
                 if paragraph_positions:
                     body_parts[paragraph_positions[slot]] += group_html
