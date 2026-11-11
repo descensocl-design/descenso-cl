@@ -1,7 +1,18 @@
 {
   "total": 9,
-  "pending": 2,
+  "pending": 0,
   "articles": [
+    {
+      "title": "Weitien Ho y Elliot Jamieson dejan las carreras atrás para explorar los Chilcotins",
+      "source_url": "https://www.pinkbike.com/news/video-weitien-ho-and-elliot-jamieson-take-the-long-road-home-through-the-chilcotins.html",
+      "permalink": "",
+      "photos_registered": 6,
+      "video_registered": true,
+      "video_players": 1,
+      "source_media_review": null,
+      "issues": [],
+      "status": "sin_pendientes_detectados"
+    },
     {
       "title": "Shimano EP810: 750 watts, 100 Nm y un nuevo paso en la batalla de las e-MTB",
       "source_url": "https://media.shimano.com.ar/es-LAM/274266-shimano-lanza-la-serie-ep810-una-nueva-generacion-de-sistemas-inteligentes-para-bicicletas-electricas/",
@@ -85,45 +96,29 @@
       "status": "sin_pendientes_detectados"
     },
     {
-      "title": "Ghost Bikes anuncia su cierre definitivo: no encontraron una solución para continuar",
-      "source_url": "",
-      "permalink": "",
+      "title": "Ghost Bikes evita su cierre: Bike Tree GmbH adquiere la histórica marca alemana",
+      "source_url": "https://www.pinkbike.com/news/ghost-bikes-will-continue-after-last-minute-acquisition.html",
+      "permalink": "/noticias/2026-11-03-ghost-bikes-anuncia-su-cierre-definitivo-no-encontraron-una-solucion-para-continuar/",
       "photos_registered": 1,
       "video_registered": false,
       "video_players": 0,
       "source_media_review": null,
-      "issues": [
-        "No hay enlace a la publicación original: verificar fuente y créditos"
-      ],
-      "status": "pendiente"
-    },
-    {
-      "title": "Primera publicación de Descenso.cl",
-      "source_url": "",
-      "permalink": "",
-      "photos_registered": 0,
-      "video_registered": false,
-      "video_players": 0,
-      "source_media_review": null,
-      "issues": [
-        "No hay enlace a la publicación original: verificar fuente y créditos",
-        "Sin fotografía principal verificada"
-      ],
-      "status": "pendiente"
+      "issues": [],
+      "status": "sin_pendientes_detectados"
     },
     {
       "title": "YT Decoy X: 1.300 watts de potencia para recuperar la confianza del mercado",
       "source_url": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
       "permalink": "",
-      "photos_registered": 1,
+      "photos_registered": 18,
       "video_registered": false,
       "video_players": 0,
       "source_media_review": {
         "date": "2026-11-10",
-        "kind": "review_with_photos",
-        "source_checked": "https://www.pinkbike.com/news/review-yt-decoy-x-avinox-2026.html",
-        "notes": "La fuente original tiene múltiples fotografías de Ian Linton, pero Pinkbike bloquea la descarga automatizada del HTML (HTTP 403); sus URLs individuales no están verificadas.",
-        "needs_additional_photos": true
+        "kind": "official_pinkbike_photo_album",
+        "source_checked": "https://www.pinkbike.com/u/seb-stott/album/YT-Decoy/",
+        "verified_photo_ids": 18,
+        "notes": "Imágenes identificadas directamente en el álbum YT-Decoy que enlaza el análisis original de Pinkbike; otras páginas del álbum no verificadas."
       },
       "issues": [],
       "status": "sin_pendientes_detectados"
