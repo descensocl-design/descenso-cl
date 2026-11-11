@@ -128,7 +128,8 @@ jobs:
               url = str(post.get('link') or '').lower()
               title = str(post.get('title') or '').lower()
               return ('pinkbike.com/news/video-friday-fails-' in url
-                      or 'friday fails' in title)
+                      or 'friday fails' in title
+                      or title == 'primera publicación de descenso.cl')
           posts = [p for p in posts + auto_posts if not contenido_excluido(p)]
           # Las rectificaciones persistentes prevalecen sobre los markdown
           # y sobre los datos generados anteriormente.
