@@ -116,3 +116,7 @@ El JSON solo muestra si los servicios están listos:
 Este es **un ejemplo de estructura**, no una respuesta obtenida del sitio.
 Si aparece `setup_required`, revisar el vínculo de D1, los secretos y `database/comments.sql`. Si aparece `ready`, realizar pruebas funcionales reales con autorización.
 Si la URL responde 404, el despliegue no ha incorporado la función correspondiente.
+
+## Renovación de despliegue desde GitHub
+
+Cuando Cloudflare Pages no muestre **Reintentar implementación**, un commit nuevo en la rama `main` del repositorio conectado `descensocl-design/descenso-cl` puede activar automáticamente una nueva implementación de producción. Confirmar el resultado en **Workers y Pages > descenso-cl > Implementaciones**. Los secretos de producción deben estar guardados en el entorno correcto antes del despliegue.
