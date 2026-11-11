@@ -10,11 +10,14 @@ export async function onRequestGet({env}){
    try {await env.COMMENTS_DB.prepare("SELECT id FROM comments LIMIT 1").all();commentSchema=true;}catch{}
    try {await env.COMMENTS_DB.prepare("SELECT id FROM comment_reports LIMIT 1").all();reportSchema=true;}catch{}
  }
+ const moderationSecret = typeof env.MODERATION_TOKEN==="string" ? env.MODERATION_TOKEN : "";
+ // Informar únicamente si el secreto llega al Worker y cumple el mínimo; jamás mostrar su contenido.
+ const moderationConfig = !moderationSecret ? "missing" : moderationSecret.length < 32 ? "too_short" : "valid";
  const statuses={
   comments:comments&&commentSchema?"ready":"setup_required",
   reports:comments&&commentSchema&&reportSchema?"ready":"setup_required",
-  moderation:comments&&commentSchema&&reportSchema&&typeof env.MODERATION_TOKEN==="string"&&env.MODERATION_TOKEN.length>=32?"ready":"setup_required"
+  moderation:comments&&commentSchema&&reportSchema&&moderationConfig==="valid"?"ready":"setup_required"
  };
  const allReady=Object.values(statuses).every(s=>s==="ready");
- return respond({service:"descenso-comments",status:allReady?"ready":"setup_required",checks:statuses});
+ return respond({service:"descenso-comments",status:allReady?"ready":"setup_required",checks:statuses,moderation_secret_check:moderationConfig});
 }
