@@ -1,7 +1,18 @@
 {
-  "total": 9,
+  "total": 10,
   "pending": 0,
   "articles": [
+    {
+      "title": "¿Más peso para bajar más rápido? La paradoja que está cambiando el downhill",
+      "source_url": "https://www.pinkbike.com/news/nerding-out-why-extra-weight-is-sometimes-good-sometimes-bad.html",
+      "permalink": "",
+      "photos_registered": 9,
+      "video_registered": false,
+      "video_players": 0,
+      "source_media_review": null,
+      "issues": [],
+      "status": "sin_pendientes_detectados"
+    },
     {
       "title": "Weitien Ho y Elliot Jamieson dejan las carreras atrás para explorar los Chilcotins",
       "source_url": "https://www.pinkbike.com/news/video-weitien-ho-and-elliot-jamieson-take-the-long-road-home-through-the-chilcotins.html",
