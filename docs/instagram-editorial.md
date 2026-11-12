@@ -1,12 +1,15 @@
 # Integración de Descenso.cl con Instagram @descenso.cl
 
-## Estado
+## Estado (12 de noviembre de 2026)
 - Panel privado: `https://descenso.cl/admin/instagram.html`.
-- Las noticias de `data/posts.json` generan automáticamente una portada JPG original 1080 x 1350 en `assets/instagram/<slug>.jpg` mediante `scripts/generar_instagram.py`.
-- GitHub Actions corre este generador junto con la publicación de noticias y sincroniza las portadas.
-- Los borradores se guardan en Cloudflare D1 (`COMMENTS_DB`, tabla `social_ig_posts`, creada en el primer acceso autenticado).
-- La autorización de administrador utiliza el secreto existente `MODERATION_TOKEN`.
-- La publicación real permanece **desactivada** mientras no se configure Meta.
+- **Meta conectado y publicación real validada** con la primera noticia «¿Más peso para bajar más rápido?».
+- Cada actualización del catálogo `data/posts.json` crea automáticamente:
+  - Una portada JPG original 1080 × 1350: `assets/instagram/<slug>.jpg`.
+  - Un borrador editorial con título, entradilla, caption y URL de portada en `data/instagram-drafts.json` mediante `scripts/generar_borradores_instagram.py`.
+- El panel abre por defecto **Por revisar** y permite filtrar **Guardadas**, **Publicadas**, **Descartadas** y **Todas**.
+- Las propuestas generadas aún no requieren fila en D1. Guardar un borrador, descartar/restaurar, iniciar y completar una publicación se registra en D1 (`COMMENTS_DB`, tabla `social_ig_posts`). Las correcciones guardadas en D1 tienen prioridad sobre las propuestas regeneradas; las noticias ya publicadas conservan su estado y no se vuelven a enviar.
+- La autenticación utiliza `MODERATION_TOKEN`. Jamás se publica sin marcar derechos de imagen y confirmar explícitamente **APROBAR Y PUBLICAR**.
+- La bio usa `https://descenso.cl/ig`, un enlace permanente que redirige a la última noticia publicada desde el panel.
 
 ## Activar publicación mediante Meta API
 1. Confirmar que @descenso.cl es una cuenta profesional (Empresa o Creador).
@@ -16,9 +19,9 @@
    - `INSTAGRAM_ACCESS_TOKEN` — tipo **Secreto**, token profesional de Meta.
    - `INSTAGRAM_USER_ID` — ID numérico de la cuenta profesional, variable de entorno (o secreto).
 5. Guardar y desplegar nuevamente Pages para que las funciones reciban las variables.
-6. Abrir `/admin/instagram.html`, entrar con `MODERATION_TOKEN` y confirmar el indicador **META CONECTADO**.
+6. Abrir `/admin/instagram.html`, entrar con `MODERATION_TOKEN` y usar **PROBAR CONEXIÓN META** para verificar identidad sin publicar.
 7. Seleccionar una noticia, revisar y corregir el texto y la portada generada. Confirmar derechos y guardar el borrador. En primera prueba, publicar solo una noticia autorizada.
-8. Hacer clic en **PUBLICAR EN INSTAGRAM** y confirmar. El panel crea el contenedor de imagen en Meta, espera que esté listo y envía la publicación.
+8. Hacer clic en **APROBAR Y PUBLICAR** y confirmar. El panel crea el contenedor de imagen en Meta, espera que esté listo y envía la publicación.
 
 ## Seguridad y criterios editoriales
 - Las portadas son composiciones tipográficas propias, sin reutilizar fotografías de terceros.
@@ -35,4 +38,6 @@
 - `GET /api/instagram` sin Bearer debe devolver HTTP 401.
 - El estado de Meta y las noticias están disponibles solo tras autenticar el panel.
 - Si falla la publicación, revisar la respuesta de Meta en el panel, los permisos del token y que la imagen sea JPEG pública.
-- Las noticias se detectan automáticamente de `/data/posts.json` y no requieren crear manualmente filas nuevas en D1.
+- Las noticias se detectan automáticamente del manifiesto `/data/instagram-drafts.json` construido en GitHub Actions; si no está disponible, el panel utiliza `/data/posts.json` como respaldo.
+- **Descartar** no elimina la noticia del sitio ni envía nada a Meta. Se puede restaurar la propuesta desde la pestaña **Descartadas**.
+- La regeneración automática nunca marca derechos como confirmados; siempre se debe verificar la imagen antes de publicar.
