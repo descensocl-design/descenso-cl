@@ -7,6 +7,7 @@ on:
       - 'data/posts.json'
       - 'data/editorial-overrides.json'
       - 'scripts/generar_paginas.py'
+      - 'scripts/generar_instagram.py'
       - 'scripts/auditar_multimedia.py'
       - 'scripts/aplicar_editorial.py'
       - 'scripts/verificar_catalogo.py'
@@ -180,13 +181,15 @@ jobs:
           node --check admin/moderacion.js
       - name: Generar páginas y sitemap
         run: python scripts/generar_paginas.py
+      - name: Generar portadas Instagram
+        run: python scripts/generar_instagram.py
       - name: Auditar multimedia y fuentes de todas las noticias
         run: python scripts/auditar_multimedia.py
       - name: Guardar actualización
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/posts.json data/diagnostico-fotos.json data/revision-multimedia.json noticias/ sitemap.xml robots.txt
+          git add data/posts.json data/diagnostico-fotos.json data/revision-multimedia.json noticias/ sitemap.xml robots.txt assets/instagram/
           if ! git diff --cached --quiet; then
             git commit -m "Actualizar noticias de la portada"
             git push origin HEAD:main
