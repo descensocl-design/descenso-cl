@@ -103,8 +103,14 @@
   $('access-form').addEventListener('submit',async e=>{
     e.preventDefault();token=$('access-token').value.trim();$('access-token').value='';
     if(!token)return;
-    try{info('Comprobando acceso…');await refresh();info('Acceso autorizado.');}
-    catch(error){token='';info(error.message)}
+    try{
+      info('Verificando clave de moderación…');
+      const probe=await fetch('/api/instagram?auth=1',{headers:{authorization:'Bearer '+token},cache:'no-store'});
+      const check=await probe.json().catch(()=>({}));
+      if(!probe.ok)throw Error(probe.status===401?'Clave incorrecta. Usa MODERATION_TOKEN, la misma del panel de moderación de comentarios.':check.error||'No se pudo verificar la clave.');
+      info('Clave correcta. Cargando base de datos…');
+      await refresh();info('Acceso autorizado.');
+    }catch(error){token='';info(error.message)}
   });
   $('logout').addEventListener('click',()=>{token='';posts=[];records.clear();selected=null;$('workspace').hidden=true;$('access-form').hidden=false;info('Sesión cerrada.');});
   $('caption').addEventListener('input',updatePreview);
