@@ -8,8 +8,8 @@
 <div class="brandrow"><a class="brand" href="/" aria-label="Descenso.cl"><img class="brand-logo" src="/logo-descenso.jpg" alt="DESCENSO.CL"></a><span class="tagline">MODERACIÓN</span></div></header>
 <main class="moderation-page">
 <h1>MODERACIÓN DE COMENTARIOS</h1>
-<p><a href="/admin/instagram.html" style="color:#fff;text-decoration:underline;font-weight:800">IR A REDACCIÓN DE INSTAGRAM ↗</a></p>
-<p class="intro-moderation">Revisa denuncias, oculta comentarios que infrinjan las normas o restáuralos. Las opiniones no se borran automáticamente por recibir reportes.</p>
+<p><a href="/admin/estadisticas.html" style="color:#fff;text-decoration:underline;font-weight:800">IR A PANEL DE ESTADÍSTICAS Y COMENTARIOS ↗</a></p>
+<p class="intro-moderation">Aprueba comentarios pendientes, revisa denuncias, oculta o elimina comentarios y restaura los que corresponda. Las opiniones no se borran automáticamente por recibir reportes.</p>
 <form id="access-form" class="moderation-access">
 <label for="moderation-token">Token privado de moderación</label>
 <input id="moderation-token" type="password" autocomplete="off" spellcheck="false" required placeholder="Token configurado en Cloudflare" aria-describedby="token-info">
@@ -17,7 +17,7 @@
 <p id="token-info">El token solo se utiliza durante esta sesión, no se guarda en el navegador. Debe configurarse como secreto <code>MODERATION_TOKEN</code> en Cloudflare.</p>
 </form>
 <section id="moderation-content" hidden>
-<div class="moderation-toolbar"><label for="moderation-view">Mostrar</label><select id="moderation-view"><option value="reported">Denunciados</option><option value="recent">Recientes</option><option value="hidden">Ocultos</option></select><button id="moderation-refresh" type="button">ACTUALIZAR</button><button id="moderation-logout" type="button">CERRAR SESIÓN</button></div>
+<div class="moderation-toolbar"><label for="moderation-view">Mostrar</label><select id="moderation-view"><option value="pending">Pendientes</option><option value="reported">Denunciados</option><option value="recent">Recientes</option><option value="hidden">Ocultos</option></select><button id="moderation-refresh" type="button">ACTUALIZAR</button><button id="moderation-logout" type="button">CERRAR SESIÓN</button></div>
 <div id="moderation-items" aria-live="polite"></div>
 </section><p id="moderation-status" role="status" aria-live="polite"></p>
 </main>
