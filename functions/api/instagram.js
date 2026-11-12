@@ -36,6 +36,7 @@ async function meta(url,params,token){
 }
 export async function onRequestGet({request,env}){
  const denied=await guard(request,env);if(denied)return denied;
+ if(new URL(request.url).searchParams.get("auth")==="1")return reply({ok:true,authenticated:true});
  try{
    await init(env.COMMENTS_DB);
    const data=await env.COMMENTS_DB.prepare("SELECT slug,caption,image_url,rights_confirmed,status,instagram_id,error,updated_at,published_at FROM social_ig_posts ORDER BY updated_at DESC LIMIT 500").all();
