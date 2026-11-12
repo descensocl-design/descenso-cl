@@ -19,6 +19,9 @@ export async function onRequestGet({request,env}){
   const from=new Date(Date.now()-(selected-1)*86400000).toISOString().slice(0,10);
   const db=env.COMMENTS_DB;
   try{
+    // Reparación segura si el proyecto se despliega en una base D1 aún sin migrar.
+    await db.prepare("CREATE TABLE IF NOT EXISTS web_stats_daily (day TEXT NOT NULL,kind TEXT NOT NULL,path TEXT NOT NULL,target TEXT NOT NULL,n INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(day,kind,path,target))").run();
+    await db.prepare("CREATE TABLE IF NOT EXISTS web_stats_sessions (day TEXT NOT NULL,session_hash TEXT NOT NULL,PRIMARY KEY(day,session_hash))").run();
     const [totals,trend,topPages,outbound,articleClicks,commentTotals,commentTrend,commentTop]=await Promise.all([
       db.prepare("SELECT kind,SUM(n) AS total FROM web_stats_daily WHERE day>=? GROUP BY kind").bind(from).all(),
       db.prepare("SELECT day,kind,SUM(n) AS n FROM web_stats_daily WHERE day>=? AND kind IN ('session','pageview','outbound') GROUP BY day,kind ORDER BY day ASC").bind(from).all(),
