@@ -11,7 +11,7 @@ on:
       - 'scripts/generar_borradores_instagram.py'
       - 'admin/instagram.js'
       - 'admin/instagram.html'
-      - 'functions/api/comments/[[slug]].js'
+      - 'functions/api/comments/**'
       - 'functions/api/moderation.js'
       - 'functions/api/stats.js'
       - 'functions/api/track.js'
