@@ -10,8 +10,8 @@
 
 ## Activar publicación mediante Meta API
 1. Confirmar que @descenso.cl es una cuenta profesional (Empresa o Creador).
-2. Crear/configurar una aplicación en Meta for Developers con Instagram API **Instagram Login**, siguiendo la [documentación oficial de Meta](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/content-publishing).
-3. Autorizar la cuenta profesional y obtener un token de acceso válido con los permisos `instagram_business_basic` y `instagram_business_content_publish`. Obtener también el ID numérico de la cuenta profesional Instagram correspondiente. Los permisos y el flujo están sujetos a los requisitos actuales de Meta.
+2. Utilizar la aplicación ya creada **Descenso CL Noticias** y su caso de uso **API de Instagram (inicio de sesión unificado)**. Este flujo utiliza un token de usuario del sistema (SUAT) y Facebook Graph API (`graph.facebook.com`).
+3. Autorizar la cuenta profesional y obtener un token de acceso válido con los permisos `instagram_basic` y `instagram_content_publish`. Obtener también el ID numérico de la cuenta profesional Instagram correspondiente. Los permisos y el flujo están sujetos a los requisitos actuales de Meta.
 4. En Cloudflare > Workers y Pages > `descenso-cl` > Configuración > **Producción** > Variables y secretos, crear:
    - `INSTAGRAM_ACCESS_TOKEN` — tipo **Secreto**, token profesional de Meta.
    - `INSTAGRAM_USER_ID` — ID numérico de la cuenta profesional, variable de entorno (o secreto).
