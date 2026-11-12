@@ -43,10 +43,11 @@
     selected=post;const id=slug(post),record=records.get(id);
     $('article-headline').textContent=post.title;
     $('article-link').href=path(post);
-    $('article-image').src=post.image||'/logo-descenso.jpg';
+    const artwork='/assets/instagram/'+encodeURIComponent(id)+'.jpg';
+    $('article-image').src=artwork;
     $('preview-title').textContent=post.title;
     $('caption').value=record?.caption||captionFor(post);
-    $('image-url').value=record?.image_url||'';
+    $('image-url').value=record?.image_url||new URL(artwork,location.origin).href;
     $('image-rights').checked=Boolean(record?.rights_confirmed);
     updatePreview();
     state(record?.status==='published'?'Esta noticia ya fue publicada en Instagram.':record?.status==='processing'?'Hay una publicación iniciada. Pulsa COMPLETAR PUBLICACIÓN.':record?.error?record.error:'Borrador pendiente de revisión.');
