@@ -54,11 +54,21 @@ export async function onRequestGet({request,env}){
 export async function onRequestPost({request,env}){
  const denied=await guard(request,env);if(denied)return denied;
  let data;try{data=await request.json()}catch{return reply({error:"JSON inválido"},400)}
- if(!data||!validSlug(data.slug)||!["save","start","finish"].includes(data.action))return reply({error:"Datos inválidos"},400);
+ if(!data||!validSlug(data.slug)||!["save","start","finish","dismiss","restore"].includes(data.action))return reply({error:"Datos inválidos"},400);
  try{
   const db=env.COMMENTS_DB;await init(db);
   const slug=data.slug;
   const current=await db.prepare("SELECT * FROM social_ig_posts WHERE slug=?").bind(slug).first();
+  if(data.action==="dismiss"){
+    if(current&&["published","processing"].includes(current.status))return reply({error:"No se puede descartar una noticia ya publicada o en proceso"},409);
+    await db.prepare("INSERT INTO social_ig_posts (slug,status,rights_confirmed,updated_at) VALUES(?,'dismissed',0,CURRENT_TIMESTAMP) ON CONFLICT(slug) DO UPDATE SET status='dismissed',rights_confirmed=0,error=NULL,updated_at=CURRENT_TIMESTAMP WHERE status IN ('draft','failed','dismissed')").bind(slug).run();
+    return reply({ok:true,status:"dismissed"});
+  }
+  if(data.action==="restore"){
+    if(!current||current.status!=="dismissed")return reply({error:"Esta noticia no está descartada"},409);
+    await db.prepare("UPDATE social_ig_posts SET status='draft',rights_confirmed=0,error=NULL,updated_at=CURRENT_TIMESTAMP WHERE slug=? AND status='dismissed'").bind(slug).run();
+    return reply({ok:true,status:"draft"});
+  }
   if(data.action==="save"){
    if(current&&current.status!=="draft"&&current.status!=="failed")return reply({error:"Esta publicación ya fue enviada a Meta y no puede editarse"},409);
    const caption=String(data.caption||"").trim();
