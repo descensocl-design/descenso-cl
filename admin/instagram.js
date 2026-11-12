@@ -112,7 +112,7 @@
   $('publish').addEventListener('click',async()=>{busy=true;setButtons();try{await beginPublish()}catch(e){state(e.message)}finally{busy=false;setButtons()}});
   $('test-meta').addEventListener('click',async()=>{
     const b=$('test-meta');b.disabled=true;info('Consultando la API de Meta sin publicar…');
-    try{const result=await api({method:'GET',headers:{},});const verified=await (async()=>{const res=await fetch('/api/instagram?check=1',{headers:{authorization:'Bearer '+token},cache:'no-store'});const data=await res.json();if(!res.ok)throw Error(data.error||'Meta no respondió');return data})();
+    try{const verified=await (async()=>{const res=await fetch('/api/instagram?check=1',{headers:{authorization:'Bearer '+token},cache:'no-store'});const data=await res.json();if(!res.ok)throw Error(data.error||'Meta no respondió');return data})();
       $('connection-state').textContent='META RESPONDE · @'+verified.username+' · PERMISO DE PUBLICACIÓN AÚN SIN PROBAR';
       info('Identidad de Instagram verificada. No se publicó contenido.');
     }catch(error){info(error.message);$('connection-state').textContent='META · CONEXIÓN NO VERIFICADA';}finally{b.disabled=false;}
