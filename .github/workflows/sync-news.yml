@@ -8,6 +8,7 @@ on:
       - 'data/editorial-overrides.json'
       - 'scripts/generar_paginas.py'
       - 'scripts/generar_instagram.py'
+      - 'scripts/generar_borradores_instagram.py'
       - 'admin/instagram.js'
       - 'admin/instagram.html'
       - 'functions/api/instagram.js'
@@ -188,13 +189,15 @@ jobs:
         run: python scripts/generar_paginas.py
       - name: Generar portadas Instagram
         run: python scripts/generar_instagram.py
+      - name: Preparar borradores editoriales de Instagram (sin publicar)
+        run: python scripts/generar_borradores_instagram.py
       - name: Auditar multimedia y fuentes de todas las noticias
         run: python scripts/auditar_multimedia.py
       - name: Guardar actualización
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/posts.json data/diagnostico-fotos.json data/revision-multimedia.json noticias/ sitemap.xml robots.txt assets/instagram/
+          git add data/posts.json data/instagram-drafts.json data/diagnostico-fotos.json data/revision-multimedia.json noticias/ sitemap.xml robots.txt assets/instagram/
           if ! git diff --cached --quiet; then
             git commit -m "Actualizar noticias de la portada"
             git fetch origin main
