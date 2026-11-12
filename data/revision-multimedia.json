@@ -1,5 +1,5 @@
 {
-  "total": 10,
+  "total": 11,
   "pending": 0,
   "articles": [
     {
@@ -9,6 +9,17 @@
       "photos_registered": 9,
       "video_registered": false,
       "video_players": 0,
+      "source_media_review": null,
+      "issues": [],
+      "status": "sin_pendientes_detectados"
+    },
+    {
+      "title": "VIDEO: Green River Classic 2026, freeride y caos en el desierto de Utah",
+      "source_url": "https://www.pinkbike.com/news/video-what-happens-in-the-desert--propain-and-the-in-the-hills-gang-at-green-river-classic-2026.html",
+      "permalink": "",
+      "photos_registered": 1,
+      "video_registered": true,
+      "video_players": 1,
       "source_media_review": null,
       "issues": [],
       "status": "sin_pendientes_detectados"
