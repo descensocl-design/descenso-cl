@@ -25,20 +25,20 @@ export async function onRequestGet({request,env}){
       db.prepare("SELECT path,SUM(n) AS views FROM web_stats_daily WHERE day>=? AND kind='pageview' AND path LIKE '/noticias/%' GROUP BY path ORDER BY views DESC LIMIT 20").bind(from).all(),
       db.prepare("SELECT target,SUM(n) AS clicks FROM web_stats_daily WHERE day>=? AND kind='outbound' GROUP BY target ORDER BY clicks DESC").bind(from).all(),
       db.prepare("SELECT target,SUM(n) AS clicks FROM web_stats_daily WHERE day>=? AND kind='article_click' GROUP BY target ORDER BY clicks DESC LIMIT 10").bind(from).all(),
-      db.prepare("SELECT COUNT(*) AS total,SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) AS visible,SUM(CASE WHEN status='rejected' THEN 1 ELSE 0 END) AS hidden FROM comments WHERE substr(created_at,1,10)>=?").bind(from).first(),
+      db.prepare("SELECT COUNT(*) AS total,SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) AS visible,SUM(CASE WHEN status='rejected' THEN 1 ELSE 0 END) AS hidden,SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) AS pending FROM comments WHERE substr(created_at,1,10)>=?").bind(from).first(),
       db.prepare("SELECT substr(created_at,1,10) AS day,COUNT(*) AS n FROM comments WHERE substr(created_at,1,10)>=? GROUP BY substr(created_at,1,10) ORDER BY day ASC").bind(from).all(),
       db.prepare("SELECT article_slug,COUNT(*) AS comments FROM comments WHERE substr(created_at,1,10)>=? GROUP BY article_slug ORDER BY comments DESC LIMIT 10").bind(from).all()
     ]);
-    const summary={sessions:0,pageviews:0,outbound:0,article_click:0};
+    const summary={sessions:0,pageviews:0,outbound:0,article_click:0,video_embed_load:0};
     for(const entry of rows(totals))if(Object.hasOwn(summary,entry.kind))summary[entry.kind]=Number(entry.total||0);
     const homepage=await db.prepare("SELECT SUM(n) AS n FROM web_stats_daily WHERE day>=? AND kind='pageview' AND path='/'").bind(from).first();
     const reports=await db.prepare("SELECT COUNT(*) AS n FROM comment_reports WHERE substr(created_at,1,10)>=?").bind(from).first();
     return json({
       ok:true,days:selected,from,through:new Date().toISOString().slice(0,10),
-      summary:{...summary,homepage:Number(homepage?.n||0),comments:Number(commentTotals?.total||0),visible_comments:Number(commentTotals?.visible||0),hidden_comments:Number(commentTotals?.hidden||0),comment_reports:Number(reports?.n||0)},
+      summary:{...summary,homepage:Number(homepage?.n||0),comments:Number(commentTotals?.total||0),visible_comments:Number(commentTotals?.visible||0),hidden_comments:Number(commentTotals?.hidden||0),pending_comments:Number(commentTotals?.pending||0),comment_reports:Number(reports?.n||0)},
       trend:rows(trend),top_pages:rows(topPages),outbound:rows(outbound),article_clicks:rows(articleClicks),
       comments_trend:rows(commentTrend),comment_top:rows(commentTop),
-      notes:{visitors:"Sesiones aproximadas, no personas únicas: un navegador por día puede contar más de una vez.",youtube:"Se miden los clics a enlaces externos de YouTube, no las reproducciones dentro de iframes.",history:"Las mediciones de visitas y clics comienzan desde la activación del contador."}
+      notes:{visitors:"Sesiones aproximadas, no personas únicas: un navegador por día puede contar más de una vez.",youtube:"Se miden los clics a enlaces externos de YouTube y las cargas de reproductores integrados. No equivalen a reproducciones verificadas en YouTube.",history:"Las mediciones de visitas y clics comienzan desde la activación del contador."}
     });
   }catch(e){return json({error:"No se pudieron consultar las estadísticas. Comprueba que estén creadas las tablas en D1."},503)}
 }
