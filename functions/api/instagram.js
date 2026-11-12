@@ -24,7 +24,8 @@ async function init(db){
 }
 const validSlug=v=>typeof v==="string"&&v.length>8&&v.length<170&&/^20\d\d-\d\d-\d\d-[a-z0-9-]+$/.test(v);
 function validImage(v){try{const u=new URL(v);return u.protocol==="https:"&&!u.username&&!u.password&&u.hostname!=="localhost"&&/\.jpe?g$/i.test(u.pathname)&&v.length<1000}catch{return false}}
-const graph="https://graph.instagram.com/v25.0/";
+// Meta Unified Login (system-user token with instagram_content_publish) uses Facebook Graph API.
+const graph="https://graph.facebook.com/v25.0/";
 const apiCredentials=env=>typeof env.INSTAGRAM_ACCESS_TOKEN==="string"&&env.INSTAGRAM_ACCESS_TOKEN.length>30&&typeof env.INSTAGRAM_USER_ID==="string"&&/^\d{5,25}$/.test(env.INSTAGRAM_USER_ID);
 async function meta(url,params,token){
  const init={method:params?"POST":"GET",headers:{"authorization":"Bearer "+token}};
