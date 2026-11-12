@@ -28,12 +28,12 @@ export async function onRequestGet({request,env}){
  const denied=await guard(request,env);if(denied)return denied;
  try{
    const url=new URL(request.url),view=url.searchParams.get("view")||"reported";
-   if(!["reported","recent","hidden"].includes(view))return respond({error:"Filtro inválido"},400);
+   if(!["reported","recent","hidden","pending"].includes(view))return respond({error:"Filtro inválido"},400);
    let sql;
    if(view==="reported"){
      sql="SELECT c.id,c.article_slug,c.display_name,c.message,c.created_at,c.status,COUNT(r.id) AS reports,MAX(r.created_at) AS last_reported FROM comment_reports r JOIN comments c ON c.id=r.comment_id WHERE c.status='approved' GROUP BY c.id ORDER BY reports DESC,last_reported DESC LIMIT 100";
    }else{
-     sql="SELECT c.id,c.article_slug,c.display_name,c.message,c.created_at,c.status,COUNT(r.id) AS reports FROM comments c LEFT JOIN comment_reports r ON c.id=r.comment_id WHERE c.status='"+(view==="hidden"?"rejected":"approved")+"' GROUP BY c.id ORDER BY c.created_at DESC LIMIT 100";
+     sql="SELECT c.id,c.article_slug,c.display_name,c.message,c.created_at,c.status,COUNT(r.id) AS reports FROM comments c LEFT JOIN comment_reports r ON c.id=r.comment_id WHERE c.status='"+(view==="hidden"?"rejected":view==="pending"?"pending":"approved")+"' GROUP BY c.id ORDER BY c.created_at DESC LIMIT 100";
    }
    const result=await env.COMMENTS_DB.prepare(sql).all();
    return respond({ok:true,view,comments:result.results||[]});
@@ -44,11 +44,21 @@ export async function onRequestPost({request,env}){
  if((request.headers.get("content-type")||"").split(";")[0].trim()!=="application/json")return respond({error:"Formato inválido"},415);
  if(Number(request.headers.get("content-length")||0)>1000)return respond({error:"Solicitud demasiado grande"},413);
  let data;try{data=await request.json()}catch{return respond({error:"JSON inválido"},400)}
- if(!validId(data.id)||!["hide","restore"].includes(data.action))return respond({error:"Solicitud inválida"},400);
+ if(!validId(data.id)||!["hide","restore","approve","delete"].includes(data.action))return respond({error:"Solicitud inválida"},400);
  try{
+   const existing=await env.COMMENTS_DB.prepare("SELECT status FROM comments WHERE id=?").bind(data.id).first();
+   if(!existing)return respond({error:"Comentario no encontrado"},404);
+   if(data.action==="delete"){
+     await env.COMMENTS_DB.batch([
+       env.COMMENTS_DB.prepare("DELETE FROM comment_reports WHERE comment_id=?").bind(data.id),
+       env.COMMENTS_DB.prepare("DELETE FROM comments WHERE id=?").bind(data.id)
+     ]);
+     return respond({ok:true,status:"deleted"});
+   }
+   if(data.action==="approve"&&existing.status!=="pending")return respond({error:"Solo se pueden aprobar comentarios pendientes"},409);
+   if(data.action==="restore"&&existing.status!=="rejected")return respond({error:"El comentario no está oculto"},409);
    const status=data.action==="hide"?"rejected":"approved";
-   const result=await env.COMMENTS_DB.prepare("UPDATE comments SET status=? WHERE id=?").bind(status,data.id).run();
-   if(!result.meta?.changes)return respond({error:"Comentario no encontrado"},404);
+   await env.COMMENTS_DB.prepare("UPDATE comments SET status=? WHERE id=?").bind(status,data.id).run();
    return respond({ok:true,status});
  }catch{return respond({error:"No se pudo guardar el cambio"},503)}
 }
