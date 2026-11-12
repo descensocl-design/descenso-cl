@@ -179,6 +179,8 @@ jobs:
           node --input-type=module --check < "functions/api/moderation.js"
           node --input-type=module --check < functions/api/site-health.js
           node --check admin/moderacion.js
+          node --check admin/instagram.js
+          node --input-type=module --check < functions/api/instagram.js
       - name: Generar páginas y sitemap
         run: python scripts/generar_paginas.py
       - name: Generar portadas Instagram
