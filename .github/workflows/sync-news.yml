@@ -192,5 +192,7 @@ jobs:
           git add data/posts.json data/diagnostico-fotos.json data/revision-multimedia.json noticias/ sitemap.xml robots.txt assets/instagram/
           if ! git diff --cached --quiet; then
             git commit -m "Actualizar noticias de la portada"
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           fi
