@@ -19,11 +19,14 @@ export async function onRequestPost({request,env}){
   if(Number(request.headers.get("content-length")||0)>750)return answer({error:"Solicitud demasiado grande"},413);
   if(/bot|crawler|spider|headless|lighthouse|monitor|preview|uptime/i.test(request.headers.get("user-agent")||""))return answer({ok:true,ignored:true});
   let event;try{event=await request.json()}catch{return answer({error:"JSON inválido"},400)}
-  if(!event||!["pageview","outbound","article_click"].includes(event.type))return answer({error:"Evento inválido"},400);
+  if(!event||!["pageview","outbound","article_click","video_embed_load"].includes(event.type))return answer({error:"Evento inválido"},400);
   const path=String(event.path||"");
   if(!pageOk(path))return answer({error:"Ruta inválida"},400);
   let target="-";
-  if(event.type==="outbound"){
+  if(event.type==="video_embed_load"){
+    if(event.target!=="youtube")return answer({error:"Destino inválido"},400);
+    target="youtube";
+  }else if(event.type==="outbound"){
     if(!["youtube","instagram","tiktok","whatsapp","other"].includes(event.target))return answer({error:"Destino inválido"},400);
     target=event.target;
   }else if(event.type==="article_click"){
