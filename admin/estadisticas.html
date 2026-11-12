@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#101012"><title>Panel de datos | Descenso.cl</title>
+<link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/admin/estadisticas.css">
+</head><body>
+<header class="header"><div class="topline"><span>DESCENSO.CL · USO PRIVADO</span><a href="/">VOLVER A LA WEB ↗</a></div>
+<div class="brandrow"><a class="brand" href="/"><img class="brand-logo" src="/logo-descenso.jpg" alt="DESCENSO.CL"></a>
+<span class="tagline">ESTADÍSTICAS / COMENTARIOS</span></div></header>
+<main class="stats-page">
+<div class="stats-title"><div><p class="kicker">DESCENSO.CL / ANALÍTICA</p><h1>PANEL DE CONTROL<span>.</span></h1>
+<p class="stats-intro">Tráfico, clics y conversación. Datos reales de tu medio, sin métricas inventadas.</p></div>
+<div class="stats-links"><a href="/admin/instagram.html">REDACCIÓN ↗</a><a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">GOOGLE SEARCH ↗</a><a href="https://studio.youtube.com/" target="_blank" rel="noopener noreferrer">YOUTUBE STUDIO ↗</a></div></div>
+<form id="access-form" class="stats-access"><label for="private-key">CLAVE PRIVADA DE ADMINISTRACIÓN</label>
+<input id="private-key" type="password" autocomplete="off" spellcheck="false" placeholder="La misma clave del panel de comentarios" required>
+<button type="submit">ENTRAR AL PANEL</button><p>La clave permanece en esta pestaña y no se guarda en el navegador.</p></form>
+<section id="dashboard" hidden>
+<div class="stats-toolbar"><div><span class="live-dot"></span><strong>ACTIVIDAD DE DESCENSO.CL</strong><span id="range-caption" class="stats-muted"></span></div><div class="stats-tools">
+<label for="period">PERÍODO</label><select id="period"><option value="7">7 DÍAS</option><option value="30" selected>30 DÍAS</option><option value="90">90 DÍAS</option><option value="365">12 MESES</option></select>
+<button type="button" id="refresh">ACTUALIZAR</button><button type="button" id="signout">SALIR</button></div></div>
+<div class="kpi-grid">
+<article class="stat-card"><p>SESIONES ESTIMADAS</p><strong id="k-sessions">—</strong><small>Navegadores por día, estimación</small></article>
+<article class="stat-card"><p>VISTAS DE PÁGINAS</p><strong id="k-pageviews">—</strong><small>Portada y noticias</small></article>
+<article class="stat-card"><p>CLICS A YOUTUBE</p><strong id="k-youtube">—</strong><small>Enlaces desde Descenso.cl</small></article>
+<article class="stat-card"><p>COMENTARIOS</p><strong id="k-comments">—</strong><small id="comment-pending-summary">Pendientes y publicados</small></article></div>
+<div class="stat-secondary">
+<div><span>CLICS EN NOTICIAS</span><strong id="k-articles">—</strong></div>
+<div><span>OTROS CLICS EXTERNOS</span><strong id="k-outbound">—</strong></div>
+<div><span>REPRODUCTORES YOUTUBE CARGADOS</span><strong id="k-embeds">—</strong></div>
+<div><span>VISTAS DE PORTADA</span><strong id="k-home">—</strong></div></div>
+<section class="stats-block">
+<div class="block-head"><h2>ACTIVIDAD DIARIA</h2><div class="chart-legend"><span class="legend-red"></span> Vistas de páginas <span class="legend-gray"></span> Sesiones</div></div>
+<div id="daily-chart" class="daily-chart" role="img" aria-label="Gráfico de visitas y sesiones por día"></div>
+<div id="chart-empty" class="empty" hidden>Aún no hay visitas registradas para este período.</div></section>
+<div class="stats-columns">
+<section class="stats-block"><div class="block-head"><h2>NOTICIAS MÁS LEÍDAS</h2><span>VISTAS</span></div><div id="top-articles" class="rank-list"></div></section>
+<section class="stats-block"><div class="block-head"><h2>DESTINOS DE LOS CLICS</h2><span>CLICS</span></div><div id="outbound-list" class="rank-list"></div>
+<div class="stats-note">Los clics hacia YouTube no son reproducciones. Los videos integrados se registran aparte como cargas del reproductor.</div></section>
+</div>
+<section class="stats-block moderation-block" id="moderation">
+<div class="block-head"><div><p class="kicker">COMUNIDAD / CONTROL EDITORIAL</p><h2>MODERAR COMENTARIOS</h2></div>
+<span class="pending-pill" id="pending-badge">0 PENDIENTES</span></div>
+<p class="stats-muted">Los comentarios nuevos necesitan aprobación. Puedes aprobar, ocultar, restaurar o eliminar definitivamente. Ningún comentario pendiente aparece públicamente.</p>
+<div class="moderation-menu"><label for="comments-filter">MOSTRAR</label><select id="comments-filter">
+<option value="pending">PENDIENTES</option><option value="reported">DENUNCIADOS</option><option value="recent">PUBLICADOS</option><option value="hidden">OCULTOS</option></select><button type="button" id="reload-comments">ACTUALIZAR COMENTARIOS</button></div>
+<div id="comments-list" class="comments-list"></div><p id="comments-status" class="stats-muted"></p></section>
+<p class="stats-footnote">Las visitas y los clics se recopilan desde la activación del contador y no incluyen períodos anteriores. Se respeta la preferencia «No rastrear». No guardamos IP en las estadísticas. Para datos de búsqueda y reproducciones verificadas, usa Google Search Console y YouTube Studio.</p>
+</section>
+<p id="status" class="stats-message" role="status" aria-live="polite"></p>
+</main><script src="/admin/estadisticas.js" defer></script></body></html>
