@@ -39,6 +39,14 @@ export async function onRequestGet({request,env}){
  try{
    await init(env.COMMENTS_DB);
    const data=await env.COMMENTS_DB.prepare("SELECT slug,caption,image_url,rights_confirmed,status,instagram_id,error,updated_at,published_at FROM social_ig_posts ORDER BY updated_at DESC LIMIT 500").all();
+   if(new URL(request.url).searchParams.get("check")==="1"){
+     if(!apiCredentials(env))return reply({error:"Faltan las credenciales de Instagram en Cloudflare"},503);
+     try{
+       const profile=await meta(graph+encodeURIComponent(env.INSTAGRAM_USER_ID)+"?fields=id,username",null,env.INSTAGRAM_ACCESS_TOKEN);
+       if(String(profile.id)!==String(env.INSTAGRAM_USER_ID))throw new Error("La cuenta consultada no coincide con el ID configurado");
+       return reply({ok:true,meta_ready:true,profile_valid:true,username:String(profile.username||"")});
+     }catch(error){return reply({error:"Meta no validó el acceso a Instagram: "+String(error.message).slice(0,240)},502)}
+   }
    return reply({ok:true,meta_ready:apiCredentials(env),posts:data.results||[]});
  }catch{return reply({error:"No se pudo consultar D1"},503)}
 }
