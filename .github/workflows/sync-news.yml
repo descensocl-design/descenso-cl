@@ -11,6 +11,16 @@ on:
       - 'scripts/generar_borradores_instagram.py'
       - 'admin/instagram.js'
       - 'admin/instagram.html'
+      - 'functions/api/comments/[[slug]].js'
+      - 'functions/api/moderation.js'
+      - 'functions/api/stats.js'
+      - 'functions/api/track.js'
+      - 'admin/moderacion.js'
+      - 'comments.js'
+      - 'analytics.js'
+      - 'admin/estadisticas.css'
+      - 'admin/estadisticas.js'
+      - 'admin/estadisticas.html'
       - 'functions/api/instagram.js'
       - 'scripts/auditar_multimedia.py'
       - 'scripts/aplicar_editorial.py'
@@ -184,6 +194,10 @@ jobs:
           node --input-type=module --check < functions/api/site-health.js
           node --check admin/moderacion.js
           node --check admin/instagram.js
+          node --check admin/estadisticas.js
+          node --input-type=module --check < functions/api/stats.js
+          node --input-type=module --check < functions/api/track.js
+          node --input-type=module --check < functions/api/moderation.js
           node --input-type=module --check < functions/api/instagram.js
       - name: Generar páginas y sitemap
         run: python scripts/generar_paginas.py
