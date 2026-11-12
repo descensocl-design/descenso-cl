@@ -36,18 +36,23 @@
       meta.append(make('span','',String(comment.reports||0)+' reportes'));
       card.append(meta);
       const actions=make('div','moderation-actions');
-      const button=make('button','',comment.status==='rejected'?'RESTAURAR':'OCULTAR');
-      button.type='button';
-      button.addEventListener('click',async()=>{
-        const action=comment.status==='rejected'?'restore':'hide';
-        if(!confirm((action==='hide'?'¿Ocultar':'¿Restaurar')+' este comentario?'))return;
-        button.disabled=true;
-        try{
-          await api('',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:comment.id,action})});
-          say('Cambio guardado.');await load();
-        }catch(error){say(error.message);button.disabled=false;}
-      });
-      actions.append(button);card.append(actions);items.append(card);
+      const actionsToShow=comment.status==='pending'?[['APROBAR','approve'],['RECHAZAR','hide'],['ELIMINAR','delete']]:
+        comment.status==='rejected'?[['RESTAURAR','restore'],['ELIMINAR','delete']]:
+        [['OCULTAR','hide'],['ELIMINAR','delete']];
+      for(const [label,action] of actionsToShow){
+        const button=make('button','',label);button.type='button';
+        button.addEventListener('click',async()=>{
+          if(action==='delete'&&!confirm('¿Eliminar definitivamente este comentario y sus denuncias? Esta acción no se puede deshacer.'))return;
+          if(action==='hide'&&!confirm('¿Ocultar este comentario?'))return;
+          button.disabled=true;
+          try{
+            await api('',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:comment.id,action})});
+            say('Cambio guardado.');await load();
+          }catch(error){say(error.message);button.disabled=false;}
+        });
+        actions.append(button);
+      }
+      card.append(actions);items.append(card);
     }
   }
   async function load(){
@@ -60,7 +65,7 @@
     token=input.value.trim();if(!token)return;
     input.value='';
     try{
-      const data=await api('?view=reported');
+      const data=await api('?view=pending');
       access.hidden=true;area.hidden=false;render(data.comments||[]);say('Acceso autorizado.');
     }catch(error){token='';say(error.message);}
   });
