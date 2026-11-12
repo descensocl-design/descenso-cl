@@ -64,7 +64,7 @@
       status.textContent='Los comentarios estarán disponibles próximamente.';
       form.hidden=true; return;
     }
-    status.textContent='Comparte tu opinión. Tu comentario se publica al instante.';
+    status.textContent='Comparte tu opinión. Los comentarios pasan por revisión editorial antes de aparecer.';
     list.replaceChildren();
     const countNode = root.querySelector('[data-comment-count]');
     if(countNode)countNode.textContent=String(data.comments.length);
@@ -87,7 +87,7 @@
       const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nameInput.value,anonymous:anonymous.checked,message:message.value,website:honeypot?.value||''})});
       const data=await res.json();
       status.textContent=data.message||data.error||'No se pudo enviar';
-      if(res.ok && data.comment) {
+      if(res.ok && !data.pending && data.comment) {
         const previouslyEmpty=list.querySelector('p');
         if(previouslyEmpty && previouslyEmpty.textContent.includes('Todavía no hay comentarios'))previouslyEmpty.remove();
         const article=document.createElement('article');
@@ -105,10 +105,8 @@
         list.prepend(article);
         const countNode=root.querySelector('[data-comment-count]');
         if(countNode)countNode.textContent=String((Number(countNode.textContent)||0)+1);
-        form.reset();
-        nameInput.disabled=false;
-        nameInput.required=true;
       }
+      if(res.ok){form.reset();nameInput.disabled=false;nameInput.required=true;}
     } catch(e){status.textContent='No se pudo conectar con el servidor.'}
     finally{send.disabled=false}
   });
