@@ -1,219 +1,184 @@
-
 <!doctype html>
-<html lang="es">
+<html lang="es-CL">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#090909">
-  <meta name="description" content="Noticias, historias y videos del mountain bike latinoamericano.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101110">
+  <meta name="description" content="Tour Delictivo: sal a pedalear con un local de Villarrica, Pucón y Licán Ray. Rutas semiurbanas, volcánicas y rurales, a tu ritmo. Trae tu bici, nosotros ponemos los caminos.">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Descenso.cl">
-  <meta property="og:title" content="DESCENSO.CL — Mountain Bike">
-  <meta property="og:description" content="Noticias, historias y videos del mountain bike latinoamericano.">
-  <meta property="og:url" content="https://descenso.cl/">
-  <meta property="og:image" content="https://descenso.cl/logo-descenso.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://descenso.cl/">
-  <title>DESCENSO.CL — Mountain Bike</title>
-  <link rel="stylesheet" href="/styles.css">
+  <meta property="og:title" content="TOUR DELICTIVO — No es un tour. Es salir a andar en bici.">
+  <meta property="og:description" content="Salidas de MTB y gravel con un localazo de Villarrica, Pucón y Licán Ray. Tú traes la bicicleta. El recorrido lo armamos juntos.">
+  <title>TOUR DELICTIVO — Sal a andar con un local</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#101110;--paper:#f1f0e8;--muted:#a9aba5;--acid:#e0ff47;--orange:#ff5c32;--line:#363832;--font-head:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;--font-body:'DM Sans',Arial,sans-serif}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:88px}body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--font-body);font-size:15px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button{cursor:pointer}img{display:block;width:100%;height:100%;object-fit:cover}::selection{background:var(--acid);color:var(--ink)}
+    .container{width:min(1420px,calc(100% - 90px));margin:auto}.topline{height:30px;background:var(--acid);color:var(--ink);font-size:10px;letter-spacing:.16em;font-weight:800;display:flex;align-items:center;justify-content:space-between;padding:0 46px;text-transform:uppercase}.topline .small{font-size:10px}
+    .header{position:sticky;top:0;z-index:50;background:rgba(16,17,16,.96);backdrop-filter:blur(15px);border-bottom:1px solid var(--line)}.header-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:22px}.brand{display:inline-flex;align-items:center;gap:12px;flex-shrink:0}.brand-mark{font-family:var(--font-head);color:var(--ink);background:var(--acid);font-size:30px;font-weight:900;letter-spacing:-.08em;line-height:1;padding:9px 10px 7px;transform:rotate(-4deg)}.brand-name{font-family:var(--font-head);font-size:24px;line-height:.83;letter-spacing:.01em;font-weight:900}.brand-name small{display:block;font:700 9px var(--font-body);letter-spacing:.19em;margin-top:6px}.nav{display:flex;align-items:center;gap:28px}.nav a:not(.btn){text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.1em}.nav a:hover{color:var(--acid)}.btn{display:inline-flex;align-items:center;justify-content:center;gap:15px;border:2px solid var(--acid);background:var(--acid);color:var(--ink);min-height:53px;padding:13px 21px;font-size:11px;font-weight:900;letter-spacing:.095em;text-transform:uppercase;transition:.18s ease;white-space:nowrap}.btn:hover{background:var(--paper);border-color:var(--paper);transform:translateY(-2px)}.btn svg{width:17px;height:17px}.btn-outline{background:transparent;color:var(--paper);border-color:var(--paper)}.btn-outline:hover{background:var(--acid);border-color:var(--acid);color:var(--ink)}.menu-toggle{display:none}
+    .hero{min-height:730px;position:relative;display:grid;grid-template-columns:53% 47%;border-bottom:1px solid var(--line);isolation:isolate}.hero-copy{position:relative;z-index:2;padding:72px 4vw 62px max(45px,calc((100vw - 1420px)/2));display:flex;flex-direction:column;justify-content:center;background:var(--ink)}.micro{font-size:11px;line-height:1.4;text-transform:uppercase;letter-spacing:.17em;font-weight:800}.with-line{display:flex;align-items:center;gap:10px}.with-line:before{content:'';width:29px;height:2px;background:var(--acid)}.hero h1{font:900 clamp(83px,9.3vw,164px)/.78 var(--font-head);letter-spacing:-.035em;text-transform:uppercase;margin:28px 0 25px}.hero h1 .acid{color:var(--acid)}.hero h1 .stroke{color:transparent;-webkit-text-stroke:1.7px var(--paper)}.hero-p{font-size:17px;line-height:1.65;color:#d1d0c9;max-width:500px;margin:0 0 28px}.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:33px}.hero-footnote{color:#a6a7a1;font-size:11px;letter-spacing:.06em;display:flex;align-items:center;gap:10px}.hero-footnote span{color:var(--acid)}.hero-media{position:relative;overflow:hidden;background:#242923}.hero-media img{filter:grayscale(24%) contrast(1.12) brightness(.78);object-position:55% center;transform:scale(1.03)}.hero-media:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,17,16,.25),transparent 35%),linear-gradient(0deg,rgba(0,0,0,.62),transparent 45%);pointer-events:none}.hero-media .tag{position:absolute;z-index:2;top:35px;right:34px;background:var(--orange);color:var(--ink);transform:rotate(7deg);font:900 23px/1 var(--font-head);padding:13px 18px;text-transform:uppercase;box-shadow:6px 6px 0 #101110}.hero-media .corner{position:absolute;bottom:30px;right:35px;z-index:3;font-size:10px;font-weight:800;line-height:1.8;text-transform:uppercase;letter-spacing:.15em;text-align:right}.hero-media .corner span{color:var(--acid)}
+    .ticker{overflow:hidden;background:var(--acid);color:var(--ink);white-space:nowrap;font:900 20px/1 var(--font-head);text-transform:uppercase;letter-spacing:.08em;padding:14px 0;transform:rotate(0)}.ticker-track{width:max-content;animation:marquee 32s linear infinite}.ticker span{padding:0 22px}.ticker .dot{color:#596112;padding:0}@keyframes marquee{to{transform:translateX(-50%)}}
+    .section{padding:100px 0}.eyebrow{color:var(--acid);font-weight:900;font-size:11px;letter-spacing:.19em;text-transform:uppercase}.section-head{display:flex;align-items:end;justify-content:space-between;gap:28px;margin-bottom:39px}.section-head h2,.giant-heading{font:900 clamp(60px,7.8vw,116px)/.84 var(--font-head);letter-spacing:-.024em;text-transform:uppercase;margin:16px 0 0}.section-intro{color:#b4b5ad;line-height:1.7;max-width:370px;margin:0 0 7px}.route-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.route{border:1px solid var(--line);min-width:0;background:#191b18;display:flex;flex-direction:column;transition:border .25s}.route:hover{border-color:var(--acid)}.route-image{height:310px;position:relative;overflow:hidden;background:#273029}.route-image img{filter:saturate(.75) contrast(1.1);transition:transform .6s}.route:hover .route-image img{transform:scale(1.06)}.route-image:after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.65))}.route-topline{position:absolute;top:20px;left:20px;right:20px;display:flex;justify-content:space-between;gap:10px;z-index:2}.route-chip{background:var(--ink);border:1px solid rgba(255,255,255,.22);padding:9px 10px;color:var(--paper);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.route-chip.accent{background:var(--acid);color:var(--ink);border-color:var(--acid)}.route-index{position:absolute;z-index:2;bottom:6px;left:18px;font:900 114px/.72 var(--font-head);color:var(--paper);letter-spacing:-.05em}.route-inner{padding:26px 24px 23px;display:flex;flex-direction:column;flex:1}.route-inner h3{font:900 43px/.95 var(--font-head);text-transform:uppercase;margin:7px 0 13px}.route-inner p{color:#b6b8af;line-height:1.65;margin:0 0 19px;flex:1}.route-meta{font-size:10px;font-weight:800;color:#e1e1da;letter-spacing:.07em;text-transform:uppercase;margin:0 0 18px}.route-meta span{color:var(--acid)}.crime-label{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.crime-label b{font:900 29px/1 var(--font-head)}.progress{background:#373a31;height:7px;margin:10px 0 23px;overflow:hidden}.progress i{display:block;background:var(--acid);height:100%}.route .btn{width:100%}.route-footer{font-size:10px;color:#8f948a;letter-spacing:.05em;margin-top:14px}.note{font-size:11px;line-height:1.65;color:#a7a99f;margin-top:20px}
+    .provisions{background:var(--paper);color:var(--ink);padding:75px 0}.provisions .eyebrow{color:#5b6525}.provisions-head{display:grid;grid-template-columns:1.05fr .95fr;align-items:end;gap:40px;margin-bottom:38px}.provisions h2{font:900 clamp(66px,8vw,120px)/.82 var(--font-head);letter-spacing:-.03em;text-transform:uppercase;margin:10px 0 0}.provisions-intro{font-size:18px;line-height:1.6;max-width:530px;margin:0}.essentials{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#aeb0a2;border:1px solid #aeb0a2}.essential{padding:30px;min-height:199px;background:var(--paper)}.essential .num{font:900 53px/1 var(--font-head);color:#88913d}.essential h3{font:900 27px/1 var(--font-head);text-transform:uppercase;margin:18px 0 8px}.essential p{color:#50534b;line-height:1.55;margin:0}.warning{margin-top:22px;font-size:12px;font-weight:700;border-left:4px solid var(--ink);padding-left:16px;line-height:1.6}
+    .about{display:grid;grid-template-columns:1fr 1fr;background:#20241d;min-height:660px}.about-photo{position:relative;min-height:600px;background:#404638}.about-photo img{filter:grayscale(60%) contrast(1.18) brightness(.85)}.about-photo .sixty{position:absolute;bottom:15px;left:32px;z-index:2;font:900 clamp(120px,18vw,260px)/.8 var(--font-head);letter-spacing:-.07em;color:var(--acid);text-shadow:7px 7px 0 rgba(0,0,0,.36)}.about-text{padding:70px min(7vw,105px);display:flex;flex-direction:column;justify-content:center}.about-text h2{font:900 clamp(65px,7.4vw,117px)/.85 var(--font-head);text-transform:uppercase;margin:16px 0 30px}.about-text h2 span{color:var(--acid)}.about-text p{font-size:16px;line-height:1.75;color:#cacdc2;margin:0 0 19px;max-width:600px}.about-text .standout{font-weight:800;color:var(--paper);font-size:18px}.signature{margin-top:22px;display:flex;gap:16px;align-items:center}.signature .scribble{font:900 38px var(--font-head);font-style:italic;transform:rotate(-4deg);color:var(--acid)}.signature .descriptor{font-size:10px;line-height:1.6;color:#a8afa0;letter-spacing:.08em;text-transform:uppercase}
+    .manifesto{background:var(--acid);color:var(--ink);padding:70px 0}.manifesto-inner{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}.manifesto h2{font:900 clamp(60px,7vw,109px)/.83 var(--font-head);text-transform:uppercase;margin:0}.manifesto h2 span{color:#606a2b}.manifesto p{font-size:17px;line-height:1.67;margin:0 0 13px}.manifesto strong{font-weight:900}
+    .booking{padding:95px 0 110px;background:#111310}.booking-layout{display:grid;grid-template-columns:.8fr 1.2fr;gap:95px}.booking-side h2{font:900 clamp(78px,8.5vw,137px)/.79 var(--font-head);letter-spacing:-.035em;margin:16px 0 28px}.booking-side h2 span{color:var(--acid)}.booking-side p{color:#b4b7ad;line-height:1.75;font-size:16px;max-width:440px}.booking-side .quote{border-top:1px solid var(--line);padding-top:26px;margin-top:30px;color:var(--paper);font-size:13px}.booking-form{border:1px solid #3b4038;background:#1b1f19;padding:36px}.form-title{font:900 37px/1 var(--font-head);text-transform:uppercase;margin:0 0 10px}.form-sub{color:#aeb3a9;line-height:1.55;margin:0 0 26px;font-size:12px}.field{display:flex;flex-direction:column;gap:8px;margin-bottom:17px}.field label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.11em}.field input,.field select,.field textarea{border:1px solid #5a6054;background:#111410;border-radius:0;color:var(--paper);min-height:50px;padding:13px 15px;width:100%;outline:none;color-scheme:dark}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acid);box-shadow:0 0 0 1px var(--acid)}.field textarea{min-height:100px;resize:vertical}.field input::placeholder,.field textarea::placeholder{color:#7f877c}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.required{color:var(--acid)}.checkline{display:flex;gap:13px;align-items:flex-start;color:#c7cbc1;font-size:12px;line-height:1.6;margin:18px 0 24px;cursor:pointer}.checkline input{accent-color:var(--acid);width:19px;height:19px;flex:0 0 auto;margin:2px 0}.booking-form button[type=submit]{width:100%;min-height:58px}.form-info{color:#9ea69a;font-size:11px;line-height:1.65;margin:14px 0 0}.form-info a{text-decoration:underline;text-underline-offset:3px}.request-result{display:none;border:1px solid var(--acid);background:#121811;padding:21px;margin-top:20px}.request-result.visible{display:block}.request-result strong{display:block;color:var(--acid);font:900 24px var(--font-head);text-transform:uppercase}.request-result p{font-size:12px;line-height:1.6;color:#cad3c2}.request-result textarea{width:100%;min-height:180px;background:#080b08;color:#fff;border:1px solid #434b3e;padding:12px;resize:vertical;font-size:12px}.result-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.result-actions a,.result-actions button{flex:1;min-width:160px}.result-actions button{background:var(--acid);border:0;color:#101110;padding:13px;font-weight:900;text-transform:uppercase;font-size:11px}.result-actions a{display:grid;place-items:center;border:1px solid var(--paper);padding:13px;font-size:11px;font-weight:900;text-transform:uppercase}
+    .footer{background:#0a0b0a;border-top:1px solid var(--line);padding:34px 0 38px}.footer-inner{display:flex;justify-content:space-between;align-items:end;gap:28px}.footer .brand-name{font-size:21px}.footer-links{display:flex;gap:20px;flex-wrap:wrap}.footer-links a{font-size:11px;font-weight:800;text-transform:uppercase}.footer-links a:hover{color:var(--acid)}.footer-note{font-size:10px;color:#848b80;max-width:640px;line-height:1.65;margin-top:23px}.footer-note a{text-decoration:underline}.mobile-cta{display:none}.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:1080px){.container{width:calc(100% - 54px)}.hero{min-height:640px;grid-template-columns:56% 44%}.hero-copy{padding-left:27px;padding-right:15px}.hero h1{font-size:clamp(78px,9vw,125px)}.route-inner h3{font-size:37px}.route-image{height:260px}.booking-layout{gap:34px}.about-text{padding:45px}}
+    @media(max-width:760px){.topline{height:26px;padding:0 18px;font-size:8px}.topline .small{display:none}.header-inner{height:63px}.container{width:calc(100% - 34px)}.brand-name{font-size:20px}.brand-mark{font-size:27px}.nav{gap:14px}.nav a:not(.btn){display:none}.nav .btn{min-height:39px;padding:8px 11px;font-size:10px}.hero{display:block;min-height:0}.hero-copy{padding:53px 17px 40px;min-height:510px;position:relative}.hero h1{font-size:clamp(82px,16vw,142px);margin:26px 0 22px}.hero-p{font-size:15px}.hero-actions .btn{min-height:50px}.hero-media{height:380px}.hero-media .tag{top:20px;right:20px;font-size:17px}.ticker{font-size:17px}.section{padding:72px 0}.section-head{display:block}.section-head h2{font-size:clamp(69px,12vw,103px)}.section-intro{margin-top:20px;max-width:500px}.route-grid{grid-template-columns:1fr;gap:22px}.route-image{height:300px}.route-inner h3{font-size:46px}.provisions{padding:65px 0}.provisions-head,.essentials{grid-template-columns:1fr}.provisions-intro{font-size:16px}.provisions h2{font-size:82px}.essential{min-height:0;padding:23px}.essential .num{font-size:43px}.essential h3{margin-top:7px}.about{grid-template-columns:1fr}.about-photo{min-height:360px;height:440px}.about-text{padding:60px 17px}.about-text h2{font-size:94px}.manifesto{padding:58px 0}.manifesto-inner{grid-template-columns:1fr;gap:26px}.manifesto h2{font-size:82px}.booking{padding:70px 0 95px}.booking-layout{grid-template-columns:1fr;gap:32px}.booking-side h2{font-size:100px}.booking-form{padding:20px}.footer-inner{display:block}.footer-links{margin-top:30px}.footer{padding-bottom:95px}}
+    @media(max-width:430px){.hero h1{font-size:clamp(72px,17.6vw,100px)}.hero-copy{min-height:0}.hero-media{height:325px}.hero-actions{flex-direction:column}.hero-actions .btn{width:100%}.field-grid{grid-template-columns:1fr}.provisions h2{font-size:69px}.about-text h2{font-size:79px}.manifesto h2{font-size:70px}.booking-side h2{font-size:86px}.section-head h2{font-size:73px}.footer-links{gap:13px}}
+    /* RESERVA siempre visible: flotante lateral en escritorio, barra fija en móvil. */
+    .floating-reserve{position:fixed;bottom:28px;right:28px;z-index:80;display:inline-flex;align-items:center;justify-content:center;gap:22px;background:var(--acid);color:var(--ink);border:2px solid var(--ink);min-height:65px;padding:13px 23px;font:900 26px/.95 var(--font-head);letter-spacing:.03em;text-transform:uppercase;box-shadow:6px 6px 0 var(--orange),0 12px 28px rgba(0,0,0,.45);transform:rotate(-2deg);transition:transform .2s,background .2s;outline-offset:4px}
+    .floating-reserve:hover{background:var(--paper);transform:rotate(0deg) translateY(-3px)}
+    .floating-reserve span:last-child{font:900 26px/1 var(--font-head)}
+    @media(max-width:760px){.floating-reserve{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));height:60px;min-height:60px;transform:none;box-shadow:0 -6px 24px rgba(0,0,0,.55);font-size:28px}.floating-reserve:hover{transform:none}.mobile-cta{display:none}.footer{padding-bottom:112px}.booking{padding-bottom:105px}}
+    /* Las palabras grandes no deben ensanchar la página en teléfonos. */
+    @media(max-width:760px){.about{grid-template-columns:minmax(0,1fr)}.about-text,.about-photo{min-width:0}.about-text h2{font-size:clamp(52px,13.6vw,72px)}.signature{flex-wrap:wrap}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.ticker-track{animation:none}.route-image img,.route,.btn{transition:none}}
+
+    /* Sello institucional: fotografía JPG oficial publicada por Descenso.cl; sin reinterpretar el logotipo. */
+    .descenso-stamp{display:inline-flex;align-items:center;flex-shrink:0;line-height:0;border-left:1px solid #535a4a;padding-left:18px;min-width:0}
+    .descenso-stamp img{display:block;width:153px;height:auto;object-fit:contain;max-width:100%;background:#000}
+    .identity-strip{display:flex;align-items:center;gap:17px;flex-wrap:wrap;margin-top:3px;margin-bottom:16px}
+    .identity-strip span{font:800 10px/1.5 var(--font-body);color:#aeb4a7;letter-spacing:.13em;text-transform:uppercase}
+    .identity-strip img{display:block;max-width:185px;width:100%;height:auto;object-fit:contain}
+    .signature-logo{display:inline-flex;align-items:center;padding:10px 15px;background:#000;border:1px solid #66715b;max-width:min(350px,100%)}
+    .signature-logo img{display:block;width:245px;max-width:100%;height:auto;object-fit:contain}
+    .footer-descenso{display:flex;gap:10px;align-items:center;margin-top:25px;color:#abb3a5;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+    .footer-descenso img{width:170px;height:auto;object-fit:contain;background:#000}
+    .route-duration{color:var(--acid);font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin:0 0 13px;display:block}
+    .support-line{margin-top:20px;padding:17px 20px;border:1px solid #515a3f;background:#20291b;color:#d9e5ce;font-size:12px;font-weight:700;line-height:1.7}
+    .support-line strong{color:var(--acid)}
+    @media(max-width:1040px){.descenso-stamp img{width:118px}.descenso-stamp{padding-left:12px}.header-inner{gap:12px}.nav{gap:14px}}
+    @media(max-width:760px){.descenso-stamp{padding-left:9px}.descenso-stamp img{width:92px}.header-inner{gap:7px}.brand{gap:7px}.brand-mark{font-size:22px;padding:7px 8px 6px}.brand-name{font-size:16px}.nav .btn{font-size:9px;min-height:35px;padding:6px 8px}.identity-strip img{max-width:155px}}
+    @media(max-width:400px){.descenso-stamp img{width:80px}.brand-name{font-size:15px}.nav .btn{min-height:35px;font-size:9px;padding:6px}.brand-mark{display:none}}
+  </style>
 </head>
 <body>
-
+  <div class="topline"><span>RUTAS POCO NORMALES · BICICLETAS REALES · GENTE LOCAL</span><span class="small">38° SUR / ARAUCANÍA / CHILE</span></div>
   <header class="header">
-
-    <div class="topline">
-      <span>INDEPENDIENTE · DESDE CHILE PARA EL MUNDO</span>
-      <a href="https://contacto.descenso.cl/">
-        CONTACTO ↗
-      </a>
+    <div class="container header-inner">
+      <a class="brand" href="#inicio" aria-label="Tour Delictivo, volver al inicio"><span class="brand-mark">TD//</span><span class="brand-name">TOUR<br>DELICTIVO<small>LOCAL RIDING CLUB</small></span></a><a class="descenso-stamp" href="https://descenso.cl/" target="_blank" rel="noopener noreferrer" aria-label="Descenso.cl, sitio oficial"><img src="https://descenso.cl/logo-descenso.jpg" alt="Logotipo oficial de Descenso.cl" loading="lazy" width="1920" height="420"></a>
+      <nav class="nav" aria-label="Navegación principal"><a href="#rutas">Las salidas</a><a href="#concepto">La historia</a><a href="#equipo">Qué traer</a><a class="btn" href="#reserva">RESERVA <span aria-hidden="true">↗</span></a></nav>
     </div>
-
-    <div class="brandrow">
-      <a
-        class="brand"
-        href="/"
-        aria-label="Descenso.cl — Inicio"
-      >
-        <img
-          src="/logo-descenso.jpg"
-          alt="DESCENSO.CL"
-          class="brand-logo"
-          width="1920"
-          height="420"
-        >
-      </a>
-
-      <span class="tagline">
-        DOWNHILL / ENDURO / XC / FREERIDE
-      </span>
-    </div>
-
-    <nav class="nav" aria-label="Categorías">
-      <button class="navitem active" data-filter="Todos">
-        INICIO
-      </button>
-      <button class="navitem" data-filter="Downhill">
-        DOWNHILL
-      </button>
-      <button class="navitem" data-filter="Enduro">
-        ENDURO
-      </button>
-      <button class="navitem" data-filter="XC">
-        XC
-      </button>
-      <button class="navitem" data-filter="Freeride">
-        FREERIDE
-      </button>
-      <button class="navitem" data-filter="Videos">
-        VIDEOS
-      </button>
-    </nav>
-
   </header>
-
-  <main class="container">
-
-    <div class="layout">
-
-      <div class="maincol">
-
-        <section
-          id="featured"
-          class="featured"
-          aria-label="Noticia destacada"
-        ></section>
-
-        <section class="content">
-
-          <div class="sectionbar">
-            <h2 id="section-title">
-              ÚLTIMAS NOTICIAS
-            </h2>
-            <span id="count"></span>
-          </div>
-
-          <div class="searchbar">
-            <label for="search">
-              BUSCAR HISTORIAS
-            </label>
-            <input
-              id="search"
-              type="search"
-              placeholder="Buscar noticias, riders, carreras..."
-            >
-          </div>
-
-          <div
-            id="posts"
-            class="posts"
-            aria-live="polite"
-          ></div>
-
-          <div
-            id="empty"
-            class="empty"
-            hidden
-          >
-            No encontramos publicaciones con ese filtro.
-          </div>
-
-        </section>
-
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-copy">
+        <div class="micro with-line">TOUR DELICTIVO / VILLARRICA · PUCÓN · LICÁN RAY</div>
+        <h1>NO ES<br>UN <span class="stroke">TOUR.</span><br><span class="acid">ES SALIR</span><br>A ANDAR<br>EN BICI.</h1>
+        <p class="hero-p">Trae tu bicicleta y sal a pedalear con nosotros, los locales de Descenso.cl. Caminos, cerros, historia y rincones que conocemos de toda la vida. Sin paquetes rígidos. Sin show turístico.</p>
+        <div class="hero-actions"><a href="#rutas" class="btn">Conoce las salidas <span aria-hidden="true">↘</span></a><a href="#reserva" class="btn btn-outline">Arma tu recorrido <span aria-hidden="true">↗</span></a></div>
+        <div class="identity-strip"><span>Una experiencia de</span><img src="https://descenso.cl/logo-descenso.jpg" alt="Logotipo oficial de Descenso.cl" loading="lazy" width="1920" height="420"></div><div class="hero-footnote"><span aria-hidden="true">●</span> LOCAL DE VERDAD · SOLO TRAES TU EQUIPO · EL RESTO SE CONVERSA</div>
       </div>
-
-      <aside class="sidebar">
-
-        <section class="sidepanel">
-          <h2>▶ ÚLTIMO VIDEO</h2>
-          <div id="latest-video"></div>
-        </section>
-
-        <section class="sidepanel">
-          <h2>DESCENSO.CL</h2>
-
-          <p>
-            Historias, competencias y protagonistas
-            del mountain bike. Desde Latinoamérica
-            para el mundo.
-          </p>
-
-          <a href="https://www.youtube.com/@descensocl">
-            YOUTUBE ↗
-          </a>
-
-          <a href="https://www.instagram.com/descenso.cl/">
-            INSTAGRAM ↗
-          </a>
-
-          <a href="https://www.tiktok.com/@descensocl">
-            TIKTOK ↗
-          </a>
-        </section>
-
-        <section class="sponsor-panel" aria-label="Colaboraciones comerciales">
-          <span class="sponsor-eyebrow">ESPACIO COMERCIAL · DISPONIBLE</span>
-          <h2>ANUNCIA EN DESCENSO.CL</h2>
-          <p>Tu marca frente a una comunidad de mountain bike en Chile y Latinoamérica. Consulta por patrocinios, coberturas y formatos publicitarios.</p>
-          <a href="https://contacto.descenso.cl/" aria-label="Consultar espacios publicitarios">SOLICITAR INFORMACIÓN ↗</a>
-        </section>
-
-        <section class="sidepanel">
-          <h2>CONTACTO</h2>
-
-          <p>
-            Producciones, coberturas y colaboraciones.
-          </p>
-
-          <a href="https://contacto.descenso.cl/">
-            TARJETA DIGITAL ↗
-          </a>
-        </section>
-
-      </aside>
-
-    </div>
-
-    <footer>
-
-      <strong>
-        DESCENSO<span>.CL</span>
-      </strong>
-
-      <p>
-        DOWNHILL · ENDURO · XC · FREERIDE
-      </p>
-
-      <div>
-        <a href="https://www.instagram.com/descenso.cl/">
-          INSTAGRAM ↗
-        </a>
-
-        <a href="https://www.youtube.com/@descensocl">
-          YOUTUBE ↗
-        </a>
-
-        <a href="https://www.tiktok.com/@descensocl">
-          TIKTOK ↗
-        </a>
-
-        <a href="https://contacto.descenso.cl/">
-          CONTACTO ↗
-        </a>
+      <div class="hero-media">
+        <!-- FOTO HERO: reemplaza la URL por tu foto en /fotos/portada.jpg -->
+        <img src="https://images.unsplash.com/photo-1708524709235-e054675c6be8?auto=format&fit=crop&w=1300&q=82" alt="Ciclista practicando mountain bike entre árboles" fetchpriority="high">
+        <span class="tag">100% OLD SCHOOL</span>
+        <div class="corner"><span>NO TOUR AGENCY VIBES.</span><br>SOLO BICICLETAS Y CAMINOS.<br>ARAUCANÍA, CHILE.</div>
       </div>
-
-    </footer>
-
+    </section>
+    <div class="ticker" aria-hidden="true"><div class="ticker-track"> <span>NO HAY CAMINO ÚNICO</span><span class="dot">✳</span><span>TRAE TU BICI</span><span class="dot">✳</span><span>VAMOS A DAR UNA VUELTA</span><span class="dot">✳</span><span>NO HAY CAMINO ÚNICO</span><span class="dot">✳</span><span>TRAE TU BICI</span><span class="dot">✳</span><span>VAMOS A DAR UNA VUELTA</span><span class="dot">✳</span><span>NO HAY CAMINO ÚNICO</span><span class="dot">✳</span><span>TRAE TU BICI</span><span class="dot">✳</span><span>VAMOS A DAR UNA VUELTA</span><span class="dot">✳</span><span>NO HAY CAMINO ÚNICO</span><span class="dot">✳</span><span>TRAE TU BICI</span><span class="dot">✳</span><span>VAMOS A DAR UNA VUELTA</span><span class="dot">✳</span></div></div>
+    <section class="section" id="rutas">
+      <div class="container">
+        <span class="eyebrow">/ 01 — Elige tu estilo de delincuencia</span>
+        <div class="section-head"><h2>ELIGE TU<br>DELINCUENCIA.</h2><p class="section-intro">Tres estilos de salida, infinitas variaciones. La ruta exacta la definimos juntos según tu nivel físico, tu bici, tus ganas y el tiempo disponible.</p></div>
+        <div class="route-grid">
+          <article class="route">
+            <div class="route-image"><img src="https://images.unsplash.com/photo-1782061817489-a7ccb3e81d92?auto=format&fit=crop&w=960&q=80" alt="Ciclista recorriendo una ciudad de noche" loading="lazy"><div class="route-topline"><span class="route-chip accent">Salida nocturna</span><span class="route-chip">Villarrica</span></div><div class="route-index">01.</div></div>
+            <div class="route-inner"><div class="eyebrow">La especialidad de la casa</div><h3>Delincuencia<br>semiurbana.</h3><p>La Villarrica que conoces y la que nunca has visto. Calles, pasajes, escaleras, sectores turísticos, cerro y conexiones rurales. Partimos por el cerrito durante la tarde y, apenas oscurece, nos pasamos a la ciudad. Todo en una misma sesión, con historias de Villarrica que solo cuentan los locales.</p><div class="route-duration">Duración aprox. 4 horas · Tarde/noche</div><div class="route-meta"><span>Para:</span> MTB · XC · Enduro · E-bike</div><div class="crime-label"><span>Índice de delincuencia*</span><b>9/10</b></div><div class="progress"><i style="width:90%"></i></div><button class="btn" type="button" data-book="Semiurbana nocturna">Quiero esta salida <span aria-hidden="true">↗</span></button><div class="route-footer">Tiempo y recorrido adaptables al grupo.</div></div>
+          </article>
+          <article class="route">
+            <div class="route-image"><img src="https://images.unsplash.com/photo-1642775375439-d771467a2c1c?auto=format&fit=crop&w=960&q=80" alt="Mountain biker recorriendo senderos de bosque" loading="lazy"><div class="route-topline"><span class="route-chip">Bosques y tierra</span><span class="route-chip">Pucón / Villarrica</span></div><div class="route-index">02.</div></div>
+            <div class="route-inner"><div class="eyebrow">Un poco de cada cosa</div><h3>Delincuencia<br>volcánica.</h3><p>Bosques, terreno volcánico, caminos de tierra y senderos inesperados. Un pedaleo mixto que combina exploración, subidas, bajadas e historias del territorio según lo que quieras hacer.</p><div class="route-duration">Duración referencial: 4 horas</div><div class="route-meta"><span>Para:</span> MTB · XC · Enduro · E-bike</div><div class="crime-label"><span>Índice de delincuencia*</span><b>8/10</b></div><div class="progress"><i style="width:80%"></i></div><button class="btn" type="button" data-book="Volcánica">Quiero esta salida <span aria-hidden="true">↗</span></button><div class="route-footer">Tiempo y recorrido adaptables al grupo.</div></div>
+          </article>
+          <article class="route">
+            <div class="route-image"><img src="https://images.unsplash.com/photo-1779546112170-903a4e8df1c4?auto=format&fit=crop&w=960&q=80" alt="Ciclista por un camino de ripio rodeado de bosque" loading="lazy"><div class="route-topline"><span class="route-chip">Strade Bianche</span><span class="route-chip">Licán Ray + zona</span></div><div class="route-index">03.</div></div>
+            <div class="route-inner"><div class="eyebrow">El placer de perderse un rato</div><h3>Delincuencia<br>rural.</h3><p>Nuestra versión de la Strade Bianche: caminos secundarios, ripio y rincones autóctonos. Evitamos las vías de tránsito pesado para descubrir el territorio con otra calma y conocer la historia de sus rincones más auténticos.</p><div class="route-duration">Duración referencial: 4 horas</div><div class="route-meta"><span>Para:</span> Gravel · XC</div><div class="crime-label"><span>Índice de delincuencia*</span><b>4/10</b></div><div class="progress"><i style="width:40%"></i></div><button class="btn" type="button" data-book="Rural / Strade Bianche">Quiero esta salida <span aria-hidden="true">↗</span></button><div class="route-footer">Tiempo y recorrido adaptables al grupo.</div></div>
+          </article>
+        </div>
+        <p class="note">* El índice de delincuencia mide lo poco convencional de la experiencia. <strong>No mide riesgo físico ni supone infracciones.</strong> Cada salida se ajusta a la capacidad de los participantes; las rutas respetan los accesos autorizados.</p>
+      </div>
+    </section>
+    <section class="provisions" id="equipo">
+      <div class="container">
+        <span class="eyebrow">/ 02 — Importante antes de salir</span>
+        <div class="provisions-head"><h2>TRAES TU<br>BICICLETA.<br>PUNTO.</h2><p class="provisions-intro">Esto no es arriendo de bicicletas ni una excursión con equipo incluido. <strong>La experiencia es salir a pedalear con nosotros</strong>, por un recorrido que acordamos juntos.</p></div>
+        <div class="essentials"><div class="essential"><div class="num">01</div><h3>Tu bici + tu equipo</h3><p>Bicicleta en buen estado, casco, vestimenta, hidratación y repuestos básicos. Para la salida nocturna necesitas luces adecuadas y elementos reflectantes.</p></div><div class="essential"><div class="num">02</div><h3>Tu nivel manda</h3><p>Cuéntanos qué bicicleta tienes, cómo andas y qué te gusta. Ajustamos distancia, desnivel, terreno y dificultad de la salida.</p></div><div class="essential"><div class="num">03</div><h3>Coordinamos juntos</h3><p>Fecha, punto de partida, duración, número de personas y precio se confirman antes de salir. No hay un circuito único e inamovible.</p></div></div>
+        <div class="support-line"><strong>INCLUIDO EN TODAS LAS SALIDAS:</strong> vehículo de apoyo, seguridad logística y abastecimiento. Nos acompaña durante la ruta y coordina puntos de encuentro en los sectores accesibles. Además, compartimos historias y datos locales a lo largo del recorrido.</div><div class="warning">SIN SORPRESAS: no suministramos bicicleta, casco ni equipo. La confirmación está sujeta a compatibilidad del recorrido, condiciones climáticas, seguridad y disponibilidad.</div>
+      </div>
+    </section>
+    <section class="about" id="concepto">
+      <div class="about-photo"><img src="https://images.unsplash.com/photo-1708524709235-e054675c6be8?auto=format&fit=crop&w=1200&q=75" alt="Ciclista en bicicleta de montaña en sendero de bosque" loading="lazy"><div class="sixty">60+</div></div>
+      <div class="about-text"><div class="eyebrow">/ 03 — De aquí, de siempre</div><h2>LOCALAZOS.<br><span>DE VERDAD.</span></h2><p>Nacimos y crecimos acá. Venimos de una familia de ciclistas que lleva <strong>más de 60 años</strong> recorriendo los caminos y senderos de Villarrica y sus alrededores, generación tras generación.</p><p>Estos caminos no los conocimos en una app. Son las vueltas que hacemos desde chicos, las conexiones que te muestra un amigo y esos senderos que parecen secretos hasta que alguien te lleva.</p><p class="standout">No vas siguiendo a un guía cualquiera. Vas a salir a andar en bicicleta con nosotros: <strong>Descenso.cl</strong>.</p><div class="signature"><a class="signature-logo" href="https://descenso.cl/" target="_blank" rel="noopener noreferrer" aria-label="Visitar Descenso.cl"><img src="https://descenso.cl/logo-descenso.jpg" alt="Logotipo oficial de Descenso.cl" loading="lazy" width="1920" height="420"></a><div class="descriptor">VEN A ANDAR.<br>Villarrica · Chile</div></div></div>
+    </section>
+    <section class="manifesto"><div class="container manifesto-inner"><h2>LA RUTA<br>NO ESTÁ<br><span>ESCRITA.</span></h2><div><p>¿Más cerro? Vamos al cerro. ¿Prefieres gravel y caminos rurales? También. ¿Trajiste tu enduro y quieres bajadas? Armamos algo en esa dirección.</p><p><strong>Los tres tours son el punto de partida, no una jaula.</strong> El recorrido final se conversa contigo y se ajusta a tu capacidad, equipamiento y preferencias, siempre por zonas habilitadas o con permiso de paso.</p></div></div></section>
+    <section class="booking" id="reserva">
+      <div class="container booking-layout"><div class="booking-side"><div class="eyebrow">/ 04 — Armemos una salida</div><h2>¿VAMOS<br>A <span>DARLE?</span></h2><p>No necesitas comprar un paquete armado. Cuéntanos qué quieres pedalear, qué bicicleta tienes y cuándo vienes. Las salidas duran unas 4 horas como referencia y siempre las adaptamos a tu nivel. Hay vehículo de apoyo y abastecimiento. Conversamos precio y detalles antes de confirmar.</p><p class="quote">SIN PRECIOS INVENTADOS. SIN EQUIPAMIENTO INCLUIDO. SIN VENDERTE UNA EXPERIENCIA QUE NO QUIERES HACER.</p></div>
+        <form class="booking-form" id="bookingForm" novalidate>
+          <h3 class="form-title">Pide tu salida //</h3><p class="form-sub">Salidas de unas 4 horas, ajustables a tu nivel. Incluyen vehículo de apoyo y abastecimiento e historias de la zona. No se cobra ni reserva automáticamente: esto inicia una conversación para coordinar.</p>
+          <div class="field"><label for="route">¿Qué delincuencia te tinca? <span class="required">*</span></label><select id="route" name="route" required><option value="Semiurbana nocturna">01 — Semiurbana nocturna</option><option value="Volcánica">02 — Volcánica</option><option value="Rural / Strade Bianche">03 — Rural / Strade Bianche</option><option value="Quiero que la armemos juntos">Sorpréndeme / armémosla juntos</option></select></div>
+          <div class="field-grid"><div class="field"><label for="name">Tu nombre <span class="required">*</span></label><input id="name" name="name" placeholder="¿Cómo te llamas?" maxlength="80" autocomplete="name" required></div><div class="field"><label for="date">Fecha ideal</label><input id="date" name="date" type="date"></div></div>
+          <div class="field-grid"><div class="field"><label for="bike">Tu bicicleta <span class="required">*</span></label><select id="bike" name="bike" required><option value="">Elige una opción</option><option>MTB / XC</option><option>Enduro / Doble suspensión</option><option>E-bike</option><option>Gravel</option><option>Otra / a conversar</option></select></div><div class="field"><label for="level">Tu nivel físico <span class="required">*</span></label><select id="level" name="level" required><option value="">Elige una opción</option><option>Tranquilo / pedaleo ocasional</option><option>Intermedio / pedaleo habitual</option><option>Alto / muchas horas en bici</option><option>No sé / lo conversamos</option></select></div></div>
+          <div class="field-grid"><div class="field"><label for="people">¿Cuántos van?</label><select id="people" name="people"><option>1 persona</option><option>2 personas</option><option>3 personas</option><option>4 personas</option><option>5 o más (a conversar)</option></select></div><div class="field"><label for="length">¿Cuánto quieres pedalear?</label><select id="length" name="length"><option>Unas 4 horas (recomendado)</option><option>2 a 3 horas (a conversar)</option><option>Más de 4 horas (a conversar)</option><option>Prefiero definirlo juntos</option></select></div></div>
+          <div class="field"><label for="preferences">¿Qué te gustaría hacer?</label><textarea id="preferences" name="preferences" maxlength="650" placeholder="Más bajadas, más gravel, conocer la ciudad, salir al cerro, evitar mucho desnivel... lo que quieras."></textarea></div>
+          <label class="checkline"><input type="checkbox" id="equipment" required><span>Confirmo que llevaré mi propia bicicleta, casco y equipo adecuado; si elijo la nocturna, también luces y elementos reflectantes. <span class="required">*</span></span></label>
+          <button type="submit" class="btn" id="submitBtn">Preparar mi solicitud <span aria-hidden="true">↗</span></button>
+          <p class="form-info" id="formModeText">La solicitud se prepara para enviarla por Instagram. Cuando se configure el WhatsApp de contacto, podrá enviarse directo por ahí. También puedes escribirnos por <a href="https://www.instagram.com/descenso.cl/" target="_blank" rel="noopener noreferrer">@descenso.cl</a>.</p>
+          <div class="request-result" id="result" aria-live="polite"><strong>LISTO. AHORA ESCRÍBENOS.</strong><p>Tu solicitud está armada. Cópiala y pégala en un mensaje directo a nuestra cuenta. No se ha enviado automáticamente.</p><label class="sr-only" for="requestText">Solicitud preparada</label><textarea id="requestText" readonly></textarea><div class="result-actions"><button type="button" id="copyRequest">Copiar mensaje</button><a href="https://www.instagram.com/descenso.cl/" target="_blank" rel="noopener noreferrer">Abrir Instagram ↗</a></div></div>
+        </form>
+      </div>
+    </section>
   </main>
-
-  <dialog id="article">
-    <button id="close" class="close">
-      ✕ CERRAR
-    </button>
-    <div id="article-body"></div>
-  </dialog>
-
-  <script src="/script.js" defer></script>
-  <script src="/analytics.js" defer></script>
-
+  <footer class="footer"><div class="container"><div class="footer-inner"><a class="brand" href="#inicio"><span class="brand-mark">TD//</span><span class="brand-name">TOUR<br>DELICTIVO<small>LOCAL RIDING CLUB</small></span></a><div class="footer-links"><a href="#rutas">Las rutas</a><a href="#equipo">Qué traer</a><a href="#reserva">Coordinar salida</a><a href="https://www.instagram.com/descenso.cl/" target="_blank" rel="noopener noreferrer">Instagram ↗</a></div></div><div class="footer-descenso"><span>Una salida con</span><a href="https://descenso.cl/" target="_blank" rel="noopener noreferrer"><img src="https://descenso.cl/logo-descenso.jpg" alt="Logotipo oficial de Descenso.cl" loading="lazy" width="1920" height="420"></a></div><div class="footer-note">Villarrica · Pucón · Licán Ray, Región de La Araucanía, Chile. Salidas personalizadas sujetas a coordinación, clima y seguridad. El índice de delincuencia es un concepto humorístico, no una medida de riesgo ni invitación a infringir la ley.<br>Fotos de referencia, no muestran los recorridos reales. Fotografías provisionales de <a href="https://unsplash.com/photos/a-man-riding-a-bike-through-a-forest-filled-with-trees-o3t40ebLfac" target="_blank" rel="noopener noreferrer">Tim Foster</a>, <a href="https://unsplash.com/photos/cyclist-riding-a-bike-at-night-with-motion-blur-79QLHR5ZY0o" target="_blank" rel="noopener noreferrer">Konrad Nowacki</a>, <a href="https://unsplash.com/photos/a-man-riding-a-mountain-bike-through-a-forest-2lHhPpblwFk" target="_blank" rel="noopener noreferrer">Sebastian Marx</a> y <a href="https://unsplash.com/photos/bikepacker-rides-on-a-foggy-gravel-road-through-evergreen-forest-9-QGHrFhP4E" target="_blank" rel="noopener noreferrer">Patrick Hendry</a>, vía Unsplash.</div></div></footer>
+  <a class="floating-reserve" href="#reserva" aria-label="Reserva tu salida: ir al formulario para coordinar"><span>RESERVA</span><span aria-hidden="true">↗</span></a>
+  <script>
+    /* CONFIGURACIÓN: cuando tengas número, ingrésalo SIN +, espacios ni guiones. Ejemplo: '569XXXXXXXX'. */
+    const WHATSAPP_NUMBER = '';
+    const INSTAGRAM_URL = 'https://www.instagram.com/descenso.cl/';
+    const routeSelect = document.getElementById('route');
+    const form = document.getElementById('bookingForm');
+    const result = document.getElementById('result');
+    const requestText = document.getElementById('requestText');
+    document.querySelectorAll('[data-book]').forEach(btn => btn.addEventListener('click', () => {
+      routeSelect.value = btn.dataset.book;
+      result.classList.remove('visible');
+      document.getElementById('reserva').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+      setTimeout(() => routeSelect.focus({preventScroll:true}), 450);
+    }));
+    if (WHATSAPP_NUMBER && /^\d{10,15}$/.test(WHATSAPP_NUMBER)) {
+      document.getElementById('submitBtn').innerHTML = 'Solicitar por WhatsApp <span aria-hidden="true">↗</span>';
+      document.getElementById('formModeText').textContent = 'Al enviar, abrirás WhatsApp con la solicitud lista para coordinar; no es una reserva confirmada.';
+    }
+    const today = new Date();
+    const localToday = [today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+    document.getElementById('date').min=localToday;
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const v = id => document.getElementById(id).value.trim();
+      const date = v('date') ? v('date').split('-').reverse().join('/') : 'Por coordinar';
+      const msg = ['¡Hola! Quiero coordinar una salida de Tour Delictivo.', '',
+        'Mi nombre: '+v('name'), 'Ruta: '+v('route'), 'Fecha ideal: '+date,
+        'Bicicleta: '+v('bike'), 'Nivel físico: '+v('level'),
+        'Personas: '+v('people'), 'Duración: '+v('length'),
+        'Preferencias: '+(v('preferences') || 'Lo conversamos'), '',
+        'Llevo mi propia bicicleta, casco y equipo; para salida nocturna, luces y reflectantes.',
+        'Entiendo que la salida incluye vehículo de apoyo y abastecimiento. ¿Podemos conversar el recorrido, disponibilidad y precio?'].join('\n');
+      if (WHATSAPP_NUMBER && /^\d{10,15}$/.test(WHATSAPP_NUMBER)) {
+        window.open('https://wa.me/'+WHATSAPP_NUMBER+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
+      } else {
+        requestText.value = msg;
+        result.classList.add('visible');
+        result.scrollIntoView({behavior:'smooth',block:'center'});
+      }
+    });
+    document.getElementById('copyRequest').addEventListener('click', async function(){
+      try { await navigator.clipboard.writeText(requestText.value); this.textContent='¡Copiado! ✓'; }
+      catch(err) { requestText.focus(); requestText.select(); this.textContent='Seleccionado: copia el texto'; }
+    });
+  </script>
 </body>
 </html>
