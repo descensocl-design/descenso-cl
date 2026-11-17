@@ -68,6 +68,23 @@
 @media(max-width:900px){.vertical-ads{grid-column:1}.vertical-ad-link{max-width:400px;aspect-ratio:290/410}.vertical-ad-heading{font-size:36px}}
 @media(max-width:600px){.vertical-ads{grid-column:auto}.vertical-ad-link{margin-inline:auto;width:100%;max-width:400px;min-height:390px}.vertical-ad-heading{font-size:clamp(34px,9vw,44px)}.vertical-ad-price{font-size:22px}.vertical-ad-label,.vertical-ad-disclaimer{max-width:400px;margin-left:auto;margin-right:auto}}
 
+
+/* Bike Pucón Tours — anuncio vertical de e-MTB y tours con fotografía original del sitio autorizado. */
+.bikepucon-ad-link{display:flex;flex-direction:column;justify-content:space-between;position:relative;isolation:isolate;overflow:hidden;aspect-ratio:290/415;min-height:404px;border:1px solid #4c473d;background:#1c2524;color:#fff;transition:transform .2s,border-color .2s}
+.bikepucon-ad-link:hover,.bikepucon-ad-link:focus-visible{transform:translateY(-2px);border-color:#ed5f05;outline-offset:3px}
+.bikepucon-ad-link::before{content:"";position:absolute;inset:0;z-index:-2;background:url('https://images.booqablecdn.com/w840/assets/6b202436-da91-43c7-9abb-27c1d220fd7e/x5vxu5fri4zj70u1edney6yz(2).baja6-ad9be5fc90b185414dc0d2a31dc458333183b2dfd9cec794fe5158616c4246a2.jpg') 52% center/cover no-repeat}
+.bikepucon-ad-link::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(to bottom,rgba(0,0,0,.08) 0%,rgba(0,0,0,.06) 28%,rgba(0,0,0,.25) 46%,rgba(0,0,0,.93) 100%)}
+.bikepucon-ad-logo{display:flex;align-items:center;justify-content:center;min-height:96px;background:#fff;color:#151515;padding:5px 15px}
+.bikepucon-ad-logo img{display:block;max-width:100%;width:auto;max-height:92px;height:auto;object-fit:contain}
+.bikepucon-ad-copy{display:flex;flex-direction:column;gap:10px;padding:20px 19px 19px}
+.bikepucon-ad-eyebrow{font:900 10px/1.1 Arial,Helvetica,sans-serif;letter-spacing:1.5px;color:#ffc594}
+.bikepucon-ad-title{font:1000 36px/.92 Arial,Helvetica,sans-serif;letter-spacing:-1.6px;text-transform:uppercase;text-shadow:0 2px 12px #000}
+.bikepucon-ad-title strong{color:#f06a09}
+.bikepucon-ad-detail{font:900 10px/1.55 Arial,Helvetica,sans-serif;letter-spacing:.9px;color:#f6f0e7}
+.bikepucon-ad-cta{align-self:flex-start;display:inline-block;background:#eb5b09;color:#fff;padding:12px 15px;font:900 11px/1 Arial,Helvetica,sans-serif;letter-spacing:.5px;text-transform:uppercase}
+@media(max-width:900px){.bikepucon-ad-link{max-width:400px}}
+@media(max-width:600px){.bikepucon-ad-link{width:100%;max-width:400px;margin-inline:auto;min-height:420px}.bikepucon-ad-title{font-size:clamp(36px,10vw,47px)}}
+
 </style>
 </head>
 <body>
@@ -191,6 +208,19 @@
       <aside class="sidebar">
 
         <section class="vertical-ads" aria-label="Publicidad vertical">
+          <div class="vertical-ad bikepucon-ad">
+            <span class="vertical-ad-label">ESPACIO PUBLICITARIO · BIKE PUCÓN</span>
+            <a class="bikepucon-ad-link" href="https://bikepucon.com/" target="_blank" rel="noopener noreferrer" aria-label="Bike Pucón Tours: arriendo de e-MTB CUBE, tours guiados y rutas autoguiadas en Pucón. Ver servicios y reservas">
+              <span class="bikepucon-ad-logo"><img src="https://images.booqablecdn.com/w640/assets/6b202436-da91-43c7-9abb-27c1d220fd7e/dp92q9ct9di6y70gu2fj396v(2).ChatGPTImage4sept2026084918-1200b5552c212ac3b40bb5d8052ab6b353f7ab6ee7b95c2c70314506a500e35a.png" alt="Bike Pucón Tours" loading="lazy" decoding="async"></span>
+              <span class="bikepucon-ad-copy">
+                <span class="bikepucon-ad-eyebrow">EXPERIENCIAS EN EL VOLCÁN VILLARRICA</span>
+                <span class="bikepucon-ad-title">VIVE PUCÓN<br>EN <strong>E-MTB</strong></span>
+                <span class="bikepucon-ad-detail">RENTAL CUBE · TOURS GUIADOS<br>RUTAS AUTOGUIADAS</span>
+                <span class="bikepucon-ad-cta">CONOCE BIKE PUCÓN ↗</span>
+              </span>
+            </a>
+          </div>
+
           <div class="vertical-ad">
             <span class="vertical-ad-label">ESPACIO PUBLICITARIO · PARCELAS EN VENTA</span>
             <a class="vertical-ad-link" href="https://araucarias-liucura.pages.dev/" target="_blank" rel="noopener noreferrer" aria-label="Conocer parcelas de 5.000 metros cuadrados en Río Grande, Lonquimay, desde cinco millones novecientos noventa mil pesos">
