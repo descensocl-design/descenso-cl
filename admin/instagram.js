@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const $=id=>document.getElementById(id);
-  let token='',posts=[],records=new Map(),selected=null,connected=false,busy=false,filter='pending';
+  let token='',posts=[],records=new Map(),selected=null,connected=false,busy=false,filter='pending',uncertainPublish=false;
   const slugify=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,85);
   const slug=p=>(p.permalink||('/noticias/'+p.date+'-'+slugify(p.title)+'/')).split('/').filter(Boolean).pop();
   const path=p=>p.permalink||('/noticias/'+slug(p)+'/');
@@ -14,9 +14,21 @@
     return [String(p.title||'').trim(),'',intro,'','Lee la noticia completa en DESCENSO.CL. Enlace en la biografía.','','#DescensoCL #MountainBike #'+(category==='DOWNHILL'?'Downhill':category==='ENDURO'?'Enduro':'MTB')].join('\n').slice(0,2200);
   }
   async function api(init={}){
-    const res=await fetch('/api/instagram',{...init,cache:'no-store',headers:{authorization:'Bearer '+token,...(init.headers||{})}});
-    let data;try{data=await res.json()}catch{throw Error('El servidor no respondió correctamente');}
-    if(!res.ok)throw Error(data.error||'Error de conexión');
+    let res;
+    try{
+      res=await fetch('/api/instagram',{...init,cache:'no-store',headers:{authorization:'Bearer '+token,...(init.headers||{})}});
+    }catch(error){
+      throw Error('No fue posible conectar con el servidor. No reintentes publicar antes de comprobar el estado en Instagram.');
+    }
+    const raw=await res.text();
+    let data;
+    try{data=JSON.parse(raw)}catch{
+      const ray=(res.headers.get('cf-ray')||'').split('-')[0].slice(0,20);
+      const status='HTTP '+res.status;
+      console.error('Instagram: respuesta no JSON del servidor',{status:res.status,contentType:res.headers.get('content-type'),ray,bodyStart:raw.slice(0,160)});
+      throw Error('Cloudflare devolvió una respuesta inesperada ('+status+(ray?', ref. '+ray:'')+'). No vuelvas a publicar todavía: comprueba el estado en Instagram y actualiza las propuestas.');
+    }
+    if(!res.ok)throw Error(data.error||('Error del servidor (HTTP '+res.status+')'));
     return data;
   }
   function currentRecord(){return selected?records.get(slug(selected)):null;}
@@ -53,8 +65,8 @@
     const record=currentRecord(),status=record?.status||'prepared';
     const published=status==='published',processing=status==='processing',dismissed=status==='dismissed';
     $('save').disabled=busy||!selected||published||processing||dismissed;
-    $('publish').disabled=busy||!selected||!connected||published||dismissed;
-    $('publish').textContent=processing?'COMPLETAR PUBLICACIÓN':published?'YA PUBLICADA':'APROBAR Y PUBLICAR';
+    $('publish').disabled=busy||uncertainPublish||!selected||!connected||published||dismissed;
+    $('publish').textContent=uncertainPublish?'VERIFICAR ESTADO ANTES':processing?'COMPLETAR PUBLICACIÓN':published?'YA PUBLICADA':'APROBAR Y PUBLICAR';
     $('dismiss').disabled=busy||!selected||published||processing;
     $('dismiss').textContent=dismissed?'RESTAURAR PROPUESTA':'DESCARTAR PROPUESTA';
     $('caption').disabled=published||processing||dismissed;
@@ -151,7 +163,7 @@
   });
   $('logout').addEventListener('click',()=>{token='';posts=[];records.clear();selected=null;filter='pending';$('workspace').hidden=true;$('access-form').hidden=false;info('Sesión cerrada.');});
   document.querySelectorAll('.insta-filters [data-filter]').forEach(button=>button.addEventListener('click',()=>setFilter(button.dataset.filter)));
-  $('reload-news').addEventListener('click',async()=>{try{info('Actualizando propuestas y estados…');await refresh();info('Propuestas actualizadas. No se ha publicado nada.')}catch(error){info(error.message)}});
+  $('reload-news').addEventListener('click',async()=>{try{info('Actualizando propuestas y estados…');await refresh();uncertainPublish=false;setButtons();info('Estados consultados. Comprueba también la cuenta de Instagram antes de volver a publicar.')}catch(error){info(error.message)}});
   $('dismiss').addEventListener('click',async()=>{
     if(!selected||busy)return;
     const id=slug(selected),discarded=currentRecord()?.status==='dismissed';
@@ -167,7 +179,7 @@
   $('caption').addEventListener('input',updatePreview);
   $('image-url').addEventListener('input',updatePreview);
   $('save').addEventListener('click',async()=>{busy=true;setButtons();try{await save()}catch(e){state(e.message)}finally{busy=false;setButtons()}});
-  $('publish').addEventListener('click',async()=>{busy=true;setButtons();try{await beginPublish()}catch(e){state(e.message)}finally{busy=false;setButtons()}});
+  $('publish').addEventListener('click',async()=>{busy=true;setButtons();try{await beginPublish()}catch(e){uncertainPublish=true;state(e.message+' · Publicación detenida. Presiona ACTUALIZAR NOTICIAS para consultar el estado antes de cualquier nuevo intento.')}finally{busy=false;setButtons()}});
   $('test-meta').addEventListener('click',async()=>{
     const b=$('test-meta');b.disabled=true;info('Consultando la API de Meta sin publicar…');
     try{const verified=await (async()=>{const res=await fetch('/api/instagram?check=1',{headers:{authorization:'Bearer '+token},cache:'no-store'});const data=await res.json();if(!res.ok)throw Error(data.error||'Meta no respondió');return data})();
