@@ -1,7 +1,24 @@
 {
-  "total": 11,
+  "total": 12,
   "pending": 0,
   "articles": [
+    {
+      "title": "Cómo unas vacas terminaron cambiando las reglas del enduro",
+      "source_url": "https://www.pinkbike.com/news/dont-cut-the-course-at-enduro-2-races.html",
+      "permalink": "/noticias/2026-11-16-como-unas-vacas-terminaron-cambiando-las-reglas-del-enduro/",
+      "photos_registered": 19,
+      "video_registered": false,
+      "video_players": 0,
+      "source_media_review": {
+        "date": "2026-11-16",
+        "source_checked": "https://www.pinkbike.com/news/dont-cut-the-course-at-enduro-2-races.html",
+        "kind": "original_editorial_gallery",
+        "image_count": 19,
+        "notes": "19 imágenes editoriales enlazadas desde la publicación original de Enduro2 en Pinkbike."
+      },
+      "issues": [],
+      "status": "sin_pendientes_detectados"
+    },
     {
       "title": "¿Más peso para bajar más rápido? La paradoja que está cambiando el downhill",
       "source_url": "https://www.pinkbike.com/news/nerding-out-why-extra-weight-is-sometimes-good-sometimes-bad.html",
