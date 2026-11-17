@@ -31,7 +31,7 @@ async function meta(url,params,token){
  const init={method:params?"POST":"GET",headers:{"authorization":"Bearer "+token}};
  if(params){init.headers["content-type"]="application/x-www-form-urlencoded";init.body=new URLSearchParams(params).toString()}
  const res=await fetch(url,init);let data={};try{data=await res.json()}catch{}
- if(!res.ok||data.error)throw new Error("Meta: "+String(data.error?.message||"Error HTTP "+res.status).slice(0,300));
+ if(!res.ok||data.error){const code=Number(data.error?.code||0),subcode=Number(data.error?.error_subcode||0);const details=code?" [Meta "+code+(subcode?"/"+subcode:"")+"]":"";throw new Error("Meta: "+String(data.error?.message||"Error HTTP "+res.status).slice(0,260)+details);}
  return data;
 }
 export async function onRequestGet({request,env}){
