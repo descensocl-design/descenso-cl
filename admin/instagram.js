@@ -187,7 +187,7 @@
       info('Identidad de Instagram verificada. No se publicó contenido.');
     }catch(error){
       const message=String(error.message||'Error desconocido');
-      const tokenIssue=/\\b190(?:\\/\\d+)?\\b|access token|token de acceso|session|sesión|expir|revoc|invalidat|contraseña|password|oauth/i.test(message);
+      const tokenIssue=/190|access token|token de acceso|session|sesión|expir|revoc|invalidat|contraseña|password|oauth/i.test(message);
       const notice=tokenIssue?'Meta rechazó la autorización. Es probable que debas generar un token nuevo y actualizar INSTAGRAM_ACCESS_TOKEN en Cloudflare.':'No se pudo verificar Meta. Revisa el mensaje técnico de abajo.';
       $('connection-state').textContent=(tokenIssue?'META · AUTORIZACIÓN CADUCADA O REVOCADA':'META · CONEXIÓN NO VERIFICADA')+' — '+message.slice(0,180);
       info(notice+' Detalle: '+message);
