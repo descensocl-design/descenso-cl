@@ -18,20 +18,35 @@
   <link rel="stylesheet" href="/styles.css">
 
 <style>
-/* TOUR DELICTIVO — Banner en portada, aislado de las noticias */
-.td-home-promo{margin:-14px 0 38px;}
-.td-home-promo-link{display:block;overflow:hidden;border:1px solid #34343a;background:#080a08;transition:border-color .2s,filter .2s;}
-.td-home-promo-link:hover,.td-home-promo-link:focus-visible{border-color:#d9ff32;filter:brightness(1.07);outline-offset:3px;}
-.td-home-promo-link>img{display:block;width:100%;height:auto;}
-.td-home-promo-mobile{display:none;}
-@media(max-width:700px){
-.td-home-promo{margin:-16px 0 32px;}
-.td-home-promo-link>img{width:100%;height:205px;object-fit:cover;object-position:left center;}
-.td-home-promo-mobile{display:flex;flex-direction:column;align-items:flex-start;padding:17px 20px 19px;background:#0b0d09;gap:6px;}
-.td-home-promo-mobile strong{font-size:clamp(25px,8vw,36px);line-height:1;letter-spacing:-.05em;color:white;font-weight:900;}
-.td-home-promo-mobile small{font-size:10px;font-weight:900;letter-spacing:1.2px;color:#dfff38;}
-.td-home-promo-mobile em{align-self:flex-end;margin-top:4px;font-style:normal;font-size:11px;font-weight:900;letter-spacing:1px;color:#0a0a0a;background:#dfff38;padding:10px 14px;}
+/* TOUR DELICTIVO — franja publicitaria clásica, antes del bloque editorial */
+.td-home-promo{margin:26px 0 0;}
+.td-home-promo-kicker{display:block;margin:0 0 7px;color:#a8a8aa;font:800 9px/1.1 Arial,Helvetica,sans-serif;letter-spacing:1.45px;text-transform:uppercase;}
+.td-home-promo-link{display:grid;grid-template-columns:32% minmax(0,1fr) auto;align-items:center;position:relative;min-height:124px;overflow:hidden;border:1px solid #393b34;background:#0b0d0a;color:#f7f7f5;transition:border-color .18s,background .18s;}
+.td-home-promo-link:hover,.td-home-promo-link:focus-visible{border-color:#dfff38;background:#10130d;outline-offset:3px;}
+.td-home-promo-photo{align-self:stretch;display:block;background-image:linear-gradient(90deg,transparent 72%,#0b0d0a),url('/assets/tour-delictivo-banner.webp');background-repeat:no-repeat;background-size:auto,auto 360px;background-position:center,23% 82%;}
+.td-home-promo-copy{min-width:0;display:flex;flex-direction:column;justify-content:center;padding:17px 15px 17px 24px;gap:9px;}
+.td-home-promo-brand{display:flex;align-items:center;gap:11px;font:900 clamp(20px,2.7vw,35px)/1 Arial,Helvetica,sans-serif;letter-spacing:-1.2px;text-transform:uppercase;}
+.td-home-promo-brand b{display:inline-block;flex-shrink:0;padding:7px 9px 6px;background:#dfff38;color:#080908;font-size:clamp(16px,2vw,25px);letter-spacing:-1px;}
+.td-home-promo-description{display:block;color:#c4c8bd;font:800 10px/1.55 Arial,Helvetica,sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.td-home-promo-description i{font-style:normal;color:#a7a9a3;margin-left:6px;}
+.td-home-promo-cta{display:inline-block;align-self:center;margin-right:24px;border:1px solid #dfff38;padding:13px 18px;color:#dfff38;white-space:nowrap;font:900 11px/1 Arial,Helvetica,sans-serif;letter-spacing:1px;text-transform:uppercase;}
+@media(max-width:900px){
+.td-home-promo-link{grid-template-columns:30% minmax(0,1fr) auto;}
+.td-home-promo-copy{padding-left:15px;gap:7px;}
+.td-home-promo-description i{display:none;}
+.td-home-promo-cta{padding:12px;margin-right:13px;}
 }
+@media(max-width:600px){
+.td-home-promo{margin:17px 0 0;}
+.td-home-promo-link{grid-template-columns:29% minmax(0,1fr);height:116px;min-height:0;}
+.td-home-promo-photo{background-size:auto,auto 245px;background-position:center,31% 80%;}
+.td-home-promo-copy{padding:13px 9px 32px 13px;gap:7px;}
+.td-home-promo-brand{gap:7px;font-size:clamp(17px,4.5vw,23px);letter-spacing:-.65px;}
+.td-home-promo-brand b{padding:5px 6px;font-size:17px;letter-spacing:-.7px;}
+.td-home-promo-description{font-size:9px;letter-spacing:.3px;line-height:1.25;}
+.td-home-promo-cta{position:absolute;bottom:9px;right:13px;margin:0;border:0;padding:0;font-size:10px;letter-spacing:.5px;}
+}
+@media(max-width:380px){.td-home-promo-brand{font-size:17px;gap:5px}.td-home-promo-brand b{font-size:15px}.td-home-promo-copy{padding-left:9px}}
 </style>
 </head>
 <body>
@@ -90,6 +105,20 @@
 
   <main class="container">
 
+    <section class="td-home-promo" aria-label="Promoción Tour Delictivo">
+      <span class="td-home-promo-kicker">ESPACIO PROMOCIONAL · SALIDAS EN BICICLETA</span>
+      <a class="td-home-promo-link" href="https://tour-delictivo.pages.dev/" aria-label="Conocer Tour Delictivo: salidas en bicicleta con locales en Villarrica, Pucón y Licán Ray">
+        <span class="td-home-promo-photo" aria-hidden="true"></span>
+        <span class="td-home-promo-copy">
+          <span class="td-home-promo-brand"><b>TD//</b> TOUR DELICTIVO</span>
+          <span class="td-home-promo-description">SAL A RODAR CON LOCALES <i>· VILLARRICA · PUCÓN · LICÁN RAY</i></span>
+        </span>
+        <span class="td-home-promo-cta" aria-hidden="true">VER TOURS ↗</span>
+      </a>
+    </section>
+
+
+
     <div class="layout">
 
       <div class="maincol">
@@ -100,15 +129,7 @@
           aria-label="Noticia destacada"
         ></section>
 
-        <section class="td-home-promo" aria-label="Tour Delictivo, recorridos en bicicleta con locales">
-          <a class="td-home-promo-link" href="https://tour-delictivo.pages.dev/" aria-label="Ver Tour Delictivo: paseos en bicicleta con locales por Villarrica, Pucón y Licán Ray">
-            <img src="/assets/tour-delictivo-banner.webp" alt="Tour Delictivo. Sal a rodar con locales en Villarrica, Pucón y Licán Ray. Ver tours." width="1700" height="567" loading="lazy" decoding="async">
-            <span class="td-home-promo-mobile" aria-hidden="true"><strong>TOUR DELICTIVO</strong><small>SAL A RODAR CON LOCALES</small><em>VER TOURS ↗</em></span>
-          </a>
-        </section>
-
-
-        <section class="content">
+<section class="content">
 
           <div class="sectionbar">
             <h2 id="section-title">
