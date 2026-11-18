@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const $=id=>document.getElementById(id);
-  let token='',posts=[],records=new Map(),selected=null,connected=false,busy=false,filter='pending',uncertainPublish=false;
+  let token='',posts=[],records=new Map(),selected=null,connected=false,busy=false,filter='pending',uncertainPublish=false,sourcePhotos=[],layoutIndex=0;
   const slugify=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,85);
   const slug=p=>(p.permalink||('/noticias/'+p.date+'-'+slugify(p.title)+'/')).split('/').filter(Boolean).pop();
   const path=p=>p.permalink||('/noticias/'+slug(p)+'/');
@@ -73,6 +73,8 @@
     $('image-url').disabled=published||processing||dismissed;
     $('image-rights').disabled=published||processing||dismissed;
     $('image-upload').disabled=busy||published||processing||dismissed;
+    $('generate-cover').disabled=busy||published||processing||dismissed;
+    $('regenerate-cover').disabled=busy||published||processing||dismissed;
   }
   function choose(post){
     selected=post;
@@ -88,6 +90,7 @@
     $('image-rights').checked=Boolean(record?.rights_confirmed);
     $('image-upload').value='';$('upload-status').textContent='Puedes reemplazar la portada automática por una fotografía propia o autorizada.';
     updatePreview();
+    loadSources(post);
     state(record?.status==='published'?'Esta noticia ya fue publicada en Instagram.':record?.status==='processing'?'Hay una publicación iniciada. Pulsa COMPLETAR PUBLICACIÓN.':record?.status==='dismissed'?'Propuesta descartada. Puedes restaurarla cuando quieras.':record?.error?record.error:record?.status==='draft'?'Borrador guardado. Revisa antes de publicar.':'Texto y portada preparados automáticamente. Revisa y aprueba para publicar.');
     drawList();setButtons();
   }
@@ -178,6 +181,81 @@
       info(discarded?'Propuesta restaurada. Revisa antes de publicar.':'Propuesta descartada sin publicar en Instagram.');
     }catch(error){state(error.message)}finally{busy=false;setButtons()}
   });
+
+  async function loadSources(post){
+    const id=slug(post);sourcePhotos=[];const host=$('source-photos');host.replaceChildren();
+    $('generator-status').textContent='Buscando fotografías de la noticia…';
+    try{
+      const res=await fetch(path(post),{cache:'no-store'});if(!res.ok)throw Error('No se pudo leer la noticia');
+      const doc=new DOMParser().parseFromString(await res.text(),'text/html');
+      const urls=[...doc.querySelectorAll('.article-figure img,.article-inline-photo img')].map(el=>el.getAttribute('src')).filter(Boolean);
+      const unique=[...new Set(urls)].filter(u=>{try{return ['ep1.pinkbike.org','descenso.cl'].includes(new URL(u,location.origin).hostname)}catch{return false}}).slice(0,16);
+      if(selected!==post)return;
+      sourcePhotos=unique.map((url,i)=>({url:new URL(url,location.origin).href,selected:i<3}));
+      for(const item of sourcePhotos){
+        const label=node('label','source-photo'),img=node('img'),check=node('input');
+        img.src=item.url;img.loading='lazy';check.type='checkbox';check.checked=item.selected;
+        check.addEventListener('change',()=>item.selected=check.checked);
+        label.append(img,check);host.append(label);
+      }
+      $('generator-status').textContent=unique.length+' fotografías encontradas. Marca solo las que Descenso.cl tenga autorización para republicar.';
+    }catch(error){$('generator-status').textContent=error.message}
+  }
+  async function fetchSource(url){
+    const res=await fetch('/api/instagram-source?url='+encodeURIComponent(url),{headers:{authorization:'Bearer '+token}});
+    if(!res.ok){const d=await res.json().catch(()=>({}));throw Error(d.error||'No se pudo cargar una foto');}
+    const blob=await res.blob(),bitmap=await createImageBitmap(blob);return bitmap;
+  }
+  function drawCover(images,title,variant){
+    const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1350;
+    const ctx=canvas.getContext('2d');ctx.fillStyle='#09090b';ctx.fillRect(0,0,1080,1350);
+    const draw=(img,x,y,w,h)=>{
+      const s=Math.max(w/img.width,h/img.height),sw=w/s,sh=h/s;
+      ctx.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,x,y,w,h);
+    };
+    if(variant===0||images.length===1){draw(images[0],0,0,1080,1080)}
+    else if(variant===1||images.length===2){draw(images[0],0,0,535,1080);draw(images[1],545,0,535,1080)}
+    else{draw(images[0],0,0,1080,655);draw(images[1],0,665,535,415);draw(images[2],545,665,535,415)}
+    ctx.fillStyle='#111114';ctx.fillRect(0,1080,1080,270);
+    ctx.fillStyle='#d92d3b';ctx.fillRect(45,1110,76,7);
+    ctx.fillStyle='#f7f7f7';ctx.font='bold 28px Arial,sans-serif';ctx.fillText('DESCENSO.CL  /  MOUNTAIN BIKE',45,1162);
+    ctx.font='bold 48px Arial,sans-serif';
+    const words=String(title).replace(/^VIDEO:\s*/i,'').split(/\s+/),lines=[];let line='';
+    for(const word of words){const test=(line?line+' ':'')+word;if(ctx.measureText(test).width>975&&line){lines.push(line);line=word}else line=test}
+    if(line)lines.push(line);
+    const chosen=lines.slice(0,2);if(lines.length>2)chosen[1]=chosen[1].replace(/[.,;:!?]+$/,'')+'…';
+    chosen.forEach((t,i)=>ctx.fillText(t,45,1220+i*55));
+    return canvas;
+  }
+  async function generateCover(rotate=false){
+    if(!selected||busy)return;
+    const chosen=sourcePhotos.filter(p=>p.selected).slice(0,3);
+    if(!chosen.length){$('generator-status').textContent='Selecciona al menos una fotografía.';return;}
+    if(!$('image-rights').checked){$('generator-status').textContent='Confirma primero que tienes derechos para usar las fotografías seleccionadas.';return;}
+    busy=true;setButtons();$('generator-status').textContent='Creando portada editorial…';
+    const id=slug(selected);
+    const images=[];
+    try{
+      for(const p of chosen)images.push(await fetchSource(p.url));
+      if(!selected||slug(selected)!==id)throw Error('Cambiaste de noticia durante la generación.');
+      if(rotate)layoutIndex++;else layoutIndex=chosen.length===1?0:chosen.length===2?1:2;
+      const variant=chosen.length===1?0:layoutIndex%3;
+      const canvas=drawCover(images,selected.title,variant);
+      let quality=.85,blob;
+      do{blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));quality-=.1}while(blob&&blob.size>450000&&quality>=.35);
+      if(!blob||blob.size>500000)throw Error('La portada supera el tamaño permitido.');
+      const jpeg=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(blob)});
+      const res=await fetch('/api/instagram-image',{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify({slug:id,jpeg})});
+      const data=await res.json();if(!res.ok)throw Error(data.error||'No se pudo guardar');
+      $('image-url').value=data.url;updatePreview();$('article-image').src=data.url+'&v='+Date.now();
+      $('generator-status').textContent='Portada creada y guardada en el servidor. Presiona GUARDAR CAMBIOS para asociarla al borrador.';
+      state('Portada generada. Nada se publicó en Instagram.');
+    }catch(error){$('generator-status').textContent=error.message||'Error al generar la portada'}
+    finally{images.forEach(img=>img.close());busy=false;setButtons()}
+  }
+  $('generate-cover').addEventListener('click',()=>generateCover(false));
+  $('regenerate-cover').addEventListener('click',()=>generateCover(true));
+
   $('image-upload').addEventListener('change',async()=>{
     const file=$('image-upload').files?.[0];if(!file||!selected)return;
     if(!['image/jpeg','image/png','image/webp'].includes(file.type)){state('Usa JPG, PNG o WebP.');return;}
