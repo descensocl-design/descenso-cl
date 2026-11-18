@@ -86,12 +86,12 @@
     const artwork='/assets/instagram/'+encodeURIComponent(id)+'.jpg';
     $('preview-title').textContent=post.title;
     $('caption').value=record?.caption||post.caption||captionFor(post);
-    $('image-url').value=record?.image_url||post.image_url||new URL(artwork,location.origin).href;
+    $('image-url').value=record?.image_url||post.image_url||'';
     $('image-rights').checked=Boolean(record?.rights_confirmed);
     $('image-upload').value='';$('upload-status').textContent='Puedes reemplazar la portada automática por una fotografía propia o autorizada.';
     updatePreview();
     loadSources(post);
-    state(record?.status==='published'?'Esta noticia ya fue publicada en Instagram.':record?.status==='processing'?'Hay una publicación iniciada. Pulsa COMPLETAR PUBLICACIÓN.':record?.status==='dismissed'?'Propuesta descartada. Puedes restaurarla cuando quieras.':record?.error?record.error:record?.status==='draft'?'Borrador guardado. Revisa antes de publicar.':'Texto y portada preparados automáticamente. Revisa y aprueba para publicar.');
+    state(record?.status==='published'?'Esta noticia ya fue publicada en Instagram.':record?.status==='processing'?'Hay una publicación iniciada. Pulsa COMPLETAR PUBLICACIÓN.':record?.status==='dismissed'?'Propuesta descartada. Puedes restaurarla cuando quieras.':record?.error?record.error:record?.status==='draft'?'Borrador guardado. Revisa antes de publicar.':post.cover_preview_url?'Noticia cargada. Selecciona las fotos de la galería y genera una portada; aún no se ha publicado.':'Texto y portada preparados automáticamente. Revisa y aprueba para publicar.');
     drawList();setButtons();
   }
   function updatePreview(){
@@ -99,6 +99,8 @@
     $('char-count').textContent=$('caption').value.length+' / 2200';
     const image=$('image-url').value.trim();
     if(/^https:\/\//i.test(image))$('article-image').src=image;
+    else if(/^https:\/\//i.test(selected?.cover_preview_url||''))$('article-image').src=selected.cover_preview_url;
+    else $('article-image').removeAttribute('src');
   }
   function setFilter(next){
     filter=next;
@@ -203,7 +205,7 @@
     try{
       const res=await fetch(path(post),{cache:'no-store'});if(!res.ok)throw Error('No se pudo leer la noticia');
       const doc=new DOMParser().parseFromString(await res.text(),'text/html');
-      const urls=[...doc.querySelectorAll('.article-figure img,.article-inline-photo img')].map(el=>el.getAttribute('src')).filter(Boolean);
+      const urls=[...doc.querySelectorAll('.article-figure img,.article-inline-photo img,.article-body figure img')].map(el=>el.getAttribute('src')).filter(Boolean);
       const unique=[...new Set(urls.map(u=>new URL(u,location.origin).href))].filter(u=>{try{return ['ep1.pinkbike.org','descenso.cl'].includes(new URL(u).hostname)}catch{return false}}).slice(0,16);
       if(unique.length)render(unique);else if(!fallback.length)$('generator-status').textContent='Esta noticia no contiene fotografías compatibles.';
     }catch(error){if(!fallback.length)$('generator-status').textContent='No se pudieron cargar las fotografías: '+error.message}
