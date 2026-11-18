@@ -10,3 +10,5 @@
 @media(max-width:600px){.insta-filters button{flex:1 1 40%;text-align:center}.insta-statusbar button{flex:1}}
 
 #image-upload{display:block;width:100%;box-sizing:border-box;background:#202023;color:#eee;border:1px dashed #777;padding:14px;cursor:pointer}#upload-status{margin:7px 0 14px}
+
+.insta-generator{border:1px solid #414147;padding:14px;margin:18px 0;background:#1b1b1e}.insta-generator strong{font-size:12px;letter-spacing:.08em}.insta-generator p{font-size:12px;color:#bbb;line-height:1.5}.source-photos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}.source-photo{position:relative;cursor:pointer}.source-photo img{width:100%;aspect-ratio:1;object-fit:cover;background:#111}.source-photo input{position:absolute;top:5px;left:5px;accent-color:#d12532}.insta-generator button{background:#27272b;border:1px solid #666;color:white;padding:10px;cursor:pointer;font-size:11px;font-weight:700}.insta-generator button:disabled{opacity:.4}.insta-generator .insta-actions{margin:8px 0}
