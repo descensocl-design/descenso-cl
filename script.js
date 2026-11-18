@@ -75,7 +75,7 @@ function formatDate(value) {
 }
 
 function articleUrl(post) {
-  if (/^\/noticias\/[a-z0-9-]+\/$/.test(post.permalink || '')) return post.permalink;
+  if (/^\/noticias\/[a-z0-9-]+(?:\/|\.html)$/.test(post.permalink || '')) return post.permalink;
   const title = String(post.title || 'noticia');
   const slug = title.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 85);
