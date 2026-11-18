@@ -3,7 +3,7 @@
   const $=id=>document.getElementById(id);
   let token='',posts=[],records=new Map(),selected=null,connected=false,busy=false,filter='pending',uncertainPublish=false,sourcePhotos=[],layoutIndex=0;
   const slugify=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,85);
-  const slug=p=>(p.permalink||('/noticias/'+p.date+'-'+slugify(p.title)+'/')).split('/').filter(Boolean).pop();
+  const slug=p=>/^20\d\d-\d\d-\d\d-[a-z0-9-]+$/.test(p.slug||'')?p.slug:(p.permalink||('/noticias/'+p.date+'-'+slugify(p.title)+'/')).split('/').filter(Boolean).pop();
   const path=p=>p.permalink||('/noticias/'+slug(p)+'/');
   const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n;};
   const info=text=>$('main-status').textContent=text;
@@ -85,7 +85,7 @@
     $('article-link').href=path(post);
     const artwork='/assets/instagram/'+encodeURIComponent(id)+'.jpg';
     $('preview-title').textContent=post.title;
-    $('caption').value=record?.caption||post.caption||captionFor(post);
+    $('caption').value=record?.caption||post.instagram_caption||post.caption||captionFor(post);
     $('image-url').value=record?.image_url||post.image_url||'';
     $('image-rights').checked=Boolean(record?.rights_confirmed);
     $('image-upload').value='';$('upload-status').textContent='Puedes reemplazar la portada automática por una fotografía propia o autorizada.';
@@ -99,7 +99,7 @@
     $('char-count').textContent=$('caption').value.length+' / 2200';
     const image=$('image-url').value.trim();
     if(/^https:\/\//i.test(image))$('article-image').src=image;
-    else if(/^https:\/\//i.test(selected?.cover_preview_url||''))$('article-image').src=selected.cover_preview_url;
+    else if(/^https:\/\//i.test(selected?.cover_preview_url||selected?.image||''))$('article-image').src=selected.cover_preview_url||selected.image;
     else $('article-image').removeAttribute('src');
   }
   function setFilter(next){
@@ -110,13 +110,22 @@
     choose(choice);
   }
   async function refresh(){
-    const [news,proposals,server]=await Promise.all([
+    const [news,proposals,manual,server]=await Promise.all([
       fetch('/data/posts.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('No se pudo leer el catálogo de noticias');return r.json()}),
       fetch('/data/instagram-drafts.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch('/data/instagram-manual.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).catch(()=>[]),
       api()
     ]);
-    const catalog=Array.isArray(proposals)&&proposals.length?proposals:news;
-    posts=catalog.filter(p=>p&&p.title&&p.date).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+    const catalog=new Map();
+    for(const list of [news,proposals,manual]){
+      if(!Array.isArray(list))continue;
+      for(const p of list){
+        if(!p||!p.title||!p.date)continue;
+        const id=slug(p);
+        catalog.set(id,{...(catalog.get(id)||{}),...p});
+      }
+    }
+    posts=[...catalog.values()].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
     records=new Map((server.posts||[]).map(r=>[r.slug,r]));
     connected=Boolean(server.meta_ready);
     $('connection-state').textContent=connected?'META CONFIGURADO · PUBLICACIÓN BAJO TU APROBACIÓN':'META PENDIENTE · BORRADORES ACTIVOS';
