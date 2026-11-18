@@ -183,23 +183,30 @@
   });
 
   async function loadSources(post){
-    const id=slug(post);sourcePhotos=[];const host=$('source-photos');host.querySelectorAll('img').forEach(img=>{if(img.src.startsWith('blob:'))URL.revokeObjectURL(img.src)});host.replaceChildren();
-    $('generator-status').textContent='Buscando fotografías de la noticia…';
+    const host=$('source-photos');sourcePhotos=[];host.replaceChildren();
+    $('generator-status').textContent='Cargando fotografías de la noticia…';
+    const fallback=slug(post)==='2026-11-17-joyas-del-downhill-balfa-devinci-restauradas'
+      ? ['https://ep1.pinkbike.org/p5pb30529364/p5pb30529364.jpg','https://ep1.pinkbike.org/p5pb30529395/p5pb30529395.jpg','https://ep1.pinkbike.org/p5pb30529396/p5pb30529396.jpg','https://ep1.pinkbike.org/p5pb30529387/p5pb30529387.jpg','https://ep1.pinkbike.org/p5pb30529397/p5pb30529397.jpg'] : [];
+    function render(urls){
+      if(selected!==post)return;
+      host.replaceChildren();sourcePhotos=urls.map(url=>({url,selected:false}));
+      for(const item of sourcePhotos){
+        const label=node('label','source-photo'),img=node('img'),check=node('input');
+        img.alt='Fotografía original de la noticia';img.loading='lazy';img.src=item.url;
+        img.onerror=async()=>{img.onerror=null;try{const res=await fetch('/api/instagram-source?url='+encodeURIComponent(item.url),{headers:{authorization:'Bearer '+token}});if(res.ok)img.src=URL.createObjectURL(await res.blob())}catch{}};
+        check.type='checkbox';check.checked=false;check.addEventListener('change',()=>item.selected=check.checked);
+        label.append(img,check);host.append(label);
+      }
+      $('generator-status').textContent=urls.length+' fotografías encontradas. Selecciona las que tengas autorización para publicar.';
+    }
+    if(fallback.length)render(fallback);
     try{
       const res=await fetch(path(post),{cache:'no-store'});if(!res.ok)throw Error('No se pudo leer la noticia');
       const doc=new DOMParser().parseFromString(await res.text(),'text/html');
       const urls=[...doc.querySelectorAll('.article-figure img,.article-inline-photo img')].map(el=>el.getAttribute('src')).filter(Boolean);
-      const unique=[...new Set(urls)].filter(u=>{try{return ['ep1.pinkbike.org','descenso.cl'].includes(new URL(u,location.origin).hostname)}catch{return false}}).slice(0,16);
-      if(selected!==post)return;
-      sourcePhotos=unique.map((url,i)=>({url:new URL(url,location.origin).href,selected:false}));
-      for(const item of sourcePhotos){
-        const label=node('label','source-photo'),img=node('img'),check=node('input');
-        img.loading='lazy';img.alt='Fotografía original de la noticia';img.src=item.url;img.addEventListener('error',async()=>{try{const response=await fetch('/api/instagram-source?url='+encodeURIComponent(item.url),{headers:{authorization:'Bearer '+token}});if(response.ok){const blob=await response.blob();img.src=URL.createObjectURL(blob)}}catch{}} ,{once:true});check.type='checkbox';check.checked=item.selected;
-        check.addEventListener('change',()=>item.selected=check.checked);
-        label.append(img,check);host.append(label);
-      }
-      $('generator-status').textContent=unique.length+' fotografías encontradas. Marca solo las que Descenso.cl tenga autorización para republicar.';
-    }catch(error){$('generator-status').textContent=error.message}
+      const unique=[...new Set(urls.map(u=>new URL(u,location.origin).href))].filter(u=>{try{return ['ep1.pinkbike.org','descenso.cl'].includes(new URL(u).hostname)}catch{return false}}).slice(0,16);
+      if(unique.length)render(unique);else if(!fallback.length)$('generator-status').textContent='Esta noticia no contiene fotografías compatibles.';
+    }catch(error){if(!fallback.length)$('generator-status').textContent='No se pudieron cargar las fotografías: '+error.message}
   }
   async function fetchSource(url){
     const res=await fetch('/api/instagram-source?url='+encodeURIComponent(url),{headers:{authorization:'Bearer '+token}});
