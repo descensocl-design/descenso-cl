@@ -85,6 +85,25 @@
 @media(max-width:900px){.bikepucon-ad-link{max-width:400px}}
 @media(max-width:600px){.bikepucon-ad-link{width:100%;max-width:400px;margin-inline:auto;min-height:420px}.bikepucon-ad-title{font-size:clamp(36px,10vw,47px)}}
 
+
+/* Tour DH Cup Los Ríos 2026 — foto editorial verificada por noticia; banner de home */
+.lanco-home-banner{position:relative;isolation:isolate;overflow:hidden;min-height:340px;margin:22px 0 26px;border:1px solid #4b4f3b;background:#0b100e;display:flex;align-items:center;color:#fff}
+.lanco-home-banner-photo{position:absolute;inset:0;z-index:-3}
+.lanco-home-banner-photo img{width:100%;height:100%;object-fit:cover;object-position:center 48%;display:block;filter:contrast(1.05) saturate(.86)}
+.lanco-home-banner:before{content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(5,8,7,.98) 0%,rgba(5,8,7,.96) 26%,rgba(5,8,7,.76) 56%,rgba(5,8,7,.25) 100%)}
+.lanco-home-banner:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(0,0,0,.32),transparent 45%)}
+.lanco-home-banner-inner{max-width:760px;width:100%;padding:32px clamp(24px,4.1vw,52px)}
+.lanco-home-banner-kicker{display:block;color:#dfff38;font:900 11px/1.3 Arial,sans-serif;letter-spacing:1.8px;margin-bottom:13px}
+.lanco-home-banner h2{margin:0;font:1000 clamp(37px,5.7vw,74px)/.96 Arial,sans-serif;letter-spacing:-2.5px;text-transform:uppercase;text-wrap:balance}
+.lanco-home-banner h2 em{font-style:normal;color:#dfff38}
+.lanco-home-banner-desc{font:700 clamp(13px,1.55vw,16px)/1.5 Arial,sans-serif;max-width:570px;margin:16px 0 18px;color:#e4e5dd}
+.lanco-home-banner-meta{display:flex;gap:12px 22px;flex-wrap:wrap;color:#dfff38;font:900 12px/1.3 Arial,sans-serif;letter-spacing:.8px}
+.lanco-home-banner-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:23px}
+.lanco-home-banner-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 17px;font:900 11px/1.2 Arial,sans-serif;letter-spacing:.5px;border:1px solid #dfff38;text-align:center}
+.lanco-home-banner-actions .primary{background:#dfff38;color:#0b0d08}
+.lanco-home-banner-actions .secondary{background:rgba(0,0,0,.35);color:#e8f5b0}
+.lanco-home-banner-actions a:hover,.lanco-home-banner-actions a:focus-visible{outline-offset:2px;background:#fff;color:#0b0d08;border-color:#fff}
+@media(max-width:670px){.lanco-home-banner{min-height:435px;align-items:end;margin:17px 0 22px}.lanco-home-banner-photo img{object-position:58% 36%}.lanco-home-banner:before{background:linear-gradient(0deg,rgba(5,8,7,.99) 0%,rgba(5,8,7,.95) 34%,rgba(5,8,7,.62) 68%,rgba(5,8,7,.08) 100%)}.lanco-home-banner-inner{padding:25px 19px 21px}.lanco-home-banner h2{font-size:clamp(37px,9vw,55px);letter-spacing:-1.4px}.lanco-home-banner-desc{margin:12px 0 15px;font-size:13px}.lanco-home-banner-actions{margin-top:17px}.lanco-home-banner-actions a{flex:1 1 180px}}
 </style>
 </head>
 <body>
@@ -143,6 +162,19 @@
 
   <main class="container">
 
+    <section class="lanco-home-banner" aria-label="Gran final del Tour DH Cup Los Ríos 2026 en Lanco">
+  <div class="lanco-home-banner-photo" aria-hidden="true">
+    <img src="/api/editorial-image?id=lanco-tour-dh-cup-2026&amp;slot=6" alt="" loading="eager" decoding="async" onerror="this.style.display='none'">
+  </div>
+  <div class="lanco-home-banner-inner">
+    <span class="lanco-home-banner-kicker">DESCENSO.CL / REPORTAJE ESPECIAL · LOS RÍOS</span>
+    <h2>LANCO VUELVE AL <em>DOWNHILL</em></h2>
+    <p class="lanco-home-banner-desc">Carlos Cruz, una comunidad que construye senderos y la historia detrás de la gran final del Tour DH Cup Los Ríos 2026.</p>
+    <div class="lanco-home-banner-meta"><span>19–20 DICIEMBRE 2026</span><span>LANCO · REGIÓN DE LOS RÍOS</span></div>
+    <div class="lanco-home-banner-actions"><a class="primary" href="/noticias/lanco-tour-dh-cup-2026.html">LEE LA HISTORIA COMPLETA ↗</a><a class="secondary" href="https://cronometrajeinstantaneo.com/inscripciones/tour-dh-cup-los-rios-2026-6" target="_blank" rel="noopener noreferrer">INSCRIPCIONES ↗</a></div>
+  </div>
+</section>
+
     <section class="td-home-promo" aria-label="Promoción Tour Delictivo">
       <span class="td-home-promo-kicker">ESPACIO PROMOCIONAL · SALIDAS EN BICICLETA</span>
       <a class="td-home-promo-link" href="https://tour-delictivo.pages.dev/" aria-label="Conocer Tour Delictivo: salidas en bicicleta con locales en Villarrica, Pucón y Licán Ray">
@@ -157,7 +189,7 @@
 
 
 
-    <section aria-label="Nueva noticia: final Tour DH Cup Los Ríos" style="margin:22px 0;padding:22px 25px;border:1px solid #414141;background:#141414"><div style="color:#dfff38;font:800 11px Arial,sans-serif;letter-spacing:1.5px;margin-bottom:9px">DOWNHILL · LOS RÍOS · 19 Y 20 DICIEMBRE</div><a href="/preview/lanco-tour-dh-cup-2026.html" style="color:#fff;text-decoration:none;font:900 clamp(22px,3vw,34px)/1.12 Arial,sans-serif;display:block">LANCO VUELVE A APOSTAR POR EL DOWNHILL: CONOCE LA HISTORIA DEL BIKE PARK Y LA GRAN FINAL DEL TOUR DH CUP LOS RÍOS 2026 ↗</a><p style="color:#bcbcbc;margin:12px 0 0;font:14px/1.5 Arial,sans-serif">La historia de Carlos Cruz, la construcción del parque y el enlace para inscribirse en la sexta fecha.</p></section>
+    
 <div class="layout">
 
       <div class="maincol">
