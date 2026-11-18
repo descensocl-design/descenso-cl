@@ -8,3 +8,5 @@
 .insta-statusbar #reload-news{border-color:#777}
 .insta-article small{letter-spacing:.02em}
 @media(max-width:600px){.insta-filters button{flex:1 1 40%;text-align:center}.insta-statusbar button{flex:1}}
+
+#image-upload{display:block;width:100%;box-sizing:border-box;background:#202023;color:#eee;border:1px dashed #777;padding:14px;cursor:pointer}#upload-status{margin:7px 0 14px}
