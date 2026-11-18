@@ -72,6 +72,7 @@
     $('caption').disabled=published||processing||dismissed;
     $('image-url').disabled=published||processing||dismissed;
     $('image-rights').disabled=published||processing||dismissed;
+    $('image-upload').disabled=busy||published||processing||dismissed;
   }
   function choose(post){
     selected=post;
@@ -85,6 +86,7 @@
     $('caption').value=record?.caption||post.caption||captionFor(post);
     $('image-url').value=record?.image_url||post.image_url||new URL(artwork,location.origin).href;
     $('image-rights').checked=Boolean(record?.rights_confirmed);
+    $('image-upload').value='';$('upload-status').textContent='Puedes reemplazar la portada automática por una fotografía propia o autorizada.';
     updatePreview();
     state(record?.status==='published'?'Esta noticia ya fue publicada en Instagram.':record?.status==='processing'?'Hay una publicación iniciada. Pulsa COMPLETAR PUBLICACIÓN.':record?.status==='dismissed'?'Propuesta descartada. Puedes restaurarla cuando quieras.':record?.error?record.error:record?.status==='draft'?'Borrador guardado. Revisa antes de publicar.':'Texto y portada preparados automáticamente. Revisa y aprueba para publicar.');
     drawList();setButtons();
@@ -175,6 +177,27 @@
       setFilter(discarded?'pending':filter);
       info(discarded?'Propuesta restaurada. Revisa antes de publicar.':'Propuesta descartada sin publicar en Instagram.');
     }catch(error){state(error.message)}finally{busy=false;setButtons()}
+  });
+  $('image-upload').addEventListener('change',async()=>{
+    const file=$('image-upload').files?.[0];if(!file||!selected)return;
+    if(!['image/jpeg','image/png','image/webp'].includes(file.type)){state('Usa JPG, PNG o WebP.');return;}
+    if(file.size>15*1024*1024){state('La imagen original no puede superar 15 MB.');return;}
+    busy=true;setButtons();$('upload-status').textContent='Optimizando y subiendo portada…';
+    try{
+      const bitmap=await createImageBitmap(file),scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));
+      const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
+      canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+      let quality=.85,blob;
+      do{blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));quality-=.1}while(blob&&blob.size>850000&&quality>=.35);
+      if(!blob||blob.size>950000)throw Error('No se pudo reducir la foto. Prueba una imagen más pequeña.');
+      const encoded=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(blob)});
+      const res=await fetch('/api/instagram-image',{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify({slug:slug(selected),jpeg:encoded})});
+      const data=await res.json();if(!res.ok)throw Error(data.error||'No se pudo subir la portada');
+      $('image-url').value=data.url;updatePreview();$('image-rights').checked=false;
+      $('upload-status').textContent='Portada subida. Confirma los derechos y guarda los cambios.';
+      state('Imagen lista. Todavía no se ha publicado.');
+    }catch(error){$('upload-status').textContent=error.message||'Error al subir la imagen';}
+    finally{busy=false;setButtons();}
   });
   $('caption').addEventListener('input',updatePreview);
   $('image-url').addEventListener('input',updatePreview);
