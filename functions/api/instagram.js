@@ -23,7 +23,7 @@ async function init(db){
  await db.prepare("CREATE TABLE IF NOT EXISTS social_ig_posts (slug TEXT PRIMARY KEY, caption TEXT NOT NULL DEFAULT '', image_url TEXT NOT NULL DEFAULT '', rights_confirmed INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'draft', container_id TEXT, instagram_id TEXT, error TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, published_at TEXT)").run();
 }
 const validSlug=v=>typeof v==="string"&&v.length>8&&v.length<170&&/^20\d\d-\d\d-\d\d-[a-z0-9-]+$/.test(v);
-function validImage(v){try{const u=new URL(v);return u.protocol==="https:"&&!u.username&&!u.password&&u.hostname!=="localhost"&&/\.jpe?g$/i.test(u.pathname)&&v.length<1000}catch{return false}}
+function validImage(v){try{const u=new URL(v);return u.protocol==="https:"&&!u.username&&!u.password&&u.hostname!=="localhost"&&(/\.jpe?g$/i.test(u.pathname)||(u.hostname==="descenso.cl"&&u.pathname==="/api/instagram-image"&&validSlug(u.searchParams.get("slug"))))&&v.length<1000}catch{return false}}
 // Meta Unified Login (system-user token with instagram_content_publish) uses Facebook Graph API.
 const graph="https://graph.facebook.com/v25.0/";
 const apiCredentials=env=>typeof env.INSTAGRAM_ACCESS_TOKEN==="string"&&env.INSTAGRAM_ACCESS_TOKEN.length>30&&typeof env.INSTAGRAM_USER_ID==="string"&&/^\d{5,25}$/.test(env.INSTAGRAM_USER_ID);
