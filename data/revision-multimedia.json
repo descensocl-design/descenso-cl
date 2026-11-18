@@ -1,7 +1,24 @@
 {
-  "total": 12,
+  "total": 13,
   "pending": 0,
   "articles": [
+    {
+      "title": "Las joyas del downhill de hace 25 años vuelven a rodar: Balfa, Devinci y una restauración obsesiva",
+      "source_url": "https://www.pinkbike.com/news/restoring-the-old-warning-lots-of-photos.html",
+      "permalink": "/noticias/2026-11-17-joyas-del-downhill-balfa-devinci-restauradas/",
+      "photos_registered": 26,
+      "video_registered": false,
+      "video_players": 0,
+      "source_media_review": {
+        "date": "2026-11-17",
+        "source_checked": "https://www.pinkbike.com/news/restoring-the-old-warning-lots-of-photos.html",
+        "kind": "original_editorial_gallery",
+        "image_count": 26,
+        "notes": "26 fotografías obtenidas de la galería del reportaje original, acreditadas a James Healey; se enlazan desde Pinkbike y se distribuyen dentro del texto."
+      },
+      "issues": [],
+      "status": "sin_pendientes_detectados"
+    },
     {
       "title": "Cómo unas vacas terminaron cambiando las reglas del enduro",
       "source_url": "https://www.pinkbike.com/news/dont-cut-the-course-at-enduro-2-races.html",
