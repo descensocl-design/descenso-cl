@@ -8,13 +8,13 @@ async function authorized(req,env){
  const [a,b]=await Promise.all([hash(auth.slice(7)),hash(env.MODERATION_TOKEN)]);
  let diff=0;for(let i=0;i<a.length;i++)diff|=a[i]^b[i];return diff===0;
 }
-const init=db=>db.prepare("CREATE TABLE IF NOT EXISTS social_ig_images (slug TEXT PRIMARY KEY, jpeg TEXT NOT NULL, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)").run();
+const init=async db=>{await db.prepare("CREATE TABLE IF NOT EXISTS social_ig_images (slug TEXT PRIMARY KEY, jpeg TEXT NOT NULL, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)").run();await db.prepare("CREATE TABLE IF NOT EXISTS social_ig_carousel_images (slug TEXT NOT NULL, slot INTEGER NOT NULL, jpeg TEXT NOT NULL, updated_at TEXT DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(slug,slot))").run()};
 export async function onRequestGet({request,env}){
- const slug=new URL(request.url).searchParams.get("slug");
- if(!validSlug(slug))return json({error:"Imagen inválida"},400);
+ const params=new URL(request.url).searchParams,slug=params.get("slug"),slot=Number(params.get("slot")||0);
+ if(!validSlug(slug)||!Number.isInteger(slot)||slot<0||slot>9)return json({error:"Imagen inválida"},400);
  if(!env.COMMENTS_DB)return json({error:"Almacenamiento no disponible"},503);
  await init(env.COMMENTS_DB);
- const row=await env.COMMENTS_DB.prepare("SELECT jpeg FROM social_ig_images WHERE slug=?").bind(slug).first();
+ const row=slot===0?await env.COMMENTS_DB.prepare("SELECT jpeg FROM social_ig_images WHERE slug=?").bind(slug).first():await env.COMMENTS_DB.prepare("SELECT jpeg FROM social_ig_carousel_images WHERE slug=? AND slot=?").bind(slug,slot).first();
  if(!row)return json({error:"Imagen no encontrada"},404);
  const binary=atob(row.jpeg),bytes=new Uint8Array(binary.length);
  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
@@ -27,14 +27,14 @@ export async function onRequestPost({request,env}){
  if(origin&&origin!==new URL(request.url).origin)return json({error:"Origen no permitido"},403);
  if(!(request.headers.get("content-type")||"").startsWith("application/json"))return json({error:"Formato inválido"},415);
  let data;try{data=await request.json()}catch{return json({error:"JSON inválido"},400)}
- if(!validSlug(data?.slug)||typeof data.jpeg!=="string"||data.jpeg.length>700000||!/^[A-Za-z0-9+/]+={0,2}$/.test(data.jpeg))return json({error:"Imagen inválida o demasiado grande"},400);
+ if(!Number.isInteger(data?.slot??0)||(data.slot??0)<0||(data.slot??0)>9||!validSlug(data?.slug)||typeof data.jpeg!=="string"||data.jpeg.length>700000||!/^[A-Za-z0-9+/]+={0,2}$/.test(data.jpeg))return json({error:"Imagen inválida o demasiado grande"},400);
  try{
   const header=atob(data.jpeg.slice(0,32));
   if(header.charCodeAt(0)!==255||header.charCodeAt(1)!==216||header.charCodeAt(2)!==255)return json({error:"Se requiere JPEG real"},400);
   await init(env.COMMENTS_DB);
   const published=await env.COMMENTS_DB.prepare("SELECT status FROM social_ig_posts WHERE slug=?").bind(data.slug).first().catch(()=>null);
   if(published&&["published","processing"].includes(published.status))return json({error:"No se puede modificar una publicación enviada"},409);
-  await env.COMMENTS_DB.prepare("INSERT INTO social_ig_images (slug,jpeg) VALUES(?,?) ON CONFLICT(slug) DO UPDATE SET jpeg=excluded.jpeg,updated_at=CURRENT_TIMESTAMP").bind(data.slug,data.jpeg).run();
-  return json({ok:true,url:new URL("/api/instagram-image?slug="+encodeURIComponent(data.slug),request.url).href});
+  if((data.slot??0)===0)await env.COMMENTS_DB.prepare("INSERT INTO social_ig_images (slug,jpeg) VALUES(?,?) ON CONFLICT(slug) DO UPDATE SET jpeg=excluded.jpeg,updated_at=CURRENT_TIMESTAMP").bind(data.slug,data.jpeg).run();else await env.COMMENTS_DB.prepare("INSERT INTO social_ig_carousel_images (slug,slot,jpeg) VALUES(?,?,?) ON CONFLICT(slug,slot) DO UPDATE SET jpeg=excluded.jpeg,updated_at=CURRENT_TIMESTAMP").bind(data.slug,data.slot,data.jpeg).run();
+  return json({ok:true,url:new URL("/api/instagram-image?slug="+encodeURIComponent(data.slug)+((data.slot??0)>0?"&slot="+data.slot:""),request.url).href});
  }catch{return json({error:"No se pudo almacenar la imagen"},503)}
 }
