@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const $=id=>document.getElementById(id);
-  let token='',posts=[],records=new Map(),selected=null,connected=false,busy=false,filter='pending',uncertainPublish=false,sourcePhotos=[],layoutIndex=0,carouselImages=[];
+  let token='',posts=[],records=new Map(),selected=null,connected=false,busy=false,filter='pending',uncertainPublish=false,sourcePhotos=[],layoutIndex=0;
   const slugify=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,85);
   const slug=p=>(p.permalink||('/noticias/'+p.date+'-'+slugify(p.title)+'/')).split('/').filter(Boolean).pop();
   const path=p=>p.permalink||('/noticias/'+slug(p)+'/');
@@ -72,7 +72,7 @@
     $('caption').disabled=published||processing||dismissed;
     $('image-url').disabled=published||processing||dismissed;
     $('image-rights').disabled=published||processing||dismissed;
-    $('image-upload').disabled=busy||published||processing||dismissed;$('generate-carousel').disabled=busy||published||processing||dismissed;$('clear-carousel').disabled=busy||published||processing||dismissed;
+    $('image-upload').disabled=busy||published||processing||dismissed;
     $('generate-cover').disabled=busy||published||processing||dismissed;
     $('regenerate-cover').disabled=busy||published||processing||dismissed;
   }
@@ -87,7 +87,7 @@
     $('preview-title').textContent=post.title;
     $('caption').value=record?.caption||post.caption||captionFor(post);
     $('image-url').value=record?.image_url||post.image_url||new URL(artwork,location.origin).href;
-    $('image-rights').checked=Boolean(record?.rights_confirmed);carouselImages=Array.isArray(record?.images)?record.images.slice():[];renderCarousel();
+    $('image-rights').checked=Boolean(record?.rights_confirmed);
     $('image-upload').value='';$('upload-status').textContent='Puedes reemplazar la portada automática por una fotografía propia o autorizada.';
     updatePreview();
     loadSources(post);
@@ -123,7 +123,7 @@
   }
   async function save(){
     if(!selected)return;
-    const payload={action:'save',slug:slug(selected),caption:$('caption').value,image_url:$('image-url').value.trim(),rights_confirmed:$('image-rights').checked,images:carouselImages};
+    const payload={action:'save',slug:slug(selected),caption:$('caption').value,image_url:$('image-url').value.trim(),rights_confirmed:$('image-rights').checked};
     if(payload.caption.trim().length<30)throw Error('Escribe un texto de al menos 30 caracteres.');
     if(payload.image_url&&!/^https:\/\//i.test(payload.image_url))throw Error('Usa una URL HTTPS que termine en .jpg o .jpeg.');
     const result=await api({method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
@@ -255,49 +255,11 @@
       const res=await fetch('/api/instagram-image',{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify({slug:id,jpeg})});
       const data=await res.json();if(!res.ok)throw Error(data.error||'No se pudo guardar');
       $('image-url').value=data.url;updatePreview();$('article-image').src=data.url+'&v='+Date.now();
-      carouselImages=[];renderCarousel();$('generator-status').textContent='Portada creada y guardada en el servidor. Presiona GUARDAR CAMBIOS para asociarla al borrador.';
+      $('generator-status').textContent='Portada creada y guardada en el servidor. Presiona GUARDAR CAMBIOS para asociarla al borrador.';
       state('Portada generada. Nada se publicó en Instagram.');
     }catch(error){$('generator-status').textContent=error.message||'Error al generar la portada'}
     finally{images.forEach(img=>img.close());busy=false;setButtons()}
   }
-
-  function renderCarousel(){
-    const host=$('carousel-preview');host.replaceChildren();
-    const urls=carouselImages.length?carouselImages:[$('image-url').value.trim()].filter(Boolean);
-    for(let i=0;i<urls.length;i++){const wrap=node('div','carousel-tile'),img=node('img'),number=node('small','',String(i+1));img.src=urls[i];img.alt='Imagen '+(i+1)+' del carrusel';wrap.append(img,number);host.append(wrap)}
-    $('carousel-status').textContent=carouselImages.length?carouselImages.length+' imágenes preparadas para carrusel. Guarda los cambios antes de publicar.':'Modo foto única. Para crear carrusel selecciona fotos adicionales de la noticia.';
-  }
-  async function jpegFromBitmap(bitmap){
-    const canvas=document.createElement('canvas'),scale=Math.min(1,1350/Math.max(bitmap.width,bitmap.height));
-    canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
-    canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
-    let blob,quality=.85;do{blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));quality-=.1}while(blob&&blob.size>450000&&quality>=.35);
-    if(!blob||blob.size>500000)throw Error('Una foto del carrusel no se pudo comprimir.');
-    return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(blob)});
-  }
-  async function generateCarousel(){
-    if(!selected||busy)return;
-    const chosen=sourcePhotos.filter(p=>p.selected).slice(0,9);
-    if(!chosen.length){$('carousel-status').textContent='Selecciona al menos una foto adicional de la galería.';return}
-    if(!$('image-rights').checked){$('carousel-status').textContent='Confirma primero los derechos de las fotografías.';return}
-    const cover=$('image-url').value.trim();if(!/^https:\/\//i.test(cover)){$('carousel-status').textContent='Primero genera o selecciona una portada válida.';return}
-    const id=slug(selected),urls=[cover];busy=true;setButtons();
-    try{
-      for(let i=0;i<chosen.length;i++){
-        $('carousel-status').textContent='Preparando fotografía '+(i+1)+' de '+chosen.length+'…';
-        const bitmap=await fetchSource(chosen[i].url);
-        let jpeg;try{jpeg=await jpegFromBitmap(bitmap)}finally{bitmap.close()}
-        const res=await fetch('/api/instagram-image',{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify({slug:id,slot:i+1,jpeg})});
-        const data=await res.json();if(!res.ok)throw Error(data.error||'No se pudo subir una fotografía');
-        urls.push(data.url);
-      }
-      if(!selected||slug(selected)!==id)throw Error('La noticia cambió mientras se preparaba el carrusel.');
-      carouselImages=urls;renderCarousel();state('Carrusel preparado. Pulsa GUARDAR CAMBIOS. Todavía no se ha publicado.');
-    }catch(e){$('carousel-status').textContent='No se completó el carrusel: '+e.message}
-    finally{busy=false;setButtons()}
-  }
-  $('generate-carousel').addEventListener('click',generateCarousel);
-  $('clear-carousel').addEventListener('click',()=>{carouselImages=[];renderCarousel();state('Modo foto única. Guarda los cambios para aplicar.');});
   $('generate-cover').addEventListener('click',()=>generateCover(false));
   $('regenerate-cover').addEventListener('click',()=>generateCover(true));
 
@@ -316,7 +278,7 @@
       const encoded=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(blob)});
       const res=await fetch('/api/instagram-image',{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify({slug:slug(selected),jpeg:encoded})});
       const data=await res.json();if(!res.ok)throw Error(data.error||'No se pudo subir la portada');
-      $('image-url').value=data.url;updatePreview();carouselImages=[];renderCarousel();$('image-rights').checked=false;
+      $('image-url').value=data.url;updatePreview();$('image-rights').checked=false;
       $('upload-status').textContent='Portada subida. Confirma los derechos y guarda los cambios.';
       state('Imagen lista. Todavía no se ha publicado.');
     }catch(error){$('upload-status').textContent=error.message||'Error al subir la imagen';}
@@ -326,7 +288,7 @@
   $('close-cover').addEventListener('click',()=>$('cover-dialog').close());
   $('cover-dialog').addEventListener('click',e=>{if(e.target===$('cover-dialog'))$('cover-dialog').close()});
   $('caption').addEventListener('input',updatePreview);
-  $('image-url').addEventListener('input',()=>{carouselImages=[];renderCarousel();updatePreview()});
+  $('image-url').addEventListener('input',updatePreview);
   $('save').addEventListener('click',async()=>{busy=true;setButtons();try{await save()}catch(e){state(e.message)}finally{busy=false;setButtons()}});
   $('publish').addEventListener('click',async()=>{busy=true;setButtons();try{await beginPublish()}catch(e){uncertainPublish=true;state(e.message+' · Publicación detenida. Presiona ACTUALIZAR NOTICIAS para consultar el estado antes de cualquier nuevo intento.')}finally{busy=false;setButtons()}});
   $('test-meta').addEventListener('click',async()=>{
