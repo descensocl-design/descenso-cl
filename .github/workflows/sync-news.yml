@@ -70,7 +70,13 @@ jobs:
                   continue
               meta = yaml.safe_load(match.group(1)) or {}
               body = match.group(2).strip()
-              paragraphs = [plain(p) for p in re.split(r'\n\s*\n', body) if plain(p)]
+              paragraphs = []
+              for p in re.split(r'\n\s*\n', body):
+                  clean = plain(p)
+                  if not clean: continue
+                  if p.lstrip().startswith('### '): clean = '### ' + plain(p.lstrip()[4:])
+                  elif p.lstrip().startswith('## '): clean = '## ' + plain(p.lstrip()[3:])
+                  paragraphs.append(clean)
               date_value = meta.get('date', '')
               if isinstance(date_value, (datetime, date)):
                   date_value = date_value.isoformat()
@@ -78,7 +84,7 @@ jobs:
               video = str(meta.get('video') or meta.get('youtube') or '').strip()
               image = str(meta.get('image') or '').strip()
               images = meta.get('images') if isinstance(meta.get('images'), list) else []
-              images = [str(url).strip() for url in images if isinstance(url, str) and str(url).startswith('https://')][:12]
+              images = [str(url).strip() for url in images if isinstance(url, str) and str(url).startswith('https://') ][:60]
               # Las fotos nuevas solo se muestran si han sido autorizadas.
               # Los gráficos locales de Descenso son siempre admisibles.
               image_approved = meta.get('image_approved') is True
@@ -100,7 +106,9 @@ jobs:
                   'image_credit': str(meta.get('image_credit') or '').strip(),
                   'youtube': video,
                   'body': paragraphs,
-                  'link': str(meta.get('link') or '')
+                  'link': str(meta.get('link') or ''),
+                  'source_name': str(meta.get('source_name') or ''),
+                  'permalink': str(meta.get('permalink') or '')
               })
           # Dos archivos con igual título y fecha corresponden a una sola noticia.
           # Conservar una copia sin borrar sus archivos Markdown originales.
