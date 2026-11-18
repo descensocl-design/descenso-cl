@@ -284,6 +284,9 @@
     }catch(error){$('upload-status').textContent=error.message||'Error al subir la imagen';}
     finally{busy=false;setButtons();}
   });
+  $('open-cover').addEventListener('click',()=>{const src=$('article-image').src;if(!src)return;$('cover-large').src=src;$('cover-dialog').showModal();});
+  $('close-cover').addEventListener('click',()=>$('cover-dialog').close());
+  $('cover-dialog').addEventListener('click',e=>{if(e.target===$('cover-dialog'))$('cover-dialog').close()});
   $('caption').addEventListener('input',updatePreview);
   $('image-url').addEventListener('input',updatePreview);
   $('save').addEventListener('click',async()=>{busy=true;setButtons();try{await save()}catch(e){state(e.message)}finally{busy=false;setButtons()}});
