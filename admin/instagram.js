@@ -95,7 +95,7 @@
     $('preview-caption').textContent=$('caption').value.slice(0,370);
     $('char-count').textContent=$('caption').value.length+' / 2200';
     const image=$('image-url').value.trim();
-    if(/^https:\/\/[^\s]+\.jpe?g(?:\?.*)?$/i.test(image))$('article-image').src=image;
+    if(/^https:\/\//i.test(image))$('article-image').src=image;
   }
   function setFilter(next){
     filter=next;
@@ -122,7 +122,7 @@
     if(!selected)return;
     const payload={action:'save',slug:slug(selected),caption:$('caption').value,image_url:$('image-url').value.trim(),rights_confirmed:$('image-rights').checked};
     if(payload.caption.trim().length<30)throw Error('Escribe un texto de al menos 30 caracteres.');
-    if(payload.image_url&&!/^https:\/\/.+\.jpe?g(?:\?.*)?$/i.test(payload.image_url))throw Error('Usa una URL HTTPS que termine en .jpg o .jpeg.');
+    if(payload.image_url&&!/^https:\/\//i.test(payload.image_url))throw Error('Usa una URL HTTPS que termine en .jpg o .jpeg.');
     const result=await api({method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
     records.set(payload.slug,{...payload,status:result.status});
     drawList();setButtons();state('Borrador guardado. Todavía no se ha publicado.');
@@ -188,8 +188,8 @@
       const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
       canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
       let quality=.85,blob;
-      do{blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));quality-=.1}while(blob&&blob.size>850000&&quality>=.35);
-      if(!blob||blob.size>950000)throw Error('No se pudo reducir la foto. Prueba una imagen más pequeña.');
+      do{blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));quality-=.1}while(blob&&blob.size>450000&&quality>=.35);
+      if(!blob||blob.size>500000)throw Error('No se pudo reducir la foto. Prueba una imagen más pequeña.');
       const encoded=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(blob)});
       const res=await fetch('/api/instagram-image',{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify({slug:slug(selected),jpeg:encoded})});
       const data=await res.json();if(!res.ok)throw Error(data.error||'No se pudo subir la portada');
