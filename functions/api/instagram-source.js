@@ -1,6 +1,7 @@
 // Fetches image bytes for authorized editorial preview only. No open proxy.
 const response=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json","cache-control":"no-store"}});
-const allowed=u=>u.protocol==="https:"&&!u.username&&!u.password&&u.port===""&&["ep1.pinkbike.org","descenso.cl"].includes(u.hostname)&&/\.jpe?g$/i.test(u.pathname);
+const isEditorial=u=>u.hostname==="descenso.cl"&&u.pathname==="/api/editorial-image"&&/^[a-z0-9][a-z0-9-]{2,100}$/.test(u.searchParams.get("id")||"")&&/^(?:[1-9]|1[0-2])$/.test(u.searchParams.get("slot")||"")&&[...u.searchParams.keys()].sort().join(",")==="id,slot";
+const allowed=u=>u.protocol==="https:"&&!u.username&&!u.password&&u.port===""&&((["ep1.pinkbike.org","descenso.cl"].includes(u.hostname)&&/\.jpe?g$/i.test(u.pathname))||isEditorial(u));
 async function auth(req,env){
  const h=req.headers.get("authorization")||"";
  if(!env.MODERATION_TOKEN||env.MODERATION_TOKEN.length<32||!h.startsWith("Bearer "))return false;
@@ -12,6 +13,14 @@ export async function onRequestGet({request,env}){
  const raw=new URL(request.url).searchParams.get("url")||"";
  let url;try{url=new URL(raw)}catch{return response({error:"URL inválida"},400)}
  if(!allowed(url))return response({error:"Dominio de imagen no autorizado"},400);
+ if(isEditorial(url)){
+  if(!env.COMMENTS_DB)return response({error:"Base de datos de imágenes no disponible"},503);
+  const row=await env.COMMENTS_DB.prepare("SELECT jpeg FROM editorial_images WHERE article_id=? AND slot=?").bind(url.searchParams.get("id"),Number(url.searchParams.get("slot"))).first().catch(()=>null);
+  if(!row?.jpeg)return response({error:"La fotografía editorial no está disponible"},404);
+  const binary=atob(row.jpeg),bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  return new Response(bytes,{headers:{"content-type":"image/jpeg","cache-control":"private, no-store","x-content-type-options":"nosniff"}});
+ }
  try{
   const r=await fetch(url.href,{redirect:"manual",headers:{"accept":"image/jpeg"}});
   if(!r.ok||r.status>=300)return response({error:"No se pudo recuperar la fotografía"},502);
