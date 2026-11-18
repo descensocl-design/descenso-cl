@@ -183,7 +183,7 @@
   });
 
   async function loadSources(post){
-    const id=slug(post);sourcePhotos=[];const host=$('source-photos');host.replaceChildren();
+    const id=slug(post);sourcePhotos=[];const host=$('source-photos');host.querySelectorAll('img').forEach(img=>{if(img.src.startsWith('blob:'))URL.revokeObjectURL(img.src)});host.replaceChildren();
     $('generator-status').textContent='Buscando fotografías de la noticia…';
     try{
       const res=await fetch(path(post),{cache:'no-store'});if(!res.ok)throw Error('No se pudo leer la noticia');
@@ -191,10 +191,10 @@
       const urls=[...doc.querySelectorAll('.article-figure img,.article-inline-photo img')].map(el=>el.getAttribute('src')).filter(Boolean);
       const unique=[...new Set(urls)].filter(u=>{try{return ['ep1.pinkbike.org','descenso.cl'].includes(new URL(u,location.origin).hostname)}catch{return false}}).slice(0,16);
       if(selected!==post)return;
-      sourcePhotos=unique.map((url,i)=>({url:new URL(url,location.origin).href,selected:i<3}));
+      sourcePhotos=unique.map((url,i)=>({url:new URL(url,location.origin).href,selected:false}));
       for(const item of sourcePhotos){
         const label=node('label','source-photo'),img=node('img'),check=node('input');
-        img.src=item.url;img.loading='lazy';check.type='checkbox';check.checked=item.selected;
+        img.loading='lazy';img.alt='Fotografía original de la noticia';img.src=item.url;img.addEventListener('error',async()=>{try{const response=await fetch('/api/instagram-source?url='+encodeURIComponent(item.url),{headers:{authorization:'Bearer '+token}});if(response.ok){const blob=await response.blob();img.src=URL.createObjectURL(blob)}}catch{}} ,{once:true});check.type='checkbox';check.checked=item.selected;
         check.addEventListener('change',()=>item.selected=check.checked);
         label.append(img,check);host.append(label);
       }
@@ -230,7 +230,7 @@
   async function generateCover(rotate=false){
     if(!selected||busy)return;
     const chosen=sourcePhotos.filter(p=>p.selected).slice(0,3);
-    if(!chosen.length){$('generator-status').textContent='Selecciona al menos una fotografía.';return;}
+    if(!chosen.length){$('generator-status').textContent='Marca las fotografías que quieras usar de la galería de arriba.';return;}
     if(!$('image-rights').checked){$('generator-status').textContent='Confirma primero que tienes derechos para usar las fotografías seleccionadas.';return;}
     busy=true;setButtons();$('generator-status').textContent='Creando portada editorial…';
     const id=slug(selected);
