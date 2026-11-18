@@ -27,7 +27,7 @@ export async function onRequestPost({request,env}){
  if(origin&&origin!==new URL(request.url).origin)return json({error:"Origen no permitido"},403);
  if(!(request.headers.get("content-type")||"").startsWith("application/json"))return json({error:"Formato inválido"},415);
  let data;try{data=await request.json()}catch{return json({error:"JSON inválido"},400)}
- if(!validSlug(data?.slug)||typeof data.jpeg!=="string"||data.jpeg.length>1300000||!/^[A-Za-z0-9+/]+={0,2}$/.test(data.jpeg))return json({error:"Imagen inválida o demasiado grande"},400);
+ if(!validSlug(data?.slug)||typeof data.jpeg!=="string"||data.jpeg.length>700000||!/^[A-Za-z0-9+/]+={0,2}$/.test(data.jpeg))return json({error:"Imagen inválida o demasiado grande"},400);
  try{
   const header=atob(data.jpeg.slice(0,32));
   if(header.charCodeAt(0)!==255||header.charCodeAt(1)!==216||header.charCodeAt(2)!==255)return json({error:"Se requiere JPEG real"},400);
