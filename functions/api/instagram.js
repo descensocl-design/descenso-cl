@@ -20,7 +20,7 @@ async function guard(request,env){
  return null;
 }
 async function init(db){
- await db.prepare("CREATE TABLE IF NOT EXISTS social_ig_posts (slug TEXT PRIMARY KEY, caption TEXT NOT NULL DEFAULT '', image_url TEXT NOT NULL DEFAULT '', rights_confirmed INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'draft', container_id TEXT, instagram_id TEXT, error TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, published_at TEXT)").run();
+ await db.prepare("CREATE TABLE IF NOT EXISTS social_ig_posts (slug TEXT PRIMARY KEY, caption TEXT NOT NULL DEFAULT '', image_url TEXT NOT NULL DEFAULT '', rights_confirmed INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'draft', container_id TEXT, instagram_id TEXT, error TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, published_at TEXT)").run();await db.prepare("CREATE TABLE IF NOT EXISTS social_ig_carousels (slug TEXT PRIMARY KEY, images_json TEXT NOT NULL)").run();
 }
 const validSlug=v=>typeof v==="string"&&v.length>8&&v.length<170&&/^20\d\d-\d\d-\d\d-[a-z0-9-]+$/.test(v);
 function validImage(v){try{const u=new URL(v);return u.protocol==="https:"&&!u.username&&!u.password&&u.hostname!=="localhost"&&(/\.jpe?g$/i.test(u.pathname)||(u.hostname==="descenso.cl"&&u.pathname==="/api/instagram-image"&&validSlug(u.searchParams.get("slug"))))&&v.length<1000}catch{return false}}
@@ -39,7 +39,7 @@ export async function onRequestGet({request,env}){
  if(new URL(request.url).searchParams.get("auth")==="1")return reply({ok:true,authenticated:true});
  try{
    await init(env.COMMENTS_DB);
-   const data=await env.COMMENTS_DB.prepare("SELECT slug,caption,image_url,rights_confirmed,status,instagram_id,error,updated_at,published_at FROM social_ig_posts ORDER BY updated_at DESC LIMIT 500").all();
+   const data=await env.COMMENTS_DB.prepare("SELECT slug,caption,image_url,rights_confirmed,status,instagram_id,error,updated_at,published_at FROM social_ig_posts ORDER BY updated_at DESC LIMIT 500").all();const carousels=await env.COMMENTS_DB.prepare("SELECT slug,images_json FROM social_ig_carousels").all();const bySlug=new Map((carousels.results||[]).map(x=>[x.slug,x.images_json]));for(const p of data.results||[]){try{p.images=JSON.parse(bySlug.get(p.slug)||"[]")}catch{p.images=[]}}
    if(new URL(request.url).searchParams.get("check")==="1"){
      if(!apiCredentials(env))return reply({error:"Faltan las credenciales de Instagram en Cloudflare"},503);
      try{
@@ -72,23 +72,24 @@ export async function onRequestPost({request,env}){
   if(data.action==="save"){
    if(current&&current.status!=="draft"&&current.status!=="failed")return reply({error:"Esta publicación ya fue enviada a Meta y no puede editarse"},409);
    const caption=String(data.caption||"").trim();
-   const image=String(data.image_url||"").trim();
+   const image=String(data.image_url||"").trim();const images=data.images===undefined?[]:data.images; if(!Array.isArray(images)||images.length>10||images.length===1||images.some(u=>!validImage(u)))return reply({error:"El carrusel requiere entre 2 y 10 fotografías JPEG válidas"},400);if(images.length&&images[0]!==image)return reply({error:"La primera imagen del carrusel debe coincidir con la portada"},400);
    if(caption.length<30||caption.length>2200||image.length>1000)return reply({error:"Texto de 30 a 2200 caracteres requerido"},400);
    if(image&&!validImage(image))return reply({error:"La foto debe ser HTTPS y JPEG (.jpg)"},400);
-   await db.prepare("INSERT INTO social_ig_posts (slug,caption,image_url,rights_confirmed,status,error,updated_at) VALUES(?,?,?,?, 'draft',NULL,CURRENT_TIMESTAMP) ON CONFLICT(slug) DO UPDATE SET caption=excluded.caption,image_url=excluded.image_url,rights_confirmed=excluded.rights_confirmed,status='draft',error=NULL,updated_at=CURRENT_TIMESTAMP").bind(slug,caption,image,data.rights_confirmed===true?1:0).run();
+   await db.prepare("INSERT INTO social_ig_posts (slug,caption,image_url,rights_confirmed,status,error,updated_at) VALUES(?,?,?,?, 'draft',NULL,CURRENT_TIMESTAMP) ON CONFLICT(slug) DO UPDATE SET caption=excluded.caption,image_url=excluded.image_url,rights_confirmed=excluded.rights_confirmed,status='draft',error=NULL,updated_at=CURRENT_TIMESTAMP").bind(slug,caption,image,data.rights_confirmed===true?1:0).run();await db.prepare("INSERT INTO social_ig_carousels (slug,images_json) VALUES(?,?) ON CONFLICT(slug) DO UPDATE SET images_json=excluded.images_json").bind(slug,JSON.stringify(images)).run();
    return reply({ok:true,status:"draft"});
   }
   if(!current)return reply({error:"Guarda el borrador antes de publicar"},409);
   if(current.status==="published")return reply({error:"Esta noticia ya se publicó en Instagram"},409);
   if(!apiCredentials(env))return reply({error:"Falta conectar Instagram profesional a Meta API. Configura INSTAGRAM_ACCESS_TOKEN e INSTAGRAM_USER_ID en Cloudflare."},503);
   if(!current.rights_confirmed||!validImage(current.image_url))return reply({error:"Debes confirmar derechos y usar una fotografía JPEG autorizada"},409);
+  const carouselRow=await db.prepare("SELECT images_json FROM social_ig_carousels WHERE slug=?").bind(slug).first();let carousel=[];try{carousel=JSON.parse(carouselRow?.images_json||"[]")}catch{}if(!Array.isArray(carousel))carousel=[];if(carousel.length&&(carousel.length<2||carousel.length>10||carousel[0]!==current.image_url||carousel.some(x=>!validImage(x))))return reply({error:"Carrusel inválido. Guarda nuevamente el borrador."},409);
   if(data.action==="start"){
     if(current.container_id&&current.status==="processing")return reply({ok:true,status:"processing",message:"Contenedor pendiente; puedes continuar."});
     if(!["draft","failed"].includes(current.status))return reply({error:"Estado incompatible"},409);
     const lock=await db.prepare("UPDATE social_ig_posts SET status='processing',error=NULL,container_id=NULL,updated_at=CURRENT_TIMESTAMP WHERE slug=? AND status IN ('draft','failed')").bind(slug).run();
     if(!lock.meta?.changes)return reply({error:"Otra publicación está en proceso"},409);
     try{
-      const created=await meta(graph+env.INSTAGRAM_USER_ID+"/media",{image_url:current.image_url,caption:current.caption,alt_text:"Noticia de mountain bike en Descenso.cl"},env.INSTAGRAM_ACCESS_TOKEN);
+      let created;if(carousel.length){const children=[];for(const url of carousel){const child=await meta(graph+env.INSTAGRAM_USER_ID+"/media",{image_url:url,is_carousel_item:"true"},env.INSTAGRAM_ACCESS_TOKEN);if(!child.id)throw new Error("Meta no confirmó una fotografía del carrusel");children.push(String(child.id));}created=await meta(graph+env.INSTAGRAM_USER_ID+"/media",{media_type:"CAROUSEL",children:children.join(","),caption:current.caption},env.INSTAGRAM_ACCESS_TOKEN)}else{created=await meta(graph+env.INSTAGRAM_USER_ID+"/media",{image_url:current.image_url,caption:current.caption,alt_text:"Noticia de mountain bike en Descenso.cl"},env.INSTAGRAM_ACCESS_TOKEN)}
       if(!created.id)throw new Error("Meta no entregó identificador del contenedor");
       await db.prepare("UPDATE social_ig_posts SET container_id=? WHERE slug=? AND status='processing'").bind(String(created.id),slug).run();
       return reply({ok:true,status:"processing",message:"Imagen enviada a Meta. Preparando publicación."});
