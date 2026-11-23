@@ -1,7 +1,18 @@
 {
-  "total": 13,
+  "total": 14,
   "pending": 0,
   "articles": [
+    {
+      "title": "¿Puede Asa Vermette distinguir tres carcasas de neumático a ciegas?",
+      "source_url": "https://www.pinkbike.com/news/video-we-blind-tested-mtb-tires-with-asa-vermette.html",
+      "permalink": "",
+      "photos_registered": 1,
+      "video_registered": true,
+      "video_players": 1,
+      "source_media_review": null,
+      "issues": [],
+      "status": "sin_pendientes_detectados"
+    },
     {
       "title": "Las joyas del downhill de hace 25 años vuelven a rodar: Balfa, Devinci y una restauración obsesiva",
       "source_url": "https://www.pinkbike.com/news/restoring-the-old-warning-lots-of-photos.html",
