@@ -1,7 +1,20 @@
 {
-  "total": 14,
-  "pending": 0,
+  "total": 15,
+  "pending": 1,
   "articles": [
+    {
+      "title": "Haro pide la reorganización en EE.UU. y sigue despachando bicicletas",
+      "source_url": "https://www.pinkbike.com/news/haro-bicycle-corp-files-for-bankruptcy.html",
+      "permalink": "",
+      "photos_registered": 0,
+      "video_registered": false,
+      "video_players": 0,
+      "source_media_review": null,
+      "issues": [
+        "Sin fotografía principal verificada"
+      ],
+      "status": "pendiente"
+    },
     {
       "title": "¿Puede Asa Vermette distinguir tres carcasas de neumático a ciegas?",
       "source_url": "https://www.pinkbike.com/news/video-we-blind-tested-mtb-tires-with-asa-vermette.html",
